@@ -11,15 +11,20 @@ const NAV_BOTTOM = [
 ]
 
 async function renderNav(activeId) {
-  const token = localStorage.getItem('ba_token')
-  if (!token) { location.replace('/index.html'); return null }
+  // Use requireAuth() from api.js — redirects if no token
+  if (!requireAuth()) return null
 
   let user = null
   try {
-    const res = await fetch(API + '/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
-    if (res.status === 401) { localStorage.removeItem('ba_token'); location.replace('/index.html'); return null }
-    const json = await res.json()
-    user = json.data || json
+    // Use apiFetch + apiHeaders from api.js — same pattern as VP
+    const json = await apiFetch('/auth/me', { headers: apiHeaders() })
+    if (json && (json.data || json.email || json.name)) {
+      user = json.data || json
+    } else if (json && !json.success) {
+      // 401 already cleared token inside apiFetch; redirect
+      location.replace('/index.html')
+      return null
+    }
   } catch (e) { console.warn('nav fetch failed', e) }
 
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
@@ -81,7 +86,7 @@ async function renderNav(activeId) {
   return { user }
 }
 
-function doLogout() { localStorage.removeItem('ba_token'); location.replace('/index.html') }
+function doLogout() { clearToken(); location.replace('/index.html') }
 function openMobileSidebar() {
   document.getElementById('sidebar')?.classList.add('open')
   document.getElementById('sidebarBackdrop')?.classList.add('open')
