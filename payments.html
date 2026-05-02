@@ -343,7 +343,7 @@ function requestUpgrade(plan) {
   const nav = await renderNav('billing')
   if (!nav) return
 
-  const data = await apiFetch('/account', { headers: apiHeaders() })
+  const data = await apiFetch('/account')
   const user  = data.user || data
 
   // Current plan badge
