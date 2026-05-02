@@ -308,7 +308,9 @@ async function loadAgents(){
   try{
     const data=await apiFetch('/agents')
     const grid=document.getElementById('agents-grid')
-    const agents=data.agents||data||[]
+    // API may return { agents:[...] } or { data:[...] } or [...] directly
+    const raw = data.agents ?? data.data ?? data
+    const agents = Array.isArray(raw) ? raw : []
     if(!agents.length){
       grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to start showcasing your boutique to customers.</div><button class="btn btn-primary" onclick="openCreateWizard()">+ Create Your First Agent</button></div></div>`
       return
