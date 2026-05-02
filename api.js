@@ -3,31 +3,58 @@
 const API = 'https://ekbg3nf6b6vr6i3ssxxni3g6ia0jwcwm.lambda-url.ap-southeast-2.on.aws'
 const SUBDOMAIN_BASE = 'boutiquesaas.aasaitech.in'
 
-function getToken() {
-  return localStorage.getItem('ba_token')
+// ── SESSION + TOKEN ─────────────────────────────────────────
+let token = localStorage.getItem('ba_token') || ''
+let sessionId = localStorage.getItem('ba_session') || (() => {
+  const s = 'sess_' + Math.random().toString(36).slice(2)
+  localStorage.setItem('ba_session', s)
+  return s
+})()
+
+function getToken()  { return localStorage.getItem('ba_token') }
+function clearToken(){ localStorage.removeItem('ba_token'); token = '' }
+
+// ── HEADERS ─────────────────────────────────────────────────
+// auth=true  → include Authorization header (default for protected pages)
+// auth=false → skip auth header (e.g. public endpoints)
+function apiHeaders(auth = true) {
+  const h = { 'Content-Type': 'application/json', 'x-session-id': sessionId }
+  if (auth && token) h['Authorization'] = 'Bearer ' + token
+  return h
 }
 
-function clearToken() {
-  localStorage.removeItem('ba_token')
-}
-
+// ── FETCH ───────────────────────────────────────────────────
+// Mirrors VP pattern: never throws, always returns parsed JSON.
+// On network failure returns { success: false, message: '...' }
+// On 401 clears the token (but does NOT auto-redirect — let each
+// page decide what to do, same as VP).
 async function apiFetch(path, opts = {}) {
-  const token = getToken()
-  if (!token) { location.replace('/index.html'); throw new Error('Not authenticated') }
-  const res = await fetch(API + path, {
-    ...opts,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token,
-      ...(opts.headers || {})
+  // Inject headers if not already supplied by the caller
+  if (!opts.headers) opts.headers = apiHeaders()
+  try {
+    const res = await fetch(API + path, opts)
+    if (res.status === 401) {
+      clearToken()
     }
-  })
-  if (res.status === 401) { clearToken(); location.replace('/index.html'); throw new Error('Session expired') }
-  const data = await res.json()
-  if (!res.ok) throw new Error(data.error || data.message || 'Request failed')
-  return data.data !== undefined ? data.data : data
+    return res.json()
+  } catch (e) {
+    console.error('apiFetch', path, e)
+    return { success: false, error: e.message, message: e.message }
+  }
 }
 
+// ── AUTH GUARD ───────────────────────────────────────────────
+// Call at the top of any page that requires login.
+// Redirects to index.html when no token is present.
+function requireAuth() {
+  if (!token) {
+    location.replace('/index.html')
+    return false
+  }
+  return true
+}
+
+// ── TOAST ───────────────────────────────────────────────────
 function toast(msg, type = 'info', duration = 3500) {
   const icons = { success: '✓', error: '✕', info: 'ℹ' }
   const c = document.getElementById('toast-container')
@@ -41,6 +68,7 @@ function toast(msg, type = 'info', duration = 3500) {
   function dismiss(el) { clearTimeout(t); el.classList.add('hiding'); setTimeout(() => el.remove(), 200) }
 }
 
+// ── FORMATTERS ───────────────────────────────────────────────
 function fmtNum(n) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M'
   if (n >= 1000) return (n / 1000).toFixed(0) + 'K'
@@ -70,6 +98,7 @@ function toSlug(name) {
     .replace(/^-+|-+$/g, '')
 }
 
+// ── AGENT URL HELPERS ───────────────────────────────────────
 function agentUrl(agent) {
   if (!agent.published || !agent.slug) return null
   if (agent.custom_domain) return 'https://' + agent.custom_domain
@@ -82,6 +111,7 @@ function agentUrlDisplay(agent) {
   return agent.slug + '.' + SUBDOMAIN_BASE
 }
 
+// ── CLIPBOARD ───────────────────────────────────────────────
 function copyText(text, label = 'Copied!') {
   navigator.clipboard.writeText(text)
     .then(() => toast(label, 'success'))
