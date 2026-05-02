@@ -315,8 +315,9 @@ img{display:block;max-width:100%}
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   z-index:500;display:flex;align-items:center;justify-content:center;
   padding:20px;opacity:0;transition:opacity .2s var(--ease);
+  pointer-events:none;
 }
-.modal-overlay.open{opacity:1}
+.modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{
   background:var(--surface);border:1px solid var(--border-lg);
   border-radius:var(--r-xl);box-shadow:var(--sh-lg);
