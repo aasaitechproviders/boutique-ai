@@ -24,19 +24,20 @@ function apiHeaders(auth = true) {
 }
 
 // ── FETCH ───────────────────────────────────────────────────
-// Mirrors VP pattern: never throws, always returns parsed JSON.
-// On network failure returns { success: false, message: '...' }
-// On 401 clears the token (but does NOT auto-redirect — let each
-// page decide what to do, same as VP).
+// Never throws, always returns parsed JSON.
+// Backend always wraps success as { success: true, data: X }.
+// This function auto-unwraps that envelope so every caller gets X
+// directly — no page needs to do .data themselves.
+// Error responses { success: false, error: '...' } pass through as-is.
+// Network failures return { success: false, error: '...', message: '...' }
 async function apiFetch(path, opts = {}) {
-  // Inject headers if not already supplied by the caller
   if (!opts.headers) opts.headers = apiHeaders()
   try {
     const res = await fetch(API + path, opts)
-    if (res.status === 401) {
-      clearToken()
-    }
-    return res.json()
+    if (res.status === 401) clearToken()
+    const json = await res.json()
+    // Unwrap { success: true, data: X } → return X directly
+    return (json && json.success === true && json.data !== undefined) ? json.data : json
   } catch (e) {
     console.error('apiFetch', path, e)
     return { success: false, error: e.message, message: e.message }
