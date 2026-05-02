@@ -291,12 +291,12 @@
         </div>
 
         <!-- Custom Domain (Grower+ only) -->
-        <div id="edit-domain-section" style="display:none">
+        <div id="edit-domain-section">
           <div style="height:1px;background:var(--border);margin:4px 0 16px"></div>
           <div style="font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px">
             🌐 Custom Domain
-            <span class="badge badge-accent" style="font-size:9.5px">Grower & Enterprise</span>
           </div>
+          <div id="edit-domain-form">
           <div id="edit-domain-current" style="display:none;margin-bottom:12px"></div>
           <div class="field" style="margin-bottom:10px">
             <label class="field-label">Domain</label>
@@ -335,8 +335,8 @@
               Verify DNS
             </button>
             <button class="btn btn-sm" id="edit-domain-remove-btn" onclick="removeAgentDomain()" style="display:none;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25))">Remove Domain</button>
-          </div>
-        </div>
+          </div><!-- /edit-domain-form -->
+        </div><!-- /edit-domain-section -->
 
         <!-- Danger zone -->
         <div class="danger-zone">
@@ -495,22 +495,18 @@ function openEditModal(id) {
     // URL display
     updatePublishLabel(a)
 
-    // Custom domain section — Grower+ only
-    const isGrowerPlus = currentUser && (currentUser.plan === 'grower' || currentUser.plan === 'enterprise')
-    document.getElementById('edit-domain-section').style.display = isGrowerPlus ? 'block' : 'none'
-    if (isGrowerPlus) {
-      const domInput = document.getElementById('edit-domain-input')
-      domInput.value = a.custom_domain || ''
-      document.getElementById('edit-cname-host').textContent = a.custom_domain ? a.custom_domain.split('.')[0] : 'shop'
-      if (a.custom_domain) {
-        showEditDomainStatus(a.domain_status || 'pending')
-        document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
-        document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
-      } else {
-        document.getElementById('edit-domain-status-wrap').style.display = 'none'
-        document.getElementById('edit-domain-verify-btn').style.display = 'none'
-        document.getElementById('edit-domain-remove-btn').style.display = 'none'
-      }
+    // Custom domain — available on all plans
+    const domInput = document.getElementById('edit-domain-input')
+    domInput.value = a.custom_domain || ''
+    document.getElementById('edit-cname-host').textContent = a.custom_domain ? a.custom_domain.split('.')[0] : 'shop'
+    if (a.custom_domain) {
+      showEditDomainStatus(a.domain_status || 'pending')
+      document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
+      document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
+    } else {
+      document.getElementById('edit-domain-status-wrap').style.display = 'none'
+      document.getElementById('edit-domain-verify-btn').style.display = 'none'
+      document.getElementById('edit-domain-remove-btn').style.display = 'none'
     }
 
     document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
