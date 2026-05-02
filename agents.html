@@ -413,7 +413,7 @@ function prepareReview(){
   const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed / All'}
   const logoEl=document.getElementById('review-logo')
   logoEl.style.background=selectedColor
-  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')
+  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')  // preview: local base64 until saved
   document.getElementById('review-name').textContent=agent||'—'
   document.getElementById('review-biz').textContent=biz||'—'
   document.getElementById('review-category').textContent=catLabels[selectedCategory]||selectedCategory
@@ -478,8 +478,9 @@ function openEditModal(id) {
 
     // Avatar preview
     const avatarBox = document.getElementById('edit-avatar-box')
-    avatarBox.innerHTML = a.logo_base64
-      ? `<img src="${a.logo_base64}" style="width:100%;height:100%;object-fit:cover">`
+    const logoSrc = a.logo_url || a.logo_base64
+    avatarBox.innerHTML = logoSrc
+      ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:cover">`
       : `<span id="edit-avatar-icon">📷</span>`
 
     // Category
@@ -702,7 +703,7 @@ async function loadAgents(){
       return `<div class="agent-card" onclick="openEditModal('${aid}')">
         <div class="agent-card-header">
           <div class="agent-card-logo" style="background:${a.brand_color||'#7C6FFF'}">
-            ${a.logo_base64?`<img src="${a.logo_base64}" alt="">`:(a.agent_name||a.name||'A')[0].toUpperCase()}
+            ${(a.logo_url||a.logo_base64)?`<img src="${a.logo_url||a.logo_base64}" alt="">`:(a.agent_name||a.name||'A')[0].toUpperCase()}
           </div>
           <div style="flex:1;min-width:0">
             <div style="font-size:14px;font-weight:700;letter-spacing:-.02em">${a.agent_name||a.name}</div>
