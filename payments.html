@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Billing & Plans — BoutiqueAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.plans-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px;
+}
+.plan-card {
+  background:var(--surface); border:2px solid var(--border);
+  border-radius:var(--r-xl); padding:28px 24px; position:relative;
+  transition:var(--t); display:flex; flex-direction:column; gap:0;
+}
+.plan-card:hover { box-shadow:var(--sh); transform:translateY(-2px) }
+.plan-card.current {
+  border-color:var(--accent);
+  box-shadow:0 0 0 4px var(--accent-dim), var(--sh);
+}
+.plan-card.popular {
+  border-color:var(--accent);
+}
+.plan-popular-badge {
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  background:var(--accent); color:#fff; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 14px; border-radius:20px; white-space:nowrap;
+}
+.plan-current-badge {
+  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+  background:var(--green); color:#fff; font-size:10px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 14px; border-radius:20px; white-space:nowrap;
+}
+.plan-name {
+  font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
+  color:var(--text-3); margin-bottom:10px;
+}
+.plan-price {
+  font-size:38px; font-weight:800; letter-spacing:-.05em;
+  font-family:var(--mono); color:var(--text); margin-bottom:2px; line-height:1;
+}
+.plan-price span { font-size:16px; font-weight:500; color:var(--text-3); letter-spacing:0 }
+.plan-desc { font-size:13px; color:var(--text-2); margin-bottom:20px; line-height:1.5 }
+.plan-divider { height:1px; background:var(--border); margin-bottom:18px }
+.plan-features { display:flex; flex-direction:column; gap:9px; flex:1 }
+.plan-feat {
+  display:flex; align-items:flex-start; gap:9px; font-size:13px; color:var(--text-2);
+}
+.plan-feat-icon { font-size:14px; flex-shrink:0; margin-top:1px }
+.plan-feat-icon.no { opacity:.35 }
+.plan-feat.disabled { color:var(--text-3) }
+.plan-action { margin-top:22px }
+.usage-card { margin-bottom:22px }
+.usage-detail {
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:12.5px; color:var(--text-3); margin-top:6px;
+}
+.billing-note {
+  background:var(--amber-dim); border:1px solid var(--amber-border);
+  border-radius:var(--r); padding:14px 18px;
+  font-size:13px; color:var(--amber); margin-bottom:22px;
+  display:flex; align-items:flex-start; gap:10px;
+}
+@media(max-width:900px) { .plans-grid { grid-template-columns:1fr } }
+@media(max-width:600px) { .plan-price { font-size:30px } }
+</style>
+<link rel="stylesheet" href="shared.css">
+<script>
+;(function(){
+  var d=localStorage.getItem('ba_theme')==='dark';
+  document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');
+  document.documentElement.style.background=d?'#07080D':'#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
+  </div>
+  <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
+</div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar"></div>
+
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:13px;width:160px;border-radius:4px"></div>
+  </div>
+  <div class="skel-body">
+    <div class="skel" style="height:90px;border-radius:var(--r-lg);margin-bottom:16px"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="skel" style="height:380px;border-radius:var(--r-xl)"></div>
+      <div class="skel" style="height:380px;border-radius:var(--r-xl);opacity:.8"></div>
+      <div class="skel" style="height:380px;border-radius:var(--r-xl);opacity:.6"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Billing & Plans</span></div>
+    <div class="topbar-right">
+      <button class="theme-toggle" style="font-size:15px;"></button>
+    </div>
+  </div>
+
+  <div class="content" id="page-content" style="display:none">
+
+    <!-- Current usage card -->
+    <div class="card usage-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📊</span>Current Usage</div>
+        <span class="badge badge-accent" id="current-plan-badge">—</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+
+          <div>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Try-On Usage</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px">
+              <span id="u-used">—</span><span style="font-size:14px;color:var(--text-3);font-weight:500"> / <span id="u-cap">—</span></span>
+            </div>
+            <div class="progress-bar" style="height:6px;margin-bottom:6px">
+              <div class="progress-fill" id="u-bar" style="width:0%"></div>
+            </div>
+            <div class="usage-detail">
+              <span id="u-pct">0% used</span>
+              <span id="u-reset">—</span>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Agents</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px">
+              <span id="u-agents">—</span><span style="font-size:14px;color:var(--text-3);font-weight:500"> / <span id="u-agents-cap">—</span></span>
+            </div>
+            <div class="progress-bar" style="height:6px;margin-bottom:6px">
+              <div class="progress-fill" id="u-agents-bar" style="width:0%"></div>
+            </div>
+            <div class="usage-detail"><span id="u-agents-pct">0% used</span></div>
+          </div>
+
+          <div>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Plan Resets</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="u-reset-date">—</div>
+            <div style="font-size:12.5px;color:var(--text-3)">Usage resets at the start of each billing cycle.</div>
+            <div style="margin-top:10px">
+              <a href="account.html" class="btn btn-secondary btn-sm">⚙️ Account Settings</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Coming soon note -->
+    <div class="billing-note">
+      <span style="font-size:18px;flex-shrink:0">⚡</span>
+      <div>
+        <div style="font-weight:700;margin-bottom:3px">Online payments coming soon</div>
+        <div style="opacity:.85">To upgrade your plan, contact us on WhatsApp or email and we'll activate it for you within minutes.</div>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <a href="https://wa.me/917890123456" target="_blank" class="btn btn-sm" style="background:var(--amber);color:#fff">💬 WhatsApp</a>
+          <a href="mailto:support@boutiquesaas.aasaitech.in" class="btn btn-sm" style="background:var(--amber);color:#fff">✉️ Email Us</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Plans -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px">Choose Your Plan</div>
+
+    <div class="plans-grid">
+
+      <!-- Starter -->
+      <div class="plan-card" id="plan-starter">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">₹299<span>/mo</span></div>
+        <div class="plan-desc">Perfect for new boutiques testing AI try-on.</div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>1 Agent</strong></span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>50 try-ons / month</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Subdomain URL <span style="font-family:var(--mono);font-size:11px;color:var(--text-3)">you.boutiquesaas.aasaitech.in</span></span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Product catalog</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Chat interface</span></div>
+          <div class="plan-feat disabled"><span class="plan-feat-icon no">✕</span><span>Custom domain</span></div>
+          <div class="plan-feat disabled"><span class="plan-feat-icon no">✕</span><span>Priority support</span></div>
+        </div>
+        <div class="plan-action">
+          <button class="btn btn-secondary" style="width:100%;justify-content:center" id="starter-btn" onclick="requestUpgrade('starter')">
+            Get Starter
+          </button>
+        </div>
+      </div>
+
+      <!-- Grower -->
+      <div class="plan-card popular" id="plan-grower">
+        <div class="plan-popular-badge">Most Popular</div>
+        <div class="plan-name">Grower</div>
+        <div class="plan-price">₹999<span>/mo</span></div>
+        <div class="plan-desc">For growing boutiques ready to scale their AI presence.</div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>5 Agents</strong></span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>500 try-ons / month</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Subdomain URL</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Product catalog</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Chat interface</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>Custom domain</strong></span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Priority support</span></div>
+        </div>
+        <div class="plan-action">
+          <button class="btn btn-primary" style="width:100%;justify-content:center" id="grower-btn" onclick="requestUpgrade('grower')">
+            Upgrade to Grower
+          </button>
+        </div>
+      </div>
+
+      <!-- Enterprise -->
+      <div class="plan-card" id="plan-enterprise">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">Custom</div>
+        <div class="plan-desc">Unlimited scale for large chains and multi-brand boutiques.</div>
+        <div class="plan-divider"></div>
+        <div class="plan-features">
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>Unlimited Agents</strong></span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Unlimited try-ons</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Custom domain per agent</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>White-label branding</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Dedicated support</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>SLA guarantee</span></div>
+          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Custom integrations</span></div>
+        </div>
+        <div class="plan-action">
+          <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="requestUpgrade('enterprise')">
+            Contact Sales
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FAQ -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">❓</span>Frequently Asked Questions</div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:18px">
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I hit my try-on limit?</div>
+          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until your usage resets at the start of the next month. You can upgrade anytime to immediately increase your limit.</div>
+        </div>
+
+        <div class="divider" style="margin:0"></div>
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I use my own domain?</div>
+          <div style="font-size:13px;color:var(--text-2)">Yes — Grower and Enterprise plans support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
+        </div>
+
+        <div class="divider" style="margin:0"></div>
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I upgrade or downgrade anytime?</div>
+          <div style="font-size:13px;color:var(--text-2)">Yes. Upgrades take effect immediately. Contact us to change your plan and we'll adjust it right away.</div>
+        </div>
+
+        <div class="divider" style="margin:0"></div>
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What payment methods do you accept?</div>
+          <div style="font-size:13px;color:var(--text-2)">Currently we accept UPI, bank transfer, and Razorpay. Online payments will be integrated into the dashboard soon.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const PLAN_LIMITS = { starter: { agents: 1, tryons: 50 }, grower: { agents: 5, tryons: 500 }, enterprise: { agents: 99999, tryons: 99999 } }
+const PLAN_LABELS = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+
+let currentPlan = 'starter'
+
+function highlightCurrentPlan(plan) {
+  currentPlan = plan
+  ;['starter','grower','enterprise'].forEach(p => {
+    const card = document.getElementById('plan-' + p)
+    card.classList.remove('current')
+    // Remove old current badge
+    card.querySelectorAll('.plan-current-badge').forEach(el => el.remove())
+  })
+
+  const activeCard = document.getElementById('plan-' + plan)
+  if (activeCard) {
+    activeCard.classList.add('current')
+    // Remove popular badge if showing current
+    activeCard.querySelectorAll('.plan-popular-badge').forEach(el => el.remove())
+    const badge = document.createElement('div')
+    badge.className = 'plan-current-badge'
+    badge.textContent = 'Current Plan'
+    activeCard.insertBefore(badge, activeCard.firstChild)
+  }
+
+  // Update button states
+  ;['starter','grower','enterprise'].forEach(p => {
+    const btn = document.getElementById(p + '-btn')
+    if (!btn) return
+    if (p === plan) {
+      btn.textContent = '✓ Current Plan'
+      btn.disabled = true
+      btn.className = 'btn btn-secondary'
+    }
+  })
+}
+
+function requestUpgrade(plan) {
+  if (plan === currentPlan) return
+  const names = { starter: 'Starter (₹299/mo)', grower: 'Grower (₹999/mo)', enterprise: 'Enterprise (Custom)' }
+  const msg = `Hi! I'd like to upgrade my BoutiqueAI account to the ${names[plan]} plan.`
+  const waUrl = `https://wa.me/917890123456?text=${encodeURIComponent(msg)}`
+  window.open(waUrl, '_blank')
+}
+
+;(async () => {
+  const nav = await renderNav('billing')
+  if (!nav) return
+
+  const data = await apiFetch('/account', { headers: apiHeaders() })
+  const user  = data.user || data
+
+  // Current plan badge
+  const plan = user.plan || 'starter'
+  document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan
+
+  // Usage stats
+  const usage    = user.usage || {}
+  const limits   = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
+  const usedTry  = usage.used || 0
+  const capTry   = usage.cap  || limits.tryons
+  const pctTry   = capTry ? Math.min(100, Math.round((usedTry / capTry) * 100)) : 0
+  const usedAg   = user.agents_count || 0
+  const capAg    = limits.agents === 99999 ? '∞' : limits.agents
+  const pctAg    = limits.agents !== 99999 ? Math.min(100, Math.round((usedAg / limits.agents) * 100)) : 0
+
+  document.getElementById('u-used').textContent = usedTry
+  document.getElementById('u-cap').textContent  = capTry === 99999 ? '∞' : capTry
+  const bar = document.getElementById('u-bar')
+  bar.style.width = pctTry + '%'
+  bar.className   = 'progress-fill' + (pctTry >= 90 ? ' danger' : pctTry >= 70 ? ' warn' : '')
+  document.getElementById('u-pct').textContent   = pctTry + '% used'
+  document.getElementById('u-reset').textContent = usage.reset_at ? 'Resets ' + fmtDate(usage.reset_at) : ''
+  document.getElementById('u-reset-date').textContent = usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly'
+
+  document.getElementById('u-agents').textContent     = usedAg
+  document.getElementById('u-agents-cap').textContent = capAg
+  const agBar = document.getElementById('u-agents-bar')
+  agBar.style.width = pctAg + '%'
+  agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
+  document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
+
+  highlightCurrentPlan(plan)
+
+  document.getElementById('page-content').style.display = 'block'
+})()
+</script>
+</body>
+</html>
