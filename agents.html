@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Agents — BoutiqueAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:var(--t);cursor:pointer;box-shadow:var(--sh-sm)}
+.agent-card:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border-md)}
+.agent-card-header{padding:20px 20px 16px;display:flex;align-items:flex-start;gap:14px}
+.agent-card-logo{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;border:1px solid rgba(255,255,255,.15);overflow:hidden}
+.agent-card-logo img{width:100%;height:100%;object-fit:cover}
+.agent-card-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface-2)}
+/* Wizard */
+.wizard-step{display:none}.wizard-step.active{display:block}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.category-btn{padding:10px 8px;border:1px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;text-align:center;transition:var(--t);font-family:var(--font)}
+.category-btn:hover{border-color:var(--accent);background:var(--accent-dim)}
+.category-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.category-btn .cat-icon{font-size:20px;margin-bottom:5px}
+.category-btn .cat-label{font-size:11px;font-weight:600;color:inherit}
+.slug-preview{display:flex;align-items:center;gap:6px;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border-md);border-radius:var(--r-sm);font-size:12px;font-family:var(--mono);color:var(--text-2);margin-top:6px;overflow:hidden;flex-wrap:wrap}
+.slug-preview .slug-accent{color:var(--accent);font-weight:600}
+.slug-preview .slug-base{color:var(--text-3)}
+.avatar-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:6px}
+@media(max-width:640px){.category-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+<link rel="stylesheet" href="shared.css">
+<script>
+;(function(){
+  var d=localStorage.getItem('ba_theme')==='dark';
+  document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');
+  document.documentElement.style.background=d?'#07080D':'#F2F3F9';
+})();
+</script>
+<script>const API='https://ekbg3nf6b6vr6i3ssxxni3g6ia0jwcwm.lambda-url.ap-southeast-2.on.aws'</script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()"><svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
+    <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
+  </div>
+  <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
+</div>
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar"></div>
+
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:13px;width:120px;border-radius:4px"></div>
+    <div class="skel" style="height:34px;width:130px;border-radius:var(--r-sm)"></div>
+  </div>
+  <div class="skel-body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="skel" style="height:160px;border-radius:var(--r-lg)"></div>
+      <div class="skel" style="height:160px;border-radius:var(--r-lg);opacity:.8"></div>
+      <div class="skel" style="height:160px;border-radius:var(--r-lg);opacity:.6"></div>
+    </div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">My Agents</span></div>
+    <div class="topbar-right">
+      <button class="theme-toggle" style="font-size:15px;"></button>
+      <button class="btn btn-primary" onclick="openCreateWizard()">+ New Agent</button>
+    </div>
+  </div>
+  <div class="content" id="page-content" style="display:none">
+    <div class="agents-grid" id="agents-grid"></div>
+  </div>
+</div>
+
+<!-- Create Agent Wizard -->
+<div class="modal-overlay" id="create-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Create New Agent</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px">Set up your boutique's AI try-on agent</div>
+      </div>
+      <button class="modal-close" onclick="closeCreateWizard()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="step-indicator">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2">2</div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="dot-3">3</div>
+      </div>
+
+      <!-- Step 1: Business Info -->
+      <div class="wizard-step active" id="step-1">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Tell us about your boutique</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">We'll use this to personalise your agent.</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="field">
+            <label class="field-label">Business / Boutique Name <span>*</span></label>
+            <input class="input" id="w-biz-name" placeholder="e.g. Lalitha Silks, Zara Boutique" oninput="updateSlug()">
+            <div class="field-hint">This will be shown to your customers.</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Category <span>*</span></label>
+            <div class="category-grid">
+              <button class="category-btn" data-value="sarees" onclick="selectCategory(this)"><div class="cat-icon">🥻</div><div class="cat-label">Sarees</div></button>
+              <button class="category-btn" data-value="western" onclick="selectCategory(this)"><div class="cat-icon">👗</div><div class="cat-label">Western Wear</div></button>
+              <button class="category-btn" data-value="kids" onclick="selectCategory(this)"><div class="cat-icon">🧒</div><div class="cat-label">Kids Wear</div></button>
+              <button class="category-btn" data-value="jewellery" onclick="selectCategory(this)"><div class="cat-icon">💍</div><div class="cat-label">Jewellery</div></button>
+              <button class="category-btn" data-value="footwear" onclick="selectCategory(this)"><div class="cat-icon">👠</div><div class="cat-label">Footwear</div></button>
+              <button class="category-btn" data-value="mixed" onclick="selectCategory(this)"><div class="cat-icon">🛍️</div><div class="cat-label">Mixed / All</div></button>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Your Agent's URL</label>
+            <div class="slug-preview">
+              <span class="slug-accent" id="slug-preview-val">your-boutique</span>
+              <span class="slug-base">.boutiquesaas.aasaitech.in</span>
+            </div>
+            <div class="field-hint">You can connect your own domain later.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Agent Persona -->
+      <div class="wizard-step" id="step-2">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Customise your agent</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">Give your AI assistant a name, face, and personality.</div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="field">
+            <label class="field-label">Agent Name <span>*</span></label>
+            <input class="input" id="w-agent-name" placeholder="e.g. Priya, StyleBot, Lalitha AI">
+          </div>
+          <div class="field">
+            <label class="field-label">Agent Logo / Avatar</label>
+            <div class="avatar-row">
+              <div class="avatar-upload" id="avatar-upload-box" onclick="document.getElementById('avatar-file').click()">
+                <span id="avatar-preview-icon">📷</span>
+              </div>
+              <div>
+                <div style="font-size:12.5px;font-weight:600;margin-bottom:4px">Upload a photo or logo</div>
+                <div style="font-size:12px;color:var(--text-3)">PNG, JPG up to 2MB. Square images work best.</div>
+                <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="document.getElementById('avatar-file').click()">Choose File</button>
+              </div>
+            </div>
+            <input type="file" id="avatar-file" accept="image/*" style="display:none" onchange="handleAvatarUpload(this)">
+          </div>
+          <div class="field">
+            <label class="field-label">Brand Color</label>
+            <div class="color-swatches" id="color-swatches">
+              <div class="color-swatch selected" data-color="#7C6FFF" style="background:#7C6FFF" onclick="selectColor(this)" title="Purple"></div>
+              <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="selectColor(this)" title="Pink"></div>
+              <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="selectColor(this)" title="Amber"></div>
+              <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="selectColor(this)" title="Emerald"></div>
+              <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="selectColor(this)" title="Blue"></div>
+              <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="selectColor(this)" title="Red"></div>
+              <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="selectColor(this)" title="Violet"></div>
+              <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="selectColor(this)" title="Dark"></div>
+            </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Welcome Message</label>
+            <textarea class="textarea" id="w-welcome" placeholder="e.g. Hi! I'm Priya, your personal stylist at Lalitha Silks. Upload your photo and I'll show you how our collection looks on you! 😊" style="min-height:90px"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="wizard-step" id="step-3">
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Review & launch</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">Your agent is ready. You can edit everything after creation.</div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-body" style="display:flex;align-items:center;gap:14px">
+            <div id="review-logo" style="width:52px;height:52px;border-radius:14px;background:#7C6FFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.15)"></div>
+            <div>
+              <div style="font-size:16px;font-weight:800;letter-spacing:-.02em" id="review-name">—</div>
+              <div style="font-size:12.5px;color:var(--text-2);margin-top:2px" id="review-biz">—</div>
+              <div style="margin-top:6px"><span class="badge badge-accent" id="review-category">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px">
+          <div class="info-row" style="padding:6px 0"><span class="info-row-label">Agent URL</span><span style="font-size:12px;font-family:var(--mono);color:var(--accent)" id="review-url">—</span></div>
+          <div class="info-row" style="padding:6px 0;border:none"><span class="info-row-label">Welcome message</span><span style="font-size:12px;color:var(--text-2);max-width:220px;text-align:right" id="review-welcome">—</span></div>
+        </div>
+        <div style="margin-top:14px;padding:12px 14px;background:var(--accent-dim);border:1px solid rgba(124,111,255,.18);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2)">
+          💡 After creating your agent, you'll be able to upload your product catalog and customise the try-on experience.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="wizard-back-btn" onclick="wizardBack()" style="display:none">← Back</button>
+      <button class="btn btn-secondary" onclick="closeCreateWizard()">Cancel</button>
+      <button class="btn btn-primary" id="wizard-next-btn" onclick="wizardNext()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUBDOMAIN_BASE = 'boutiquesaas.aasaitech.in'
+let currentStep = 1, selectedCategory = '', selectedColor = '#7C6FFF', avatarBase64 = null
+
+function openCreateWizard() {
+  currentStep = 1; renderWizardStep(1)
+  document.getElementById('create-modal').classList.add('open')
+}
+function closeCreateWizard() {
+  document.getElementById('create-modal').classList.remove('open'); resetWizard()
+}
+function resetWizard() {
+  currentStep=1; selectedCategory=''; selectedColor='#7C6FFF'; avatarBase64=null
+  document.getElementById('w-biz-name').value=''
+  document.getElementById('w-agent-name').value=''
+  document.getElementById('w-welcome').value=''
+  document.getElementById('slug-preview-val').textContent='your-boutique'
+  document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
+  document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('selected'))
+  document.querySelector('[data-color="#7C6FFF"]')?.classList.add('selected')
+  document.getElementById('avatar-upload-box').innerHTML='<span id="avatar-preview-icon">📷</span>'
+}
+function renderWizardStep(n) {
+  document.querySelectorAll('.wizard-step').forEach((s,i)=>s.classList.toggle('active',i+1===n))
+  for(let i=1;i<=3;i++){
+    const dot=document.getElementById('dot-'+i)
+    dot.classList.remove('active','done')
+    if(i<n){dot.classList.add('done');dot.textContent='✓'}
+    else if(i===n){dot.classList.add('active');dot.textContent=i}
+    else dot.textContent=i
+  }
+  for(let i=1;i<=2;i++) document.getElementById('line-'+i).classList.toggle('done',i<n)
+  document.getElementById('wizard-back-btn').style.display=n>1?'inline-flex':'none'
+  const nb=document.getElementById('wizard-next-btn')
+  if(n===3){nb.textContent='🚀 Create Agent';nb.style.background='var(--green)';prepareReview()}
+  else{nb.textContent='Continue →';nb.style.background=''}
+}
+function wizardNext() {
+  if(currentStep===1){
+    if(!document.getElementById('w-biz-name').value.trim()){toast('Please enter your business name','error');return}
+    if(!selectedCategory){toast('Please select a category','error');return}
+    currentStep=2; renderWizardStep(2)
+    if(!document.getElementById('w-agent-name').value)
+      document.getElementById('w-agent-name').value=document.getElementById('w-biz-name').value.trim().split(' ')[0]+' AI'
+  } else if(currentStep===2){
+    if(!document.getElementById('w-agent-name').value.trim()){toast('Please enter an agent name','error');return}
+    currentStep=3; renderWizardStep(3)
+  } else if(currentStep===3){ createAgent() }
+}
+function wizardBack(){ if(currentStep>1){currentStep--;renderWizardStep(currentStep)} }
+function prepareReview(){
+  const biz=document.getElementById('w-biz-name').value.trim()
+  const agent=document.getElementById('w-agent-name').value.trim()
+  const welcome=document.getElementById('w-welcome').value.trim()
+  const slug=toSlug(biz)||'your-boutique'
+  const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed / All'}
+  const logoEl=document.getElementById('review-logo')
+  logoEl.style.background=selectedColor
+  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')
+  document.getElementById('review-name').textContent=agent||'—'
+  document.getElementById('review-biz').textContent=biz||'—'
+  document.getElementById('review-category').textContent=catLabels[selectedCategory]||selectedCategory
+  document.getElementById('review-url').textContent=slug+'.'+SUBDOMAIN_BASE
+  document.getElementById('review-welcome').textContent=welcome||'(Using default welcome message)'
+}
+async function createAgent(){
+  const btn=document.getElementById('wizard-next-btn')
+  btn.disabled=true; btn.textContent='Creating…'
+  try{
+    const result=await apiFetch('/agents',{method:'POST',body:JSON.stringify({
+      business_name:document.getElementById('w-biz-name').value.trim(),
+      agent_name:document.getElementById('w-agent-name').value.trim(),
+      category:selectedCategory,brand_color:selectedColor,
+      welcome_msg:document.getElementById('w-welcome').value.trim(),
+      logo_base64:avatarBase64||null,
+    })})
+    toast('Agent created! 🎉','success')
+    closeCreateWizard(); loadAgents()
+  }catch(e){toast(e.message,'error');btn.disabled=false;btn.textContent='🚀 Create Agent'}
+}
+function selectCategory(btn){
+  document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
+  btn.classList.add('selected'); selectedCategory=btn.dataset.value
+}
+function selectColor(s){
+  document.querySelectorAll('.color-swatch').forEach(sw=>sw.classList.remove('selected'))
+  s.classList.add('selected'); selectedColor=s.dataset.color
+}
+function updateSlug(){
+  const slug=toSlug(document.getElementById('w-biz-name').value)||'your-boutique'
+  document.getElementById('slug-preview-val').textContent=slug
+}
+function handleAvatarUpload(input){
+  const file=input.files[0]; if(!file) return
+  if(file.size>2*1024*1024){toast('Image must be under 2MB','error');return}
+  const r=new FileReader()
+  r.onload=e=>{avatarBase64=e.target.result;document.getElementById('avatar-upload-box').innerHTML=`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`; toast('Avatar uploaded','success')}
+  r.readAsDataURL(file)
+}
+
+async function loadAgents(){
+  try{
+    const data=await apiFetch('/agents')
+    const grid=document.getElementById('agents-grid')
+    const agents=data.agents||data||[]
+    if(!agents.length){
+      grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to start showcasing your boutique to customers.</div><button class="btn btn-primary" onclick="openCreateWizard()">+ Create Your First Agent</button></div></div>`
+      return
+    }
+    const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed'}
+    grid.innerHTML=agents.map(a=>{
+      const url=a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+SUBDOMAIN_BASE):null
+      const disp=url?(a.custom_domain||a.slug+'.'+SUBDOMAIN_BASE):null
+      return `<div class="agent-card">
+        <div class="agent-card-header">
+          <div class="agent-card-logo" style="background:${a.brand_color||'#7C6FFF'}">
+            ${a.logo_base64?`<img src="${a.logo_base64}" alt="">`:(a.agent_name||a.name||'A')[0].toUpperCase()}
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;letter-spacing:-.02em">${a.agent_name||a.name}</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">${a.business_name||''}</div>
+            <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+              <span class="badge badge-accent" style="font-size:10px">${catLabels[a.category]||a.category||'Boutique'}</span>
+              <span class="badge ${a.published?'badge-green':'badge-gray'}" style="font-size:10px">${a.published?'● Live':'● Draft'}</span>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 20px 16px">
+          ${disp?`<a class="agent-url-chip" href="${url}" target="_blank" style="max-width:100%;display:flex">🔗 ${disp}</a>`:`<span class="agent-url-chip draft" style="max-width:100%;display:flex">⏸ Not published yet</span>`}
+        </div>
+        <div class="agent-card-footer">
+          <span style="font-size:12px;color:var(--text-3)">${fmtNum(a.tryon_count||0)} try-ons · ${fmtRelative(a.updated_at||a.created_at)}</span>
+          <div style="display:flex;gap:6px">
+            ${url?`<button class="btn btn-secondary btn-sm" onclick="shareUrl('${url}','${(a.agent_name||a.name||'').replace(/'/g,"\\'")}')">🔗 Share</button>`:''}
+          </div>
+        </div>
+      </div>`
+    }).join('')
+  }catch(e){toast(e.message,'error')}
+}
+
+;(async()=>{
+  const nav=await renderNav('agents')
+  if(!nav) return
+  await loadAgents()
+  document.getElementById('page-content').style.display='block'
+  const p=new URLSearchParams(location.search)
+  if(p.get('create')==='1'){openCreateWizard();history.replaceState({},'',location.pathname)}
+})();
+</script>
+</body>
+</html>
