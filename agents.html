@@ -28,6 +28,15 @@
 .slug-preview .slug-base{color:var(--text-3)}
 .avatar-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:6px}
 @media(max-width:640px){.category-grid{grid-template-columns:repeat(2,1fr)}}
+/* Edit modal */
+.toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:var(--border-md);border-radius:12px;cursor:pointer;transition:var(--t)}
+.toggle-track::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:var(--t)}
+.toggle-switch input:checked+.toggle-track{background:var(--green)}
+.toggle-switch input:checked+.toggle-track::before{transform:translateX(20px)}
+.publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)}
+.danger-zone{margin-top:8px;padding:12px 16px;background:var(--red-dim,rgba(239,68,68,.06));border:1px solid var(--red-border,rgba(239,68,68,.18));border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -204,6 +213,100 @@
   </div>
 </div>
 
+<!-- Edit Agent Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Edit Agent</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="edit-modal-sub">Update your agent's details</div>
+      </div>
+      <button class="modal-close" onclick="closeEditModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Publish toggle -->
+        <div class="publish-row">
+          <div>
+            <div style="font-size:13px;font-weight:700">Published</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Make this agent live and accessible via its URL</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="edit-published" onchange="updatePublishLabel()">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div id="edit-url-display" style="font-size:12px;font-family:var(--mono);color:var(--accent);padding:6px 10px;background:var(--surface-2);border-radius:var(--r-sm);display:none"></div>
+
+        <div class="field">
+          <label class="field-label">Agent Name <span>*</span></label>
+          <input class="input" id="edit-agent-name" placeholder="e.g. Priya, StyleBot">
+        </div>
+        <div class="field">
+          <label class="field-label">Business / Boutique Name <span>*</span></label>
+          <input class="input" id="edit-biz-name" placeholder="e.g. Lalitha Silks">
+        </div>
+        <div class="field">
+          <label class="field-label">Category <span>*</span></label>
+          <div class="category-grid" id="edit-category-grid">
+            <button class="category-btn" data-value="sarees" onclick="editSelectCategory(this)"><div class="cat-icon">🥻</div><div class="cat-label">Sarees</div></button>
+            <button class="category-btn" data-value="western" onclick="editSelectCategory(this)"><div class="cat-icon">👗</div><div class="cat-label">Western Wear</div></button>
+            <button class="category-btn" data-value="kids" onclick="editSelectCategory(this)"><div class="cat-icon">🧒</div><div class="cat-label">Kids Wear</div></button>
+            <button class="category-btn" data-value="jewellery" onclick="editSelectCategory(this)"><div class="cat-icon">💍</div><div class="cat-label">Jewellery</div></button>
+            <button class="category-btn" data-value="footwear" onclick="editSelectCategory(this)"><div class="cat-icon">👠</div><div class="cat-label">Footwear</div></button>
+            <button class="category-btn" data-value="mixed" onclick="editSelectCategory(this)"><div class="cat-icon">🛍️</div><div class="cat-label">Mixed / All</div></button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Brand Color</label>
+          <div class="color-swatches" id="edit-color-swatches">
+            <div class="color-swatch" data-color="#7C6FFF" style="background:#7C6FFF" onclick="editSelectColor(this)" title="Purple"></div>
+            <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="editSelectColor(this)" title="Pink"></div>
+            <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="editSelectColor(this)" title="Amber"></div>
+            <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="editSelectColor(this)" title="Emerald"></div>
+            <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="editSelectColor(this)" title="Blue"></div>
+            <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="editSelectColor(this)" title="Red"></div>
+            <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="editSelectColor(this)" title="Violet"></div>
+            <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="editSelectColor(this)" title="Dark"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Agent Logo / Avatar</label>
+          <div class="avatar-row">
+            <div class="avatar-upload" id="edit-avatar-box" onclick="document.getElementById('edit-avatar-file').click()">
+              <span id="edit-avatar-icon">📷</span>
+            </div>
+            <div>
+              <div style="font-size:12.5px;font-weight:600;margin-bottom:4px">Upload a new photo or logo</div>
+              <div style="font-size:12px;color:var(--text-3)">PNG, JPG up to 2MB.</div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="document.getElementById('edit-avatar-file').click()">Choose File</button>
+            </div>
+          </div>
+          <input type="file" id="edit-avatar-file" accept="image/*" style="display:none" onchange="handleEditAvatar(this)">
+        </div>
+        <div class="field">
+          <label class="field-label">Welcome Message</label>
+          <textarea class="textarea" id="edit-welcome" style="min-height:80px" placeholder="Hi! I'm your AI stylist..."></textarea>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="danger-zone">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:var(--red,#EF4444)">Delete Agent</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Permanently removes this agent and all its data.</div>
+          </div>
+          <button class="btn btn-sm" style="background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25));flex-shrink:0" onclick="deleteAgent()">🗑 Delete</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" id="edit-save-btn" onclick="saveAgent()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // SUBDOMAIN_BASE from api.js
 let currentStep = 1, selectedCategory = '', selectedColor = '#7C6FFF', avatarBase64 = null
@@ -304,6 +407,151 @@ function handleAvatarUpload(input){
   r.readAsDataURL(file)
 }
 
+// ── EDIT AGENT ──────────────────────────────────────────────
+let editingAgentId = null
+let editColor = '#7C6FFF'
+let editAvatarBase64 = null  // null = keep existing
+
+function openEditModal(id) {
+  // find agent from cached grid data
+  const card = document.querySelector(`[onclick="openEditModal('${id}')"]`)
+  // re-fetch to get fresh data
+  apiFetch('/agents/' + id).then(a => {
+    if (!a || a.error) { toast('Could not load agent', 'error'); return }
+    editingAgentId = id
+    editColor = a.brand_color || '#7C6FFF'
+    editAvatarBase64 = null  // reset — null means keep existing logo
+
+    document.getElementById('edit-agent-name').value = a.agent_name || ''
+    document.getElementById('edit-biz-name').value   = a.business_name || ''
+    document.getElementById('edit-welcome').value    = a.welcome_msg || ''
+    document.getElementById('edit-published').checked = !!a.published
+
+    // Avatar preview
+    const avatarBox = document.getElementById('edit-avatar-box')
+    avatarBox.innerHTML = a.logo_base64
+      ? `<img src="${a.logo_base64}" style="width:100%;height:100%;object-fit:cover">`
+      : `<span id="edit-avatar-icon">📷</span>`
+
+    // Category
+    document.querySelectorAll('#edit-category-grid .category-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.value === a.category)
+    })
+
+    // Color swatches
+    document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(s => {
+      s.classList.toggle('selected', s.dataset.color === editColor)
+    })
+
+    // URL display
+    updatePublishLabel(a)
+
+    document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
+    document.getElementById('edit-modal').classList.add('open')
+  }).catch(e => toast(e.message, 'error'))
+}
+
+function closeEditModal() {
+  document.getElementById('edit-modal').classList.remove('open')
+  editingAgentId = null; editAvatarBase64 = null
+}
+
+function editSelectCategory(btn) {
+  document.querySelectorAll('#edit-category-grid .category-btn').forEach(b => b.classList.remove('selected'))
+  btn.classList.add('selected')
+}
+
+function editSelectColor(s) {
+  document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(sw => sw.classList.remove('selected'))
+  s.classList.add('selected')
+  editColor = s.dataset.color
+}
+
+function handleEditAvatar(input) {
+  const file = input.files[0]; if (!file) return
+  if (file.size > 2 * 1024 * 1024) { toast('Image must be under 2MB', 'error'); return }
+  const r = new FileReader()
+  r.onload = e => {
+    editAvatarBase64 = e.target.result
+    document.getElementById('edit-avatar-box').innerHTML = `<img src="${editAvatarBase64}" style="width:100%;height:100%;object-fit:cover">`
+    toast('Avatar updated', 'success')
+  }
+  r.readAsDataURL(file)
+}
+
+function updatePublishLabel(agent) {
+  const checked = document.getElementById('edit-published').checked
+  const urlDiv  = document.getElementById('edit-url-display')
+  // Try to build URL from agent data if passed, else just show/hide
+  if (checked) {
+    urlDiv.style.display = 'block'
+    if (agent && agent.slug) {
+      const url = agent.custom_domain ? agent.custom_domain : agent.slug + '.' + SUBDOMAIN_BASE
+      urlDiv.textContent = '🔗 ' + url
+    }
+  } else {
+    urlDiv.style.display = 'none'
+  }
+}
+
+async function saveAgent() {
+  if (!editingAgentId) return
+  const agentName = document.getElementById('edit-agent-name').value.trim()
+  const bizName   = document.getElementById('edit-biz-name').value.trim()
+  if (!agentName) { toast('Agent name is required', 'error'); return }
+  if (!bizName)   { toast('Business name is required', 'error'); return }
+
+  const selCat = document.querySelector('#edit-category-grid .category-btn.selected')
+  if (!selCat)  { toast('Please select a category', 'error'); return }
+
+  const published = document.getElementById('edit-published').checked
+
+  const btn = document.getElementById('edit-save-btn')
+  btn.disabled = true; btn.textContent = 'Saving…'
+
+  const body = {
+    agent_name:    agentName,
+    business_name: bizName,
+    category:      selCat.dataset.value,
+    brand_color:   editColor,
+    welcome_msg:   document.getElementById('edit-welcome').value.trim(),
+    published,
+  }
+  // Only send logo if user picked a new one
+  if (editAvatarBase64) body.logo_base64 = editAvatarBase64
+
+  try {
+    const result = await apiFetch('/agents/' + editingAgentId, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    })
+    if (result.error) { toast(result.error, 'error'); return }
+    toast(published ? '🚀 Agent is now Live!' : '✅ Agent saved', 'success')
+    closeEditModal()
+    loadAgents()
+  } catch(e) {
+    toast(e.message, 'error')
+  } finally {
+    btn.disabled = false; btn.textContent = 'Save Changes'
+  }
+}
+
+async function deleteAgent() {
+  if (!editingAgentId) return
+  const name = document.getElementById('edit-agent-name').value || 'this agent'
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
+
+  try {
+    const result = await apiFetch('/agents/' + editingAgentId, { method: 'DELETE' })
+    if (result.error) { toast(result.error, 'error'); return }
+    toast('Agent deleted', 'info')
+    closeEditModal()
+    loadAgents()
+  } catch(e) {
+    toast(e.message, 'error')
+  }
+}
+
 async function loadAgents(){
   try{
     const data=await apiFetch('/agents')
@@ -317,7 +565,8 @@ async function loadAgents(){
     grid.innerHTML=agents.map(a=>{
       const url=a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+SUBDOMAIN_BASE):null
       const disp=url?(a.custom_domain||a.slug+'.'+SUBDOMAIN_BASE):null
-      return `<div class="agent-card">
+      const aid = a._id
+      return `<div class="agent-card" onclick="openEditModal('${aid}')">
         <div class="agent-card-header">
           <div class="agent-card-logo" style="background:${a.brand_color||'#7C6FFF'}">
             ${a.logo_base64?`<img src="${a.logo_base64}" alt="">`:(a.agent_name||a.name||'A')[0].toUpperCase()}
@@ -332,11 +581,12 @@ async function loadAgents(){
           </div>
         </div>
         <div style="padding:0 20px 16px">
-          ${disp?`<a class="agent-url-chip" href="${url}" target="_blank" style="max-width:100%;display:flex">🔗 ${disp}</a>`:`<span class="agent-url-chip draft" style="max-width:100%;display:flex">⏸ Not published yet</span>`}
+          ${disp?`<a class="agent-url-chip" href="${url}" target="_blank" style="max-width:100%;display:flex" onclick="event.stopPropagation()">🔗 ${disp}</a>`:`<span class="agent-url-chip draft" style="max-width:100%;display:flex">⏸ Not published yet</span>`}
         </div>
         <div class="agent-card-footer">
           <span style="font-size:12px;color:var(--text-3)">${fmtNum(a.tryon_count||0)} try-ons · ${fmtRelative(a.updated_at||a.created_at)}</span>
-          <div style="display:flex;gap:6px">
+          <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+            <button class="btn btn-secondary btn-sm" onclick="openEditModal('${aid}')">✏️ Edit</button>
             ${url?`<button class="btn btn-secondary btn-sm" onclick="shareUrl('${url}','${(a.agent_name||a.name||'').replace(/'/g,"\\'")}')">🔗 Share</button>`:''}
           </div>
         </div>
