@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Conversations — BoutiqueAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+.conv-table { width:100%; border-collapse:collapse }
+.conv-table th {
+  text-align:left; font-size:11px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--text-3); padding:10px 16px;
+  border-bottom:1px solid var(--border); background:var(--surface-2);
+}
+.conv-table th:first-child { border-radius:var(--r-sm) 0 0 0 }
+.conv-table th:last-child  { border-radius:0 var(--r-sm) 0 0 }
+.conv-row {
+  border-bottom:1px solid var(--border); transition:var(--t); cursor:default;
+}
+.conv-row:last-child { border-bottom:none }
+.conv-row:hover { background:var(--surface-2) }
+.conv-row td { padding:12px 16px; font-size:13px; vertical-align:middle }
+.conv-id  { font-family:var(--mono); font-size:11px; color:var(--text-3) }
+.conv-agent-chip {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600;
+  background:var(--accent-dim); color:var(--accent);
+  border:1px solid rgba(124,111,255,.18); white-space:nowrap;
+}
+.filter-bar {
+  display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap;
+}
+.pagination {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 0 0; flex-wrap:wrap; gap:10px;
+}
+.page-info { font-size:12.5px; color:var(--text-3) }
+.page-btns { display:flex; gap:6px }
+</style>
+<link rel="stylesheet" href="shared.css">
+<script>
+;(function(){
+  var d=localStorage.getItem('ba_theme')==='dark';
+  document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');
+  document.documentElement.style.background=d?'#07080D':'#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
+  </div>
+  <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
+</div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar"></div>
+
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:13px;width:160px;border-radius:4px"></div>
+  </div>
+  <div class="skel-body">
+    <div class="skel" style="height:46px;border-radius:var(--r-sm);margin-bottom:4px"></div>
+    <div class="skel" style="height:360px;border-radius:var(--r-lg)"></div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Conversations</span></div>
+    <div class="topbar-right">
+      <button class="theme-toggle" style="font-size:15px;"></button>
+    </div>
+  </div>
+
+  <div class="content" id="page-content" style="display:none">
+
+    <!-- Stats row -->
+    <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px">
+      <div class="stat-card">
+        <div class="stat-icon-wrap">💬</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Conversations</div>
+          <div class="stat-value loading" id="s-total">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">🤖</div>
+        <div class="stat-info">
+          <div class="stat-label">Active Agents</div>
+          <div class="stat-value loading" id="s-agents">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">📅</div>
+        <div class="stat-info">
+          <div class="stat-label">Showing</div>
+          <div class="stat-value loading" id="s-showing">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <select class="select" id="agent-filter" style="width:auto;min-width:200px" onchange="onFilterChange()">
+        <option value="">All Agents</option>
+      </select>
+      <select class="select" id="limit-select" style="width:auto" onchange="onFilterChange()">
+        <option value="20">20 per page</option>
+        <option value="50">50 per page</option>
+        <option value="100">100 per page</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" onclick="loadConversations()" id="refresh-btn">↻ Refresh</button>
+    </div>
+
+    <!-- Table card -->
+    <div class="card">
+      <div id="conv-wrap">
+        <table class="conv-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Agent</th>
+              <th>Started</th>
+              <th>Last Activity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="conv-body">
+            <tr><td colspan="5"><div class="empty-state"><div class="empty-icon">💬</div><div class="empty-title">Loading...</div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" style="padding:14px 16px 14px" id="pagination-wrap" style="display:none">
+        <span class="page-info" id="page-info">—</span>
+        <div class="page-btns">
+          <button class="btn btn-secondary btn-sm" id="btn-prev" onclick="changePage(-1)" disabled>← Prev</button>
+          <button class="btn btn-secondary btn-sm" id="btn-next" onclick="changePage(1)">Next →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let currentSkip  = 0
+let currentTotal = 0
+let agentsMap    = {}  // id → agent obj
+
+async function loadAgents() {
+  const data = await apiFetch('/agents', { headers: apiHeaders() })
+  const agents = data.agents || []
+  agentsMap = {}
+  agents.forEach(a => { agentsMap[a._id] = a })
+
+  const sel = document.getElementById('agent-filter')
+  agents.forEach(a => {
+    const opt = document.createElement('option')
+    opt.value = a._id
+    opt.textContent = a.agent_name || a.business_name || 'Agent'
+    sel.appendChild(opt)
+  })
+  document.getElementById('s-agents').textContent = agents.length
+  document.querySelector('#s-agents').classList.remove('loading')
+}
+
+async function loadConversations() {
+  const agentId = document.getElementById('agent-filter').value
+  const limit   = parseInt(document.getElementById('limit-select').value) || 20
+  const btn     = document.getElementById('refresh-btn')
+  btn.disabled  = true; btn.textContent = '↻ Loading...'
+
+  let path = `/conversations?limit=${limit}&skip=${currentSkip}`
+  if (agentId) path += `&agent_id=${agentId}`
+
+  const data = await apiFetch(path, { headers: apiHeaders() })
+  btn.disabled = false; btn.textContent = '↻ Refresh'
+
+  const convs  = data.conversations || []
+  currentTotal = data.total || 0
+
+  // Stats
+  document.getElementById('s-total').textContent   = currentTotal
+  document.getElementById('s-showing').textContent = convs.length
+  document.querySelectorAll('.stat-value.loading').forEach(e => e.classList.remove('loading'))
+
+  // Pagination info
+  const from = currentSkip + 1
+  const to   = Math.min(currentSkip + convs.length, currentTotal)
+  document.getElementById('page-info').textContent = currentTotal
+    ? `Showing ${from}–${to} of ${currentTotal}`
+    : 'No conversations yet'
+  document.getElementById('btn-prev').disabled = currentSkip === 0
+  document.getElementById('btn-next').disabled = (currentSkip + limit) >= currentTotal
+  document.getElementById('pagination-wrap').style.display = 'flex'
+
+  // Table body
+  const tbody = document.getElementById('conv-body')
+  if (!convs.length) {
+    tbody.innerHTML = `<tr><td colspan="5">
+      <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">No conversations yet</div>
+        <div class="empty-desc">When customers chat with your agents, their conversations will appear here.</div>
+        <a href="agents.html" class="btn btn-primary">View Agents</a>
+      </div></td></tr>`
+    return
+  }
+
+  tbody.innerHTML = convs.map(c => {
+    const agent    = agentsMap[c.agent_id] || null
+    const agentName = agent ? (agent.agent_name || agent.business_name || 'Agent') : (c.agent_id ? 'Unknown Agent' : '—')
+    const agentColor = agent?.brand_color || '#7C6FFF'
+    const created  = c.created_at ? fmtRelative(c.created_at) : '—'
+    const updated  = c.updated_at ? fmtRelative(c.updated_at) : created
+    const status   = c.status || 'active'
+    const statusBadge = status === 'active'
+      ? '<span class="badge badge-green">Active</span>'
+      : '<span class="badge badge-gray">Ended</span>'
+
+    return `<tr class="conv-row">
+      <td><span class="conv-id">${c._id.toString().slice(-8).toUpperCase()}</span></td>
+      <td>
+        <span class="conv-agent-chip" style="background:${agentColor}18;color:${agentColor};border-color:${agentColor}30">
+          🤖 ${agentName}
+        </span>
+      </td>
+      <td style="color:var(--text-2)">${created}</td>
+      <td style="color:var(--text-2)">${updated}</td>
+      <td>${statusBadge}</td>
+    </tr>`
+  }).join('')
+}
+
+function onFilterChange() {
+  currentSkip = 0
+  loadConversations()
+}
+
+function changePage(dir) {
+  const limit = parseInt(document.getElementById('limit-select').value) || 20
+  currentSkip = Math.max(0, currentSkip + dir * limit)
+  loadConversations()
+}
+
+;(async () => {
+  const nav = await renderNav('conversations')
+  if (!nav) return
+  await loadAgents()
+  await loadConversations()
+  document.getElementById('page-content').style.display = 'block'
+})()
+</script>
+</body>
+</html>
