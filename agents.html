@@ -290,6 +290,54 @@
           <textarea class="textarea" id="edit-welcome" style="min-height:80px" placeholder="Hi! I'm your AI stylist..."></textarea>
         </div>
 
+        <!-- Custom Domain (Grower+ only) -->
+        <div id="edit-domain-section" style="display:none">
+          <div style="height:1px;background:var(--border);margin:4px 0 16px"></div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px">
+            🌐 Custom Domain
+            <span class="badge badge-accent" style="font-size:9.5px">Grower & Enterprise</span>
+          </div>
+          <div id="edit-domain-current" style="display:none;margin-bottom:12px"></div>
+          <div class="field" style="margin-bottom:10px">
+            <label class="field-label">Domain</label>
+            <div style="display:flex;gap:8px">
+              <input class="input" id="edit-domain-input" placeholder="shop.yourboutique.com" style="flex:1">
+              <button class="btn btn-primary btn-sm" onclick="saveAgentDomain()" id="edit-domain-save-btn">Save</button>
+            </div>
+            <div class="field-hint">No https:// — e.g. shop.yourboutique.com</div>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">DNS Record to add at your provider</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="background:var(--surface-2)">
+                <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--text-3);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">Type</th>
+                <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--text-3);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">Name</th>
+                <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--text-3);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">Points To</th>
+              </tr></thead>
+              <tbody><tr>
+                <td style="padding:8px 10px;font-family:var(--mono);color:var(--text)">CNAME</td>
+                <td style="padding:8px 10px;font-family:var(--mono);color:var(--accent)" id="edit-cname-host">shop</td>
+                <td style="padding:8px 10px;font-family:var(--mono);color:var(--accent);display:flex;align-items:center;gap:6px">
+                  boutique-ai.pages.dev
+                  <button class="copy-btn" style="font-size:10px;padding:2px 8px" onclick="copyText('boutique-ai.pages.dev','Copied!')">Copy</button>
+                </td>
+              </tr></tbody>
+            </table>
+          </div>
+          <div id="edit-domain-status-wrap" style="display:none;margin-bottom:8px">
+            <div id="edit-domain-status" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r-sm);font-size:12.5px;font-weight:600">
+              <span id="edit-domain-status-icon"></span><span id="edit-domain-status-msg"></span>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:4px">
+            <button class="btn btn-secondary btn-sm" id="edit-domain-verify-btn" onclick="verifyAgentDomain()" style="display:none">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Verify DNS
+            </button>
+            <button class="btn btn-sm" id="edit-domain-remove-btn" onclick="removeAgentDomain()" style="display:none;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25))">Remove Domain</button>
+          </div>
+        </div>
+
         <!-- Danger zone -->
         <div class="danger-zone">
           <div>
@@ -408,6 +456,7 @@ function handleAvatarUpload(input){
 }
 
 // ── EDIT AGENT ──────────────────────────────────────────────
+let currentUser = null       // set after renderNav
 let editingAgentId = null
 let editColor = '#7C6FFF'
 let editAvatarBase64 = null  // null = keep existing
@@ -445,6 +494,24 @@ function openEditModal(id) {
 
     // URL display
     updatePublishLabel(a)
+
+    // Custom domain section — Grower+ only
+    const isGrowerPlus = currentUser && (currentUser.plan === 'grower' || currentUser.plan === 'enterprise')
+    document.getElementById('edit-domain-section').style.display = isGrowerPlus ? 'block' : 'none'
+    if (isGrowerPlus) {
+      const domInput = document.getElementById('edit-domain-input')
+      domInput.value = a.custom_domain || ''
+      document.getElementById('edit-cname-host').textContent = a.custom_domain ? a.custom_domain.split('.')[0] : 'shop'
+      if (a.custom_domain) {
+        showEditDomainStatus(a.domain_status || 'pending')
+        document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
+        document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
+      } else {
+        document.getElementById('edit-domain-status-wrap').style.display = 'none'
+        document.getElementById('edit-domain-verify-btn').style.display = 'none'
+        document.getElementById('edit-domain-remove-btn').style.display = 'none'
+      }
+    }
 
     document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
     document.getElementById('edit-modal').classList.add('open')
@@ -552,6 +619,76 @@ async function deleteAgent() {
   }
 }
 
+// ── PER-AGENT CUSTOM DOMAIN ─────────────────────────────────
+async function saveAgentDomain() {
+  if (!editingAgentId) return
+  const domain = document.getElementById('edit-domain-input').value.trim().toLowerCase()
+  if (!domain) { toast('Enter a domain first', 'error'); return }
+  if (!/^[a-z0-9][a-z0-9-_.]+\.[a-z]{2,}$/.test(domain)) { toast('Invalid domain format', 'error'); return }
+  const btn = document.getElementById('edit-domain-save-btn')
+  btn.disabled = true; btn.textContent = 'Saving…'
+  try {
+    const r = await apiFetch('/agents/' + editingAgentId + '/custom-domain', {
+      method: 'POST', body: JSON.stringify({ domain })
+    })
+    if (r.error) { toast(r.error, 'error'); return }
+    document.getElementById('edit-cname-host').textContent = domain.split('.')[0]
+    showEditDomainStatus('pending')
+    document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
+    document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
+    toast('Domain saved! Add the CNAME then click Verify.', 'info', 6000)
+  } catch(e) { toast(e.message, 'error') }
+  finally { btn.disabled = false; btn.textContent = 'Save' }
+}
+
+async function verifyAgentDomain() {
+  if (!editingAgentId) return
+  const btn = document.getElementById('edit-domain-verify-btn')
+  btn.disabled = true; btn.innerHTML = '<svg width="12" height="12" class="spin" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Verifying…'
+  try {
+    const r = await apiFetch('/agents/' + editingAgentId + '/domain-status')
+    showEditDomainStatus(r.status || 'pending')
+    toast(
+      r.status === 'active' ? '✅ Domain is active!' : 'Still pending — DNS can take a few minutes.',
+      r.status === 'active' ? 'success' : 'info', 5000
+    )
+  } catch(e) { toast(e.message, 'error') }
+  finally {
+    btn.disabled = false
+    btn.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Verify DNS'
+  }
+}
+
+async function removeAgentDomain() {
+  if (!editingAgentId) return
+  if (!confirm('Remove this custom domain?')) return
+  try {
+    await apiFetch('/agents/' + editingAgentId + '/custom-domain', { method: 'DELETE' })
+    document.getElementById('edit-domain-input').value = ''
+    document.getElementById('edit-domain-status-wrap').style.display = 'none'
+    document.getElementById('edit-domain-verify-btn').style.display = 'none'
+    document.getElementById('edit-domain-remove-btn').style.display = 'none'
+    document.getElementById('edit-cname-host').textContent = 'shop'
+    toast('Custom domain removed', 'success')
+  } catch(e) { toast(e.message, 'error') }
+}
+
+function showEditDomainStatus(status) {
+  const wrap = document.getElementById('edit-domain-status-wrap')
+  const el   = document.getElementById('edit-domain-status')
+  const icon = document.getElementById('edit-domain-status-icon')
+  const msg  = document.getElementById('edit-domain-status-msg')
+  wrap.style.display = 'block'
+  const styles = {
+    active:  { bg: 'var(--green-dim,rgba(25,163,122,.1))',  color: 'var(--green,#19a37a)',  border: 'var(--green-border,rgba(25,163,122,.25))',  icon: '✅', text: 'Domain active and live' },
+    pending: { bg: 'var(--amber-dim,rgba(245,158,11,.1))',  color: 'var(--amber,#d97706)',  border: 'var(--amber-border,rgba(245,158,11,.25))',  icon: '⏳', text: 'Awaiting DNS propagation' },
+    error:   { bg: 'var(--red-dim,rgba(239,68,68,.1))',     color: 'var(--red,#EF4444)',    border: 'var(--red-border,rgba(239,68,68,.25))',     icon: '❌', text: 'DNS not found — check your settings' },
+  }
+  const s = styles[status] || styles.pending
+  el.style.cssText = `background:${s.bg};color:${s.color};border:1px solid ${s.border};display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r-sm);font-size:12.5px;font-weight:600`
+  icon.textContent = s.icon; msg.textContent = s.text
+}
+
 async function loadAgents(){
   try{
     const data=await apiFetch('/agents')
@@ -598,6 +735,7 @@ async function loadAgents(){
 ;(async()=>{
   const nav=await renderNav('agents')
   if(!nav) return
+  currentUser = nav.user   // store for plan checks in edit modal
   await loadAgents()
   document.getElementById('page-content').style.display='block'
   const p=new URLSearchParams(location.search)
