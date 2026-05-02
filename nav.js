@@ -17,9 +17,9 @@ async function renderNav(activeId) {
   let user = null
   try {
     // Use apiFetch + apiHeaders from api.js — same pattern as VP
-    const json = await apiFetch('/auth/me', { headers: apiHeaders() })
-    if (json && (json.data || json.email || json.name)) {
-      user = json.data || json
+    const json = await apiFetch('/auth/me')
+    if (json && (json.email || json.name)) {
+      user = json
     } else if (json && !json.success) {
       // 401 already cleared token inside apiFetch; redirect
       location.replace('/index.html')
