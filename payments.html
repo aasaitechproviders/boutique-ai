@@ -327,6 +327,44 @@
       </div>
     </div>
 
+    <!-- CREDITS SECTION -->
+    <div style="height:32px"></div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Try-On Credits</div>
+    <div style="font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6">
+      Credits are consumed when your customers generate virtual try-ons.
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟢 Low = <strong>1</strong> credit</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟡 Medium = <strong>2</strong> credits</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🔴 High = <strong>3</strong> credits</span>
+      </div>
+    </div>
+
+    <!-- Credit balance -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--accent)" id="credit-balance">—</span>
+          <span style="font-size:13px;color:var(--text-3)">credits</span>
+        </div>
+      </div>
+      <div class="card-body" style="padding-top:0" id="credit-history-body">
+        <div style="font-size:13px;color:var(--text-3)">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Credit packages -->
+    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px">Top Up Credits</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px" id="credit-packages-grid"></div>
+
+    <!-- Credit purchase history -->
+    <div class="card" id="credit-purchase-history" style="display:none;margin-bottom:32px">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">🧾</span>Credit Purchase History</div>
+      </div>
+      <div class="card-body" id="credit-purchase-body"></div>
+    </div>
+
   </div>
 </div>
 
@@ -541,6 +579,143 @@ function renderPaymentHistory(payments) {
   `).join('')
 }
 
+// ── Credit packages data (mirrors CREDIT_PACKAGES in chat.js) ───────────────
+const CREDIT_PACKAGES_DATA = [
+  { id: 'pack_50',   credits: 50,   price_inr: 500,   label: '50 Credits',    tag: 'Starter',   ppc: '₹10/credit' },
+  { id: 'pack_300',  credits: 300,  price_inr: 2500,  label: '300 Credits',   tag: 'Value',     ppc: '₹8.33/credit', saving: 'Save 17%' },
+  { id: 'pack_1250', credits: 1250, price_inr: 10000, label: '1,250 Credits', tag: 'Best Value', ppc: '₹8/credit',    saving: 'Save 20%' },
+]
+
+// ── Render credit packages ───────────────────────────────────────────────────
+function renderCreditPackages() {
+  const grid = document.getElementById('credit-packages-grid')
+  if (!grid) return
+  grid.innerHTML = CREDIT_PACKAGES_DATA.map(p => `
+    <div class="plan-card${p.id === 'pack_1250' ? ' popular' : ''}" style="cursor:default">
+      ${p.id === 'pack_1250' ? '<div class="plan-popular-badge">Best Value</div>' : ''}
+      <div class="plan-name">${p.tag}</div>
+      <div class="plan-price">₹${p.price_inr.toLocaleString('en-IN')}</div>
+      <div class="plan-savings">${p.saving || ''}</div>
+      <div class="plan-divider"></div>
+      <div class="plan-features">
+        <div class="plan-feat"><span class="plan-feat-icon">⚡</span><span><strong>${p.credits.toLocaleString('en-IN')} credits</strong></span></div>
+        <div class="plan-feat"><span class="plan-feat-icon">💰</span><span>${p.ppc}</span></div>
+        <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Never expires</span></div>
+        <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>All quality tiers</span></div>
+      </div>
+      <div class="plan-action">
+        <button class="btn btn-primary" style="width:100%;justify-content:center"
+          onclick="buyCredits('${p.id}', ${p.credits}, ${p.price_inr}, '${p.label}')">
+          Buy ${p.label}
+        </button>
+      </div>
+    </div>
+  `).join('')
+}
+
+// ── Render credit balance history ─────────────────────────────────────────────
+function renderCreditHistory(transactions, balance) {
+  document.getElementById('credit-balance').textContent = (balance || 0).toLocaleString('en-IN')
+  const body = document.getElementById('credit-history-body')
+  if (!transactions || !transactions.length) {
+    body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No credit purchases yet. Top up below to get started.</div>'
+    return
+  }
+  const histCard = document.getElementById('credit-purchase-history')
+  const histBody = document.getElementById('credit-purchase-body')
+  if (histCard) histCard.style.display = 'block'
+  if (histBody) histBody.innerHTML = transactions.map(t => `
+    <div class="payment-row">
+      <div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${t.label || t.pack_id}</div>
+        <div class="payment-meta">${fmtDate(t.completed_at)}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--accent)">+${t.credits}</div>
+        <div style="font-size:12px;color:var(--text-3)">₹${(t.price_inr || 0).toLocaleString('en-IN')}</div>
+      </div>
+    </div>
+  `).join('')
+  body.innerHTML = '<div style="font-size:13px;color:var(--text-2)">See full history below ↓</div>'
+}
+
+// ── Buy credits via Razorpay ──────────────────────────────────────────────────
+async function buyCredits(packId, credits, priceInr, label) {
+  if (!currentUser) return toast('Please log in first.', 'error')
+
+  showOverlay('Creating Order…', `Setting up payment for ${label}…`)
+  try {
+    const data = await apiFetch('/credits/purchase', {
+      method: 'POST',
+      body:   JSON.stringify({ pack_id: packId }),
+    })
+
+    if (data.error || !data.order_id) {
+      hideOverlay()
+      return toast(data.error || 'Could not create order. Please try again.', 'error')
+    }
+
+    hideOverlay()
+
+    const options = {
+      key:         data.key_id,
+      amount:      data.amount,    // verified server-side amount in paise
+      currency:    data.currency,
+      name:        'BoutiqueAI',
+      description: `${label} — Try-On Credits`,
+      order_id:    data.order_id,
+      prefill:     { name: data.user_name || '', email: data.user_email || '' },
+      theme:       { color: '#7C6FFF' },
+      modal: {
+        ondismiss: () => {
+          hideOverlay()
+          toast('Payment cancelled.', 'info')
+        },
+      },
+      handler: async (response) => {
+        showOverlay('Adding Credits…', 'Verifying your payment and topping up credits…')
+        try {
+          const verifyData = await apiFetch('/credits/verify', {
+            method: 'POST',
+            body:   JSON.stringify({
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature,
+              pack_id:             packId,
+            }),
+          })
+
+          if (verifyData.error) {
+            hideOverlay()
+            toast('Payment received but credit top-up failed. Contact support.', 'error', 6000)
+            return
+          }
+
+          hideOverlay()
+          // Immediately update balance on screen
+          const balEl = document.getElementById('credit-balance')
+          if (balEl) balEl.textContent = (verifyData.new_balance || 0).toLocaleString('en-IN')
+          toast(`⚡ ${verifyData.message || `${credits} credits added!`}`, 'success', 5000)
+          setTimeout(() => location.reload(), 2500)
+        } catch (err) {
+          hideOverlay()
+          toast('Verification error. Credits will be added automatically. Contact support if not.', 'error', 7000)
+        }
+      },
+    }
+
+    const rzp = new Razorpay(options)
+    rzp.on('payment.failed', (r) => {
+      hideOverlay()
+      toast(`Payment failed: ${r.error.description || 'Please try again.'}`, 'error', 5000)
+    })
+    rzp.open()
+  } catch (err) {
+    hideOverlay()
+    toast(err.message || 'Something went wrong. Please try again.', 'error')
+  }
+}
+
 // ── Hardcoded fallback plans (shown if /payment/plans API not yet deployed) ──
 const FALLBACK_PLANS = [
   {
@@ -639,7 +814,21 @@ const FALLBACK_PLANS = [
 
     renderPlans()
 
-    // 3. Payment history (optional — silently skip on error)
+    // 3. Credit packages (static — no API call needed)
+    renderCreditPackages()
+
+    // 4. Credit balance + history
+    try {
+      const creditData = await apiFetch('/credits/balance')
+      if (creditData) renderCreditHistory(creditData.transactions, creditData.credits)
+    } catch {
+      const balEl = document.getElementById('credit-balance')
+      const bodyEl = document.getElementById('credit-history-body')
+      if (balEl)  balEl.textContent = '0'
+      if (bodyEl) bodyEl.innerHTML  = '<div style="font-size:13px;color:var(--text-3)">Top up below to get started.</div>'
+    }
+
+    // 5. Payment history (optional — silently skip on error)
     try {
       const historyData = await apiFetch('/payment/history')
       if (historyData && historyData.payments) renderPaymentHistory(historyData.payments)
@@ -650,6 +839,7 @@ const FALLBACK_PLANS = [
     // Still show page even if something failed
     plansData = FALLBACK_PLANS
     renderPlans()
+    renderCreditPackages()
   } finally {
     // Always hide skeleton and show page
     const skel = document.getElementById('page-skeleton')
