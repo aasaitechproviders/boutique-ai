@@ -325,7 +325,7 @@
         </div>
         <div class="field">
           <label class="field-label">Try-On Quality</label>
-          <div class="quality-grid">
+          <div class="quality-grid" id="edit-quality-grid">
             <button class="quality-btn" data-value="low" onclick="selectQuality(this,true)">
               <div class="q-icon">⚡</div>
               <span class="q-label">Fast</span>
@@ -342,6 +342,7 @@
               <span class="q-desc">~₹6–10 / try-on</span>
             </button>
           </div>
+          <div class="field-hint">Higher quality uses a better AI model. Takes effect on the next try-on.</div>
         </div>
 
         <!-- Custom Domain (Grower+ only) -->
@@ -415,8 +416,14 @@ let currentStep = 1, selectedCategory = '', selectedColor = '#7C6FFF', avatarBas
 let selectedQuality = 'medium', editSelectedQuality = 'medium'
 
 function selectQuality(btn, isEdit) {
-  const grid = isEdit ? '#edit-quality-grid .quality-btn' : '#step-1 .quality-btn'
-  document.querySelectorAll(grid).forEach(b => b.classList.remove('selected'))
+  // Scope deselection to the immediate parent grid so create/edit grids never cross-affect
+  const parentGrid = btn.closest('.quality-grid')
+  if (parentGrid) {
+    parentGrid.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'))
+  } else {
+    const selector = isEdit ? '#edit-quality-grid .quality-btn' : '#step-1 .quality-btn'
+    document.querySelectorAll(selector).forEach(b => b.classList.remove('selected'))
+  }
   btn.classList.add('selected')
   if (isEdit) editSelectedQuality = btn.dataset.value
   else        selectedQuality     = btn.dataset.value
@@ -578,7 +585,7 @@ function openEditModal(id) {
       document.getElementById('edit-domain-remove-btn').style.display = 'none'
     }
 
-    document.querySelectorAll('#edit-modal .quality-btn').forEach(b => {
+    document.querySelectorAll('#edit-quality-grid .quality-btn').forEach(b => {
       b.classList.toggle('selected', b.dataset.value === editSelectedQuality)
     })
     document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
