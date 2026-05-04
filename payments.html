@@ -437,9 +437,8 @@ async function startPayment(planId) {
 
   try {
     const data = await apiFetch('/payment/create-order', {
-      method:  'POST',
-      headers: apiHeaders(),
-      body:    JSON.stringify({ plan: planId, billing: billingCycle }),
+      method: 'POST',
+      body:   JSON.stringify({ plan: planId, billing: billingCycle }),
     })
 
     if (data.error || !data.order_id) {
@@ -473,9 +472,8 @@ async function startPayment(planId) {
         showOverlay('Verifying Payment…', 'Confirming your payment with our server…')
         try {
           const verifyData = await apiFetch('/payment/verify', {
-            method:  'POST',
-            headers: apiHeaders(),
-            body:    JSON.stringify({
+            method: 'POST',
+            body:   JSON.stringify({
               razorpay_order_id:   response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature:  response.razorpay_signature,
@@ -543,72 +541,122 @@ function renderPaymentHistory(payments) {
   `).join('')
 }
 
+// ── Hardcoded fallback plans (shown if /payment/plans API not yet deployed) ──
+const FALLBACK_PLANS = [
+  {
+    id: 'starter', name: 'Starter',
+    price_inr: { monthly: 0, yearly: 0 }, amount_paise: { monthly: 0, yearly: 0 },
+    limits: PLAN_LIMITS.starter,
+    features: [
+      { text: '1 AI Agent', included: true }, { text: '50 try-ons / month', included: true },
+      { text: 'Free subdomain', included: true }, { text: 'Product catalog & chat', included: true },
+      { text: 'Custom domain', included: false }, { text: 'Priority support', included: false },
+    ],
+    popular: false, cta: 'Get Started Free', contact: false,
+  },
+  {
+    id: 'grower', name: 'Grower',
+    price_inr: { monthly: 999, yearly: 9999 },
+    amount_paise: { monthly: 99900, yearly: 999900 },
+    savings_inr: { yearly: 1989 },
+    limits: PLAN_LIMITS.grower,
+    features: [
+      { text: '5 AI Agents', included: true }, { text: '500 try-ons / month', included: true },
+      { text: 'Free subdomain', included: true }, { text: 'Product catalog & chat', included: true },
+      { text: 'Custom domain support', included: true }, { text: 'Priority email support', included: true },
+    ],
+    popular: true, cta: 'Upgrade to Grower', contact: false,
+  },
+  {
+    id: 'enterprise', name: 'Enterprise',
+    price_inr: { monthly: 4999, yearly: 49999 },
+    amount_paise: { monthly: 499900, yearly: 4999900 },
+    savings_inr: { yearly: 9989 },
+    limits: PLAN_LIMITS.enterprise,
+    features: [
+      { text: 'Unlimited Agents', included: true }, { text: 'Unlimited try-ons', included: true },
+      { text: 'Custom domain per agent', included: true }, { text: 'White-label branding', included: true },
+      { text: 'Dedicated support', included: true }, { text: 'SLA guarantee', included: true },
+    ],
+    popular: false, cta: 'Contact Sales', contact: true,
+  },
+]
+
 // ── Init ─────────────────────────────────────────────────────────────────────
 ;(async () => {
   const nav = await renderNav('billing')
   if (!nav) return
 
-  // Load account + plans in parallel
-  const [accountData, plansRes, historyData] = await Promise.all([
-    apiFetch('/account'),
-    apiFetch('/payment/plans'),
-    apiFetch('/payment/history'),
-  ])
+  try {
+    // 1. Account data (required)
+    const accountData = await apiFetch('/account')
+    currentUser = accountData.user || accountData
+    const user  = currentUser
+    const plan  = user.plan || 'starter'
+    currentPlan = plan
 
-  currentUser = accountData.user || accountData
-  const user  = currentUser
-  const plan  = user.plan || 'starter'
-  currentPlan = plan
+    // Current plan badge
+    document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan
 
-  // Populate plan cards data
-  plansData = plansRes.plans || []
+    // Usage stats
+    const usage   = user.usage || {}
+    const limits  = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
+    const usedTry = usage.used || 0
+    const capTry  = usage.cap  || limits.tryons
+    const pctTry  = capTry ? Math.min(100, Math.round((usedTry / capTry) * 100)) : 0
+    const usedAg  = user.agents_count || 0
+    const capAg   = limits.agents === 99999 ? '∞' : limits.agents
+    const pctAg   = limits.agents !== 99999 ? Math.min(100, Math.round((usedAg / limits.agents) * 100)) : 0
 
-  // Current plan badge
-  document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan
+    document.getElementById('u-used').textContent = usedTry
+    document.getElementById('u-cap').textContent  = capTry === 99999 ? '∞' : capTry
+    const bar = document.getElementById('u-bar')
+    bar.style.width = pctTry + '%'
+    bar.className   = 'progress-fill' + (pctTry >= 90 ? ' danger' : pctTry >= 70 ? ' warn' : '')
+    document.getElementById('u-pct').textContent   = pctTry + '% used'
+    document.getElementById('u-reset').textContent = usage.reset_at ? 'Resets ' + fmtDate(usage.reset_at) : ''
 
-  // Usage stats
-  const usage    = user.usage || {}
-  const limits   = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
-  const usedTry  = usage.used || 0
-  const capTry   = usage.cap  || limits.tryons
-  const pctTry   = capTry ? Math.min(100, Math.round((usedTry / capTry) * 100)) : 0
-  const usedAg   = user.agents_count || 0
-  const capAg    = limits.agents === 99999 ? '∞' : limits.agents
-  const pctAg    = limits.agents !== 99999 ? Math.min(100, Math.round((usedAg / limits.agents) * 100)) : 0
+    const expiresDate = user.plan_expires_at
+      ? fmtDate(user.plan_expires_at)
+      : (usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly')
+    document.getElementById('u-expires-date').textContent = expiresDate
+    document.getElementById('u-expires-label').textContent = user.plan_billing === 'yearly'
+      ? 'Annual plan — expires on the date above.'
+      : 'Monthly plan — renews or resets on the date above.'
 
-  document.getElementById('u-used').textContent = usedTry
-  document.getElementById('u-cap').textContent  = capTry === 99999 ? '∞' : capTry
-  const bar    = document.getElementById('u-bar')
-  bar.style.width = pctTry + '%'
-  bar.className   = 'progress-fill' + (pctTry >= 90 ? ' danger' : pctTry >= 70 ? ' warn' : '')
-  document.getElementById('u-pct').textContent   = pctTry + '% used'
-  document.getElementById('u-reset').textContent = usage.reset_at ? 'Resets ' + fmtDate(usage.reset_at) : ''
+    document.getElementById('u-agents').textContent    = usedAg
+    document.getElementById('u-agents-cap').textContent = capAg
+    const agBar = document.getElementById('u-agents-bar')
+    agBar.style.width = pctAg + '%'
+    agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
+    document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
 
-  const expiresDate = user.plan_expires_at
-    ? fmtDate(user.plan_expires_at)
-    : (usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly')
-  document.getElementById('u-expires-date').textContent = expiresDate
-  document.getElementById('u-expires-label').textContent = user.plan_billing === 'yearly'
-    ? 'Annual plan — expires on the date above.'
-    : 'Monthly plan — renews or resets on the date above.'
+    // 2. Plans (falls back to hardcoded if route not deployed yet)
+    try {
+      const plansRes = await apiFetch('/payment/plans')
+      plansData = (plansRes && plansRes.plans) ? plansRes.plans : FALLBACK_PLANS
+    } catch { plansData = FALLBACK_PLANS }
 
-  document.getElementById('u-agents').textContent     = usedAg
-  document.getElementById('u-agents-cap').textContent  = capAg
-  const agBar = document.getElementById('u-agents-bar')
-  agBar.style.width = pctAg + '%'
-  agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
-  document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
+    renderPlans()
 
-  // Render plan cards
-  renderPlans()
+    // 3. Payment history (optional — silently skip on error)
+    try {
+      const historyData = await apiFetch('/payment/history')
+      if (historyData && historyData.payments) renderPaymentHistory(historyData.payments)
+    } catch { /* not yet deployed or no history — that's fine */ }
 
-  // Payment history
-  if (historyData.payments) {
-    renderPaymentHistory(historyData.payments)
+  } catch (err) {
+    console.error('[payments] Init error:', err)
+    // Still show page even if something failed
+    plansData = FALLBACK_PLANS
+    renderPlans()
+  } finally {
+    // Always hide skeleton and show page
+    const skel = document.getElementById('page-skeleton')
+    const page = document.getElementById('page-content')
+    if (skel) skel.style.display = 'none'
+    if (page) page.style.display = 'block'
   }
-
-  document.getElementById('page-skeleton').style.display = 'none'
-  document.getElementById('page-content').style.display  = 'block'
 })()
 </script>
 </body>
