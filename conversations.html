@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ── Grid ── */
 .customers-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
 .customer-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:var(--t);box-shadow:var(--sh-sm)}
 .customer-card:hover{box-shadow:var(--sh);border-color:var(--border-md);transform:translateY(-1px)}
@@ -17,6 +18,7 @@
 .customer-phone{font-size:13.5px;font-weight:700;font-family:var(--mono);color:var(--text);letter-spacing:.02em}
 .customer-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
 .agent-chip-sm{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10.5px;font-weight:600;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+/* ── Try-on strip ── */
 .tryon-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:10px 12px;background:var(--surface-2)}
 .tryon-thumb{aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:var(--surface-3);position:relative;cursor:pointer}
 .tryon-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .2s ease;display:block}
@@ -27,10 +29,35 @@
 .customer-footer-stats{display:flex;align-items:center;gap:12px}
 .customer-stat{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--text-3)}
 .customer-stat strong{color:var(--text);font-weight:700}
+/* ── Filter bar ── */
 .filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
 .search-wrap{position:relative;flex:1;min-width:200px}
-.search-wrap input{padding-left:34px;width:100%}
+.search-wrap input{padding-left:34px;width:100%;box-sizing:border-box}
 .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;pointer-events:none;opacity:.5}
+/* ── Agent tabs ── */
+.agent-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.agent-tab{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:20px;border:1.5px solid var(--border-md);background:var(--surface-2);font-size:12px;font-weight:600;cursor:pointer;transition:var(--t);white-space:nowrap;font-family:var(--font)}
+.agent-tab:hover{border-color:var(--accent);background:var(--accent-dim)}
+.agent-tab.active{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+.agent-tab .tab-count{font-size:10px;padding:1px 5px;border-radius:10px;background:rgba(0,0,0,.08);font-weight:700}
+.agent-tab.active .tab-count{background:var(--accent);color:#fff}
+/* ── Export button ── */
+.export-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:var(--r-sm);border:1.5px solid var(--border-md);background:var(--surface-2);font-size:12.5px;font-weight:600;cursor:pointer;transition:var(--t);font-family:var(--font);color:var(--text);white-space:nowrap}
+.export-btn:hover{border-color:var(--green,#19a37a);color:var(--green,#19a37a);background:var(--green-dim,rgba(25,163,122,.08))}
+.export-btn:disabled{opacity:.5;cursor:not-allowed}
+.export-btn svg{flex-shrink:0}
+/* ── Export modal ── */
+.export-modal-body{display:flex;flex-direction:column;gap:14px}
+.export-option{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);cursor:pointer;transition:var(--t);background:var(--surface-2)}
+.export-option:hover{border-color:var(--accent);background:var(--accent-dim)}
+.export-option.selected{border-color:var(--accent);background:var(--accent-dim)}
+.export-option input[type=radio]{margin-top:2px;accent-color:var(--accent)}
+.export-option-label{font-size:13px;font-weight:700;color:var(--text)}
+.export-option-desc{font-size:11.5px;color:var(--text-3);margin-top:2px}
+.export-fields{display:flex;flex-direction:column;gap:6px}
+.export-field-row{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--text)}
+.export-field-row input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+/* ── Lightbox ── */
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(12px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .2s ease;pointer-events:none}
 #lightbox.open{opacity:1;pointer-events:all}
 #lightbox img{max-width:100%;max-height:90vh;border-radius:var(--r-lg);box-shadow:0 24px 80px rgba(0,0,0,.6);transform:scale(.96);transition:transform .22s ease}
@@ -38,10 +65,16 @@
 #lb-close{position:fixed;top:20px;right:20px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;z-index:1000}
 #lb-close:hover{background:rgba(255,255,255,.22)}
 #lb-caption{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;font-size:12px;padding:7px 16px;border-radius:20px;font-family:var(--mono);white-space:nowrap;z-index:1000}
+/* ── Pagination ── */
 .pagination{display:flex;align-items:center;justify-content:space-between;padding:18px 0 0;flex-wrap:wrap;gap:10px}
 .page-info{font-size:12.5px;color:var(--text-3)}
 .page-btns{display:flex;gap:6px}
-@media(max-width:640px){.customers-grid{grid-template-columns:1fr}.tryon-strip{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:640px){
+  .customers-grid{grid-template-columns:1fr}
+  .tryon-strip{grid-template-columns:repeat(3,1fr)}
+  .filter-bar{flex-direction:column;align-items:stretch}
+  .filter-bar .export-btn{justify-content:center}
+}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -91,11 +124,20 @@
     <div class="topbar-left"><span class="topbar-title">Conversations</span></div>
     <div class="topbar-right">
       <button class="theme-toggle" style="font-size:15px;"></button>
+      <button class="export-btn" onclick="openExportModal()" id="export-btn-top" title="Export customers to CSV">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export CSV
+      </button>
     </div>
   </div>
 
   <div class="content" id="page-content" style="display:none">
 
+    <!-- Stats row -->
     <div class="stats-row" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px">
       <div class="stat-card">
         <div class="stat-icon-wrap">👤</div>
@@ -120,15 +162,35 @@
       </div>
     </div>
 
+    <!-- Agent tabs -->
+    <div class="agent-tabs" id="agent-tabs">
+      <button class="agent-tab active" data-agent-id="" onclick="selectAgentTab(this)">
+        All Agents
+        <span class="tab-count" id="tab-count-all">—</span>
+      </button>
+      <!-- agent tabs injected here -->
+    </div>
+
+    <!-- Filter bar -->
     <div class="filter-bar">
       <div class="search-wrap">
         <span class="search-icon">🔍</span>
         <input class="input" id="phone-search" placeholder="Search by phone number…" oninput="onSearch()">
       </div>
-      <select class="select" id="agent-filter" style="width:auto;min-width:190px" onchange="onFilterChange()">
-        <option value="">All Agents</option>
+      <select class="select" id="sort-filter" style="width:auto;min-width:160px" onchange="loadCustomers(true)">
+        <option value="recent">Most Recent</option>
+        <option value="most_tryons">Most Try-Ons</option>
+        <option value="least_tryons">Least Try-Ons</option>
       </select>
       <button class="btn btn-secondary btn-sm" onclick="loadCustomers(true)" id="refresh-btn">↻ Refresh</button>
+      <button class="export-btn" onclick="openExportModal()" id="export-btn-bar">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Export CSV
+      </button>
     </div>
 
     <div id="customers-grid" class="customers-grid"></div>
@@ -144,6 +206,78 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     Export CSV Modal
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="export-modal">
+  <div class="modal" style="max-width:460px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Export Customers to CSV</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="export-modal-sub">Download customer data as a spreadsheet</div>
+      </div>
+      <button class="modal-close" onclick="closeExportModal()">✕</button>
+    </div>
+    <div class="modal-body export-modal-body">
+
+      <!-- Scope -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Export Scope</div>
+        <label class="export-option selected" id="scope-current-label">
+          <input type="radio" name="export-scope" value="current" checked onchange="updateExportPreview()">
+          <div>
+            <div class="export-option-label">Current view</div>
+            <div class="export-option-desc" id="scope-current-desc">Customers matching current agent filter &amp; search</div>
+          </div>
+        </label>
+        <label class="export-option" id="scope-all-label" style="margin-top:6px">
+          <input type="radio" name="export-scope" value="all" onchange="updateExportPreview()">
+          <div>
+            <div class="export-option-label">All customers</div>
+            <div class="export-option-desc">Every customer across all your agents</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Columns -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">
+          Columns to include
+          <button onclick="toggleAllExportFields(true)" style="background:none;border:none;color:var(--accent);font-size:11px;cursor:pointer;margin-left:8px;font-weight:600">All</button>
+          <button onclick="toggleAllExportFields(false)" style="background:none;border:none;color:var(--text-3);font-size:11px;cursor:pointer;margin-left:4px;font-weight:600">None</button>
+        </div>
+        <div class="export-fields">
+          <label class="export-field-row"><input type="checkbox" id="ef-mobile" checked><span>Mobile Number</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">mobile</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-agent" checked><span>Agent Name</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">agent_name</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-business" checked><span>Business Name</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">business_name</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-tryons" checked><span>Try-On Count</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">tryon_count</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-last-seen" checked><span>Last Active</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">last_seen_at</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-joined" checked><span>Joined Date</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">joined_at</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-base-photo"><span>Has Base Photo</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">has_base_photo</span></label>
+          <label class="export-field-row"><input type="checkbox" id="ef-category"><span>Agent Category</span><span style="margin-left:auto;font-size:10px;color:var(--text-3);font-family:var(--mono)">category</span></label>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div id="export-preview" style="padding:10px 12px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);font-size:11.5px;font-family:var(--mono);color:var(--text-2);line-height:1.8;word-break:break-all">
+        —
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeExportModal()">Cancel</button>
+      <button class="btn btn-primary" id="export-confirm-btn" onclick="doExport()">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right:5px">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="7 10 12 15 17 10"/>
+          <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Download CSV
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div id="lightbox" onclick="if(event.target===this)closeLightbox()">
   <button id="lb-close" onclick="closeLightbox()">✕</button>
@@ -152,50 +286,96 @@
 </div>
 
 <script>
-let currentSkip  = 0
-let currentTotal = 0
-const LIMIT      = 24
-let agentsMap    = {}
-let searchTimer  = null
+// ── State ─────────────────────────────────────────────────
+let currentSkip    = 0
+let currentTotal   = 0
+const LIMIT        = 24
+let agentsMap      = {}       // id → agent obj
+let agentCounts    = {}       // id → customer count
+let searchTimer    = null
+let activeAgentId  = ''       // '' = all
+let lastCustomers  = []       // current page customers (for quick export)
 
-// ── Phone mask ────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────
 function maskPhone(mobile) {
-  if (!mobile) return '—'
-  const m = String(mobile).replace(/\D/g,'').slice(-10)
+  const m = String(mobile||'').replace(/\D/g,'').slice(-10)
   if (m.length < 6) return mobile
   return '+91 ' + m.slice(0,2) + 'X'.repeat(m.length-6) + m.slice(-4)
 }
-
+function rawPhone(mobile) {
+  return String(mobile||'').replace(/\D/g,'').slice(-10)
+}
 function phoneInitial(mobile) {
   return String(mobile||'').replace(/\D/g,'').slice(-1) || '?'
 }
-
 function fmtDay(iso) {
   if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short'})
+  return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
 }
+function fmtDateTime(iso) {
+  if (!iso) return ''
+  return new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})
+}
+function fmtRelative(d) {
+  if (!d) return ''
+  const s = Math.round((Date.now() - new Date(d)) / 1000)
+  if (s < 60)    return 'just now'
+  if (s < 3600)  return Math.floor(s/60)+'m ago'
+  if (s < 86400) return Math.floor(s/3600)+'h ago'
+  return Math.floor(s/86400)+'d ago'
+}
+function fmtNum(n) { return n>=1000 ? (n/1000).toFixed(1)+'k' : String(n) }
 
-// ── Agents ────────────────────────────────────────────────
+// ── Agents + Tabs ─────────────────────────────────────────
 async function loadAgents() {
   try {
-    const data = await apiFetch('/agents')
+    const data   = await apiFetch('/agents')
     const agents = data.agents || []
-    agentsMap = {}
+    agentsMap    = {}
     agents.forEach(a => { agentsMap[a._id] = a })
-
-    const sel = document.getElementById('agent-filter')
-    agents.forEach(a => {
-      const o = document.createElement('option')
-      o.value = a._id
-      o.textContent = a.agent_name || a.business_name || 'Agent'
-      sel.appendChild(o)
-    })
 
     const pub = agents.filter(a => a.published).length
     document.getElementById('s-agents').textContent = pub
     document.getElementById('s-agents').classList.remove('loading')
+
+    // Build agent tabs
+    const tabBar = document.getElementById('agent-tabs')
+    // remove existing agent tabs (keep "All")
+    tabBar.querySelectorAll('.agent-tab[data-agent-id]:not([data-agent-id=""])').forEach(t => t.remove())
+
+    agents.forEach(a => {
+      const tab = document.createElement('button')
+      tab.className = 'agent-tab'
+      tab.dataset.agentId = a._id
+      tab.style.setProperty('--tab-color', a.brand_color || '#7C6FFF')
+      tab.innerHTML = `
+        <span style="width:8px;height:8px;border-radius:50%;background:${a.brand_color||'#7C6FFF'};flex-shrink:0"></span>
+        ${a.agent_name || a.business_name || 'Agent'}
+        <span class="tab-count" id="tab-count-${a._id}">—</span>
+      `
+      tab.onclick = () => selectAgentTab(tab)
+      tabBar.appendChild(tab)
+    })
+
+    // Legacy dropdown for mobile fallback (hidden but keeps filter logic)
+    const sel = document.getElementById('agent-filter-hidden')
+    if (sel) {
+      agents.forEach(a => {
+        const o = document.createElement('option')
+        o.value = a._id
+        o.textContent = a.agent_name || a.business_name || 'Agent'
+        sel.appendChild(o)
+      })
+    }
     return agents
   } catch(e) { return [] }
+}
+
+function selectAgentTab(tab) {
+  document.querySelectorAll('.agent-tab').forEach(t => t.classList.remove('active'))
+  tab.classList.add('active')
+  activeAgentId = tab.dataset.agentId || ''
+  loadCustomers(true)
 }
 
 // ── Main load ─────────────────────────────────────────────
@@ -204,65 +384,85 @@ async function loadCustomers(resetPage = false) {
   const btn = document.getElementById('refresh-btn')
   btn.disabled = true; btn.textContent = '↻ Loading…'
 
-  const agentId = document.getElementById('agent-filter').value
+  const sortVal = document.getElementById('sort-filter').value
 
   try {
-    // Try /owner/customers first (new endpoint)
-    // Falls back to manual aggregation from /agents/:id/tryons
     let customers = [], total = 0, totalTryons = 0
 
     try {
       let qs = `limit=${LIMIT}&skip=${currentSkip}`
-      if (agentId) qs += `&agent_id=${agentId}`
+      if (activeAgentId) qs += `&agent_id=${activeAgentId}`
       const data = await apiFetch(`/owner/customers?${qs}`)
       if (data && Array.isArray(data.customers)) {
         customers   = data.customers
         total       = data.total || customers.length
         totalTryons = data.total_tryons || 0
+
+        // Update tab counts from data.agents customer breakdown if available
+        if (data.agents && Array.isArray(data.agents)) {
+          data.agents.forEach(a => {
+            const el = document.getElementById('tab-count-'+a._id)
+            if (el) el.textContent = '—'
+          })
+        }
       } else throw new Error('use fallback')
     } catch {
-      customers   = await fallbackLoadCustomers(agentId)
+      customers   = await fallbackLoadCustomers(activeAgentId)
       total       = customers.length
-      totalTryons = customers.reduce((s,c)=>s+(c.tryon_count||0),0)
+      totalTryons = customers.reduce((s,c) => s+(c.tryon_count||0), 0)
     }
 
     currentTotal = total
 
-    // Filter by phone search (client-side for fallback)
+    // Client-side phone search
     const phoneQ = document.getElementById('phone-search').value.replace(/\D/g,'')
     if (phoneQ) {
       customers = customers.filter(c => String(c.mobile||'').includes(phoneQ))
     }
+
+    // Client-side sort
+    if (sortVal === 'most_tryons') {
+      customers = [...customers].sort((a,b) => (b.tryon_count||0)-(a.tryon_count||0))
+    } else if (sortVal === 'least_tryons') {
+      customers = [...customers].sort((a,b) => (a.tryon_count||0)-(b.tryon_count||0))
+    }
+    // 'recent' → already sorted by API
+
+    lastCustomers = customers // store for export
 
     // Stats
     document.getElementById('s-customers').textContent = total
     document.getElementById('s-tryons').textContent    = fmtNum(totalTryons)
     document.querySelectorAll('.stat-value.loading').forEach(e=>e.classList.remove('loading'))
 
+    // Update "All" tab count
+    if (!activeAgentId) {
+      document.getElementById('tab-count-all').textContent = total
+    }
+
     // Pagination
-    const from = currentSkip+1
-    const to   = Math.min(currentSkip+customers.length, total)
+    const from = currentSkip + 1
+    const to   = Math.min(currentSkip + customers.length, total)
     document.getElementById('page-info').textContent = total
       ? `Showing ${from}–${to} of ${total} customers`
       : 'No customers found'
-    document.getElementById('btn-prev').disabled = currentSkip===0
-    document.getElementById('btn-next').disabled = (currentSkip+LIMIT)>=total
-    document.getElementById('pagination-wrap').style.display = total>LIMIT ? 'flex' : 'none'
+    document.getElementById('btn-prev').disabled = currentSkip === 0
+    document.getElementById('btn-next').disabled = (currentSkip + LIMIT) >= total
+    document.getElementById('pagination-wrap').style.display = total > LIMIT ? 'flex' : 'none'
 
     renderGrid(customers)
   } catch(err) {
-    toast('Failed to load: '+err.message,'error')
+    toast('Failed to load: '+err.message, 'error')
     renderEmpty()
   } finally {
-    btn.disabled=false; btn.textContent='↻ Refresh'
+    btn.disabled = false; btn.textContent = '↻ Refresh'
   }
 }
 
-// ── Fallback: aggregate /agents/:id/tryons ─────────────────
+// ── Fallback ──────────────────────────────────────────────
 async function fallbackLoadCustomers(agentFilter) {
   const agentIds = agentFilter ? [agentFilter] : Object.keys(agentsMap)
   if (!agentIds.length) return []
-
   const grouped = {}
   await Promise.all(agentIds.map(async aId => {
     try {
@@ -272,20 +472,20 @@ async function fallbackLoadCustomers(agentFilter) {
         grouped[key] = {
           mobile:        c.mobile,
           agent_id:      aId,
-          agent:         agentsMap[aId]||null,
-          tryon_count:   c.count||c.tryons?.length||0,
+          agent:         agentsMap[aId] || null,
+          tryon_count:   c.count || c.tryons?.length || 0,
           recent_tryons: (c.tryons||[]).slice(0,4),
           has_base_image:false,
-          last_seen_at:  c.tryons?.[0]?.created_at||null,
+          last_seen_at:  c.tryons?.[0]?.created_at || null,
+          created_at:    null,
         }
       }
     } catch {}
   }))
-
-  return Object.values(grouped).sort((a,b)=>{
+  return Object.values(grouped).sort((a,b) => {
     const ta = a.last_seen_at ? new Date(a.last_seen_at).getTime() : 0
     const tb = b.last_seen_at ? new Date(b.last_seen_at).getTime() : 0
-    return tb-ta
+    return tb - ta
   })
 }
 
@@ -296,7 +496,7 @@ function renderGrid(customers) {
 
   grid.innerHTML = customers.map(c => {
     const agent      = c.agent || agentsMap[c.agent_id] || null
-    const agentName  = agent ? (agent.agent_name||agent.business_name||'Agent') : 'Unknown'
+    const agentName  = agent ? (agent.agent_name || agent.business_name || 'Agent') : 'Unknown'
     const agentColor = agent?.brand_color || '#7C6FFF'
     const masked     = maskPhone(c.mobile)
     const lastSeen   = c.last_seen_at ? fmtRelative(c.last_seen_at) : '—'
@@ -308,17 +508,16 @@ function renderGrid(customers) {
       if (!t) return `<div class="tryon-thumb"><div class="tryon-thumb-empty">👗</div></div>`
       const url = t.result_url || t.image_url || ''
       const day = fmtDay(t.created_at)
-      // Show +N badge on last visible slot if there are more
-      const showMore = i===3 && count>4
+      const showMore = i === 3 && count > 4
       return `<div class="tryon-thumb" onclick="openLightbox('${url.replace(/'/g,'&#39;')}','${masked} · ${day}')" title="${day}">
         <img src="${url}" alt="try-on" loading="lazy">
         ${showMore ? `<div class="tryon-more-badge">+${count-3}</div>` : ''}
       </div>`
     }).join('')
 
-    const agentIdSafe   = (c.agent_id||'').replace(/'/g,'')
-    const mobileSafe    = (c.mobile||'').replace(/'/g,'')
-    const maskedSafe    = masked.replace(/'/g,'')
+    const agentIdSafe = (c.agent_id||'').replace(/'/g,'')
+    const mobileSafe  = (c.mobile||'').replace(/'/g,'')
+    const maskedSafe  = masked.replace(/'/g,'')
 
     return `<div class="customer-card">
       <div class="customer-card-header">
@@ -382,45 +581,281 @@ async function openAlbum(agentId, mobile, maskedPhone) {
           <button onclick="document.getElementById('album-modal').remove()" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px">
-          ${tryons.map(t=>`
+          ${tryons.map(t => `
             <div style="border-radius:10px;overflow:hidden;aspect-ratio:3/4;background:#111;cursor:pointer"
               onclick="openLightbox('${(t.result_url||'').replace(/'/g,'&#39;')}','${fmtDay(t.created_at)}')">
               <img src="${t.result_url||''}" alt="" style="width:100%;height:100%;object-fit:cover;display:block" loading="lazy">
             </div>`).join('')}
         </div>
       </div>`
-    m.addEventListener('click', e => { if (e.target===m) m.remove() })
+    m.addEventListener('click', e => { if (e.target === m) m.remove() })
     document.body.appendChild(m)
   } catch(err) {
-    toast('Could not load album: '+err.message,'error')
+    toast('Could not load album: '+err.message, 'error')
   }
 }
 
 // ── Lightbox ──────────────────────────────────────────────
 function openLightbox(url, caption) {
-  document.getElementById('lb-img').src       = url
-  document.getElementById('lb-caption').textContent = caption||''
+  document.getElementById('lb-img').src = url
+  document.getElementById('lb-caption').textContent = caption || ''
   document.getElementById('lightbox').classList.add('open')
 }
 function closeLightbox() {
   document.getElementById('lightbox').classList.remove('open')
-  setTimeout(()=>{ document.getElementById('lb-img').src='' },250)
+  setTimeout(() => { document.getElementById('lb-img').src = '' }, 250)
 }
-document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeLightbox() })
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeExportModal() } })
 
 // ── Filters ───────────────────────────────────────────────
-function onFilterChange() { loadCustomers(true) }
 function onSearch() {
   clearTimeout(searchTimer)
-  searchTimer = setTimeout(()=>loadCustomers(true),380)
+  searchTimer = setTimeout(() => loadCustomers(true), 380)
 }
 function changePage(dir) {
-  currentSkip = Math.max(0, currentSkip+dir*LIMIT)
+  currentSkip = Math.max(0, currentSkip + dir * LIMIT)
   loadCustomers(false)
-  window.scrollTo({top:0,behavior:'smooth'})
+  window.scrollTo({top:0, behavior:'smooth'})
 }
 
-;(async()=>{
+// ══════════════════════════════════════════════════════════
+// CSV EXPORT
+// ══════════════════════════════════════════════════════════
+
+function openExportModal() {
+  // Update the "current view" description
+  const agentName = activeAgentId
+    ? (agentsMap[activeAgentId]?.agent_name || agentsMap[activeAgentId]?.business_name || 'Agent')
+    : 'all agents'
+  const phone = document.getElementById('phone-search').value.trim()
+  let desc = activeAgentId ? `Customers of "${agentName}"` : 'All customers'
+  if (phone) desc += ` matching "${phone}"`
+  desc += ` (${currentTotal} customer${currentTotal===1?'':'s'})`
+  document.getElementById('scope-current-desc').textContent = desc
+  document.getElementById('export-modal-sub').textContent =
+    `${currentTotal} customer${currentTotal===1?'':'s'} in current view`
+
+  // Highlight the scope radio options
+  document.querySelectorAll('.export-option').forEach(el => el.classList.remove('selected'))
+  document.getElementById('scope-current-label').classList.add('selected')
+
+  updateExportPreview()
+  document.getElementById('export-modal').classList.add('open')
+}
+
+function closeExportModal() {
+  document.getElementById('export-modal').classList.remove('open')
+}
+
+function updateExportPreview() {
+  // Highlight selected scope card
+  document.querySelectorAll('.export-option').forEach(el => {
+    const radio = el.querySelector('input[type=radio]')
+    el.classList.toggle('selected', radio && radio.checked)
+  })
+
+  // Build header preview
+  const cols = getSelectedColumns()
+  document.getElementById('export-preview').textContent =
+    cols.join(', ') || '(no columns selected)'
+}
+
+function toggleAllExportFields(on) {
+  document.querySelectorAll('.export-fields input[type=checkbox]').forEach(cb => cb.checked = on)
+  updateExportPreview()
+}
+
+function getSelectedColumns() {
+  const map = [
+    ['ef-mobile',     'Mobile'],
+    ['ef-agent',      'Agent Name'],
+    ['ef-business',   'Business Name'],
+    ['ef-tryons',     'Try-On Count'],
+    ['ef-last-seen',  'Last Active'],
+    ['ef-joined',     'Joined Date'],
+    ['ef-base-photo', 'Has Base Photo'],
+    ['ef-category',   'Category'],
+  ]
+  return map.filter(([id]) => document.getElementById(id)?.checked).map(([,label]) => label)
+}
+
+/**
+ * Fetch ALL customers for the given scope (no pagination) for export.
+ * Uses a high limit to grab everything in one or a few requests.
+ */
+async function fetchAllForExport(scope) {
+  if (scope === 'current' && lastCustomers.length > 0 && currentTotal <= LIMIT) {
+    // Small set — use what we already have
+    return lastCustomers
+  }
+
+  // For full export, fetch everything page by page
+  const agentId = scope === 'current' ? activeAgentId : ''
+  const phoneQ  = scope === 'current' ? document.getElementById('phone-search').value.replace(/\D/g,'') : ''
+  const pageSize = 100
+  let skip = 0
+  const all = []
+
+  while (true) {
+    let qs = `limit=${pageSize}&skip=${skip}`
+    if (agentId) qs += `&agent_id=${agentId}`
+
+    let batch
+    try {
+      const data = await apiFetch(`/owner/customers?${qs}`)
+      batch = data.customers || []
+    } catch {
+      // fallback
+      batch = await fallbackLoadCustomers(agentId)
+      // apply phone filter if needed
+      if (phoneQ) batch = batch.filter(c => String(c.mobile||'').includes(phoneQ))
+      return batch
+    }
+
+    // Phone filter (client-side, API doesn't support it server-side)
+    if (phoneQ) {
+      batch = batch.filter(c => String(c.mobile||'').includes(phoneQ))
+    }
+
+    all.push(...batch)
+    skip += pageSize
+
+    // If we got fewer than pageSize, we're done
+    if (batch.length < pageSize) break
+
+    // Safety cap: don't loop forever
+    if (all.length >= 5000) break
+  }
+
+  return all
+}
+
+/**
+ * Build a CSV string from a list of customer objects.
+ */
+function buildCSV(customers, scope) {
+  const includeFields = {
+    mobile:    document.getElementById('ef-mobile')?.checked,
+    agent:     document.getElementById('ef-agent')?.checked,
+    business:  document.getElementById('ef-business')?.checked,
+    tryons:    document.getElementById('ef-tryons')?.checked,
+    lastSeen:  document.getElementById('ef-last-seen')?.checked,
+    joined:    document.getElementById('ef-joined')?.checked,
+    basePhoto: document.getElementById('ef-base-photo')?.checked,
+    category:  document.getElementById('ef-category')?.checked,
+  }
+
+  // Build header row
+  const headers = []
+  if (includeFields.mobile)    headers.push('Mobile')
+  if (includeFields.agent)     headers.push('Agent Name')
+  if (includeFields.business)  headers.push('Business Name')
+  if (includeFields.tryons)    headers.push('Try-On Count')
+  if (includeFields.lastSeen)  headers.push('Last Active')
+  if (includeFields.joined)    headers.push('Joined Date')
+  if (includeFields.basePhoto) headers.push('Has Base Photo')
+  if (includeFields.category)  headers.push('Category')
+
+  if (!headers.length) return null
+
+  const csvEsc = val => {
+    if (val === null || val === undefined) return ''
+    const s = String(val)
+    // Escape for CSV: wrap in quotes if it contains comma, quote, or newline
+    if (s.includes(',') || s.includes('"') || s.includes('\n'))
+      return '"' + s.replace(/"/g, '""') + '"'
+    return s
+  }
+
+  const rows = [headers.join(',')]
+
+  for (const c of customers) {
+    const agent    = c.agent || agentsMap[c.agent_id] || null
+    const row = []
+    if (includeFields.mobile)    row.push(csvEsc(rawPhone(c.mobile)))
+    if (includeFields.agent)     row.push(csvEsc(agent?.agent_name || agent?.business_name || ''))
+    if (includeFields.business)  row.push(csvEsc(agent?.business_name || ''))
+    if (includeFields.tryons)    row.push(csvEsc(c.tryon_count || 0))
+    if (includeFields.lastSeen)  row.push(csvEsc(c.last_seen_at ? fmtDateTime(c.last_seen_at) : ''))
+    if (includeFields.joined)    row.push(csvEsc(c.created_at   ? fmtDateTime(c.created_at)   : ''))
+    if (includeFields.basePhoto) row.push(csvEsc(c.has_base_image ? 'Yes' : 'No'))
+    if (includeFields.category)  row.push(csvEsc(agent?.category || ''))
+    rows.push(row.join(','))
+  }
+
+  return rows.join('\r\n')
+}
+
+/**
+ * Trigger a browser download of a CSV string.
+ */
+function downloadCSV(csv, filename) {
+  // Add BOM for Excel UTF-8 compatibility
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href     = url
+  a.download = filename
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  a.click()
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove() }, 1000)
+}
+
+async function doExport() {
+  const scope = document.querySelector('input[name="export-scope"]:checked')?.value || 'current'
+  const cols  = getSelectedColumns()
+  if (!cols.length) { toast('Please select at least one column', 'error'); return }
+
+  const btn = document.getElementById('export-confirm-btn')
+  btn.disabled = true
+  btn.innerHTML = `
+    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" class="spin" style="margin-right:5px">
+      <polyline points="23 4 23 10 17 10"/>
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+    </svg>
+    Exporting…`
+
+  try {
+    toast('Preparing CSV…', 'info', 2000)
+    const customers = await fetchAllForExport(scope)
+
+    if (!customers.length) {
+      toast('No customers to export', 'info')
+      return
+    }
+
+    const csv = buildCSV(customers, scope)
+    if (!csv) { toast('No columns selected', 'error'); return }
+
+    // Filename: boutique-customers-{agent|all}-{date}.csv
+    const agentSlug = (activeAgentId && scope === 'current' && agentsMap[activeAgentId])
+      ? (agentsMap[activeAgentId].slug || agentsMap[activeAgentId].agent_name || 'agent').replace(/\s+/g,'-').toLowerCase()
+      : 'all'
+    const dateStr  = new Date().toISOString().slice(0,10)
+    const filename = `boutique-customers-${agentSlug}-${dateStr}.csv`
+
+    downloadCSV(csv, filename)
+    toast(`✅ Exported ${customers.length} customer${customers.length===1?'':'s'} to CSV`, 'success', 4000)
+    closeExportModal()
+  } catch(e) {
+    toast('Export failed: ' + e.message, 'error')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = `
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-right:5px">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download CSV`
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// Init
+// ══════════════════════════════════════════════════════════
+;(async () => {
   const nav = await renderNav('conversations')
   if (!nav) return
   await loadAgents()
@@ -428,5 +863,8 @@ function changePage(dir) {
   document.getElementById('page-content').style.display = 'block'
 })()
 </script>
+
+<!-- Hidden fallback dropdown — keeps filter ID referenced in legacy code paths -->
+<select id="agent-filter-hidden" style="display:none"><option value="">All Agents</option></select>
 </body>
 </html>
