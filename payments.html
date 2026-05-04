@@ -7,23 +7,57 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Razorpay Checkout SDK -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
+/* ── Billing toggle ───────────────────────────────────────────────── */
+.billing-toggle {
+  display:flex; align-items:center; gap:12px; margin-bottom:28px;
+  justify-content:center;
+}
+.billing-toggle-label {
+  font-size:13.5px; font-weight:600; color:var(--text-2); cursor:pointer;
+  transition:var(--t);
+}
+.billing-toggle-label.active { color:var(--text); }
+.toggle-switch {
+  position:relative; width:44px; height:24px; cursor:pointer;
+}
+.toggle-switch input { opacity:0; width:0; height:0; position:absolute; }
+.toggle-track {
+  position:absolute; inset:0; background:var(--border);
+  border-radius:12px; transition:var(--t);
+}
+.toggle-switch input:checked + .toggle-track { background:var(--accent); }
+.toggle-thumb {
+  position:absolute; top:3px; left:3px; width:18px; height:18px;
+  background:#fff; border-radius:50%; transition:var(--t);
+  box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.toggle-switch input:checked ~ .toggle-thumb { left:23px; }
+.yearly-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background:var(--green-dim,rgba(34,197,94,.1)); color:var(--green,#22c55e);
+  border:1px solid var(--green-border,rgba(34,197,94,.2));
+  font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  padding:2px 8px; border-radius:20px; margin-left:2px;
+}
+
+/* ── Plan grid ───────────────────────────────────────────────────── */
 .plans-grid {
   display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px;
 }
 .plan-card {
   background:var(--surface); border:2px solid var(--border);
   border-radius:var(--r-xl); padding:28px 24px; position:relative;
-  transition:var(--t); display:flex; flex-direction:column; gap:0;
+  transition:var(--t); display:flex; flex-direction:column;
 }
 .plan-card:hover { box-shadow:var(--sh); transform:translateY(-2px) }
 .plan-card.current {
   border-color:var(--accent);
   box-shadow:0 0 0 4px var(--accent-dim), var(--sh);
 }
-.plan-card.popular {
-  border-color:var(--accent);
-}
+.plan-card.popular { border-color:var(--accent); }
 .plan-popular-badge {
   position:absolute; top:-13px; left:50%; transform:translateX(-50%);
   background:var(--accent); color:#fff; font-size:10px; font-weight:700;
@@ -45,6 +79,10 @@
   font-family:var(--mono); color:var(--text); margin-bottom:2px; line-height:1;
 }
 .plan-price span { font-size:16px; font-weight:500; color:var(--text-3); letter-spacing:0 }
+.plan-savings {
+  font-size:11.5px; color:var(--green); font-weight:600; margin-bottom:6px;
+  min-height:18px;
+}
 .plan-desc { font-size:13px; color:var(--text-2); margin-bottom:20px; line-height:1.5 }
 .plan-divider { height:1px; background:var(--border); margin-bottom:18px }
 .plan-features { display:flex; flex-direction:column; gap:9px; flex:1 }
@@ -55,17 +93,57 @@
 .plan-feat-icon.no { opacity:.35 }
 .plan-feat.disabled { color:var(--text-3) }
 .plan-action { margin-top:22px }
+
+/* ── Usage card ──────────────────────────────────────────────────── */
 .usage-card { margin-bottom:22px }
 .usage-detail {
   display:flex; align-items:center; justify-content:space-between;
   font-size:12.5px; color:var(--text-3); margin-top:6px;
 }
-.billing-note {
-  background:var(--amber-dim); border:1px solid var(--amber-border);
-  border-radius:var(--r); padding:14px 18px;
-  font-size:13px; color:var(--amber); margin-bottom:22px;
-  display:flex; align-items:flex-start; gap:10px;
+
+/* ── Payment history ─────────────────────────────────────────────── */
+.payment-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:13px 0; border-bottom:1px solid var(--border);
 }
+.payment-row:last-child { border-bottom:none; }
+.payment-plan-badge {
+  display:inline-flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:700; padding:3px 10px;
+  border-radius:20px; background:var(--accent-dim); color:var(--accent);
+  text-transform:capitalize;
+}
+.payment-amount {
+  font-family:var(--mono); font-weight:700; font-size:14px; color:var(--text);
+}
+.payment-meta {
+  font-size:11.5px; color:var(--text-3); margin-top:2px;
+}
+.payment-status {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+  padding:2px 8px; border-radius:20px;
+}
+.payment-status.paid, .payment-status.captured {
+  background:rgba(34,197,94,.1); color:var(--green);
+}
+
+/* ── Processing overlay ──────────────────────────────────────────── */
+#payment-overlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.55); align-items:center; justify-content:center;
+}
+#payment-overlay.active { display:flex; }
+.payment-overlay-card {
+  background:var(--surface); border-radius:var(--r-xl);
+  padding:36px 48px; text-align:center; max-width:340px;
+}
+.payment-overlay-spinner {
+  width:48px; height:48px; border:4px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 18px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
 @media(max-width:900px) { .plans-grid { grid-template-columns:1fr } }
 @media(max-width:600px) { .plan-price { font-size:30px } }
 </style>
@@ -82,6 +160,15 @@
 </head>
 <body>
 <div id="toast-container"></div>
+
+<!-- Payment processing overlay -->
+<div id="payment-overlay">
+  <div class="payment-overlay-card">
+    <div class="payment-overlay-spinner"></div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px" id="overlay-title">Processing Payment</div>
+    <div style="font-size:13px;color:var(--text-2)" id="overlay-msg">Please wait while we confirm your payment…</div>
+  </div>
+</div>
 
 <div class="mobile-topbar">
   <div class="mob-left">
@@ -139,7 +226,7 @@
             </div>
             <div class="usage-detail">
               <span id="u-pct">0% used</span>
-              <span id="u-reset">—</span>
+              <span id="u-reset"></span>
             </div>
           </div>
 
@@ -155,9 +242,9 @@
           </div>
 
           <div>
-            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Plan Resets</div>
-            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="u-reset-date">—</div>
-            <div style="font-size:12.5px;color:var(--text-3)">Usage resets at the start of each billing cycle.</div>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Plan Expires</div>
+            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="u-expires-date">—</div>
+            <div style="font-size:12.5px;color:var(--text-3)" id="u-expires-label">Resets at the start of each billing cycle.</div>
             <div style="margin-top:10px">
               <a href="account.html" class="btn btn-secondary btn-sm">⚙️ Account Settings</a>
             </div>
@@ -167,91 +254,34 @@
       </div>
     </div>
 
-    <!-- Coming soon note -->
-    <div class="billing-note">
-      <span style="font-size:18px;flex-shrink:0">⚡</span>
-      <div>
-        <div style="font-weight:700;margin-bottom:3px">Online payments coming soon</div>
-        <div style="opacity:.85">To upgrade your plan, contact us on WhatsApp or email and we'll activate it for you within minutes.</div>
-        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-          <a href="https://wa.me/917890123456" target="_blank" class="btn btn-sm" style="background:var(--amber);color:#fff">💬 WhatsApp</a>
-          <a href="mailto:support@boutiquesaas.aasaitech.in" class="btn btn-sm" style="background:var(--amber);color:#fff">✉️ Email Us</a>
-        </div>
-      </div>
+    <!-- Billing cycle toggle -->
+    <div class="billing-toggle">
+      <span class="billing-toggle-label active" id="label-monthly">Monthly</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="billing-toggle" onchange="toggleBilling()">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span class="billing-toggle-label" id="label-yearly">
+        Yearly <span class="yearly-badge">Save up to 17%</span>
+      </span>
     </div>
 
     <!-- Plans -->
     <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px">Choose Your Plan</div>
 
-    <div class="plans-grid">
+    <div class="plans-grid" id="plans-grid">
+      <!-- Rendered by JS -->
+    </div>
 
-      <!-- Starter -->
-      <div class="plan-card" id="plan-starter">
-        <div class="plan-name">Starter</div>
-        <div class="plan-price">₹299<span>/mo</span></div>
-        <div class="plan-desc">Perfect for new boutiques testing AI try-on.</div>
-        <div class="plan-divider"></div>
-        <div class="plan-features">
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>1 Agent</strong></span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>50 try-ons / month</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Subdomain URL <span style="font-family:var(--mono);font-size:11px;color:var(--text-3)">you.boutiquesaas.aasaitech.in</span></span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Product catalog</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Chat interface</span></div>
-          <div class="plan-feat disabled"><span class="plan-feat-icon no">✕</span><span>Custom domain</span></div>
-          <div class="plan-feat disabled"><span class="plan-feat-icon no">✕</span><span>Priority support</span></div>
-        </div>
-        <div class="plan-action">
-          <button class="btn btn-secondary" style="width:100%;justify-content:center" id="starter-btn" onclick="requestUpgrade('starter')">
-            Get Starter
-          </button>
-        </div>
+    <!-- Payment history -->
+    <div class="card" id="payment-history-card" style="display:none">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">🧾</span>Payment History</div>
       </div>
-
-      <!-- Grower -->
-      <div class="plan-card popular" id="plan-grower">
-        <div class="plan-popular-badge">Most Popular</div>
-        <div class="plan-name">Grower</div>
-        <div class="plan-price">₹999<span>/mo</span></div>
-        <div class="plan-desc">For growing boutiques ready to scale their AI presence.</div>
-        <div class="plan-divider"></div>
-        <div class="plan-features">
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>5 Agents</strong></span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>500 try-ons / month</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Subdomain URL</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Product catalog</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Chat interface</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>Custom domain</strong></span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Priority support</span></div>
-        </div>
-        <div class="plan-action">
-          <button class="btn btn-primary" style="width:100%;justify-content:center" id="grower-btn" onclick="requestUpgrade('grower')">
-            Upgrade to Grower
-          </button>
-        </div>
+      <div class="card-body" id="payment-history-body">
+        <div style="color:var(--text-3);font-size:13px">Loading…</div>
       </div>
-
-      <!-- Enterprise -->
-      <div class="plan-card" id="plan-enterprise">
-        <div class="plan-name">Enterprise</div>
-        <div class="plan-price">Custom</div>
-        <div class="plan-desc">Unlimited scale for large chains and multi-brand boutiques.</div>
-        <div class="plan-divider"></div>
-        <div class="plan-features">
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span><strong>Unlimited Agents</strong></span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Unlimited try-ons</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Custom domain per agent</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>White-label branding</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Dedicated support</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>SLA guarantee</span></div>
-          <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Custom integrations</span></div>
-        </div>
-        <div class="plan-action">
-          <button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="requestUpgrade('enterprise')">
-            Contact Sales
-          </button>
-        </div>
-      </div>
-
     </div>
 
     <!-- FAQ -->
@@ -263,7 +293,14 @@
 
         <div>
           <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I hit my try-on limit?</div>
-          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until your usage resets at the start of the next month. You can upgrade anytime to immediately increase your limit.</div>
+          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until your usage resets at the start of the next month. Upgrade anytime to immediately increase your limit.</div>
+        </div>
+
+        <div class="divider" style="margin:0"></div>
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Is my payment secure?</div>
+          <div style="font-size:13px;color:var(--text-2)">Yes — payments are processed by Razorpay, a PCI-DSS compliant payment gateway. We never store your card details. You can pay via UPI, cards, net banking, or wallets.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
@@ -276,15 +313,15 @@
         <div class="divider" style="margin:0"></div>
 
         <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I upgrade or downgrade anytime?</div>
-          <div style="font-size:13px;color:var(--text-2)">Yes. Upgrades take effect immediately. Contact us to change your plan and we'll adjust it right away.</div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What payment methods do you accept?</div>
+          <div style="font-size:13px;color:var(--text-2)">UPI, credit/debit cards, net banking, Paytm, and all major wallets — anything supported by Razorpay.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
 
         <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What payment methods do you accept?</div>
-          <div style="font-size:13px;color:var(--text-2)">Currently we accept UPI, bank transfer, and Razorpay. Online payments will be integrated into the dashboard soon.</div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I upgrade or downgrade anytime?</div>
+          <div style="font-size:13px;color:var(--text-2)">Upgrades take effect immediately after payment. For downgrades or cancellations, contact us and we'll sort it out right away.</div>
         </div>
 
       </div>
@@ -294,60 +331,239 @@
 </div>
 
 <script>
-const PLAN_LIMITS = { starter: { agents: 1, tryons: 50 }, grower: { agents: 5, tryons: 500 }, enterprise: { agents: 99999, tryons: 99999 } }
-const PLAN_LABELS = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+const PLAN_LIMITS  = { starter: { agents: 1, tryons: 50 }, grower: { agents: 5, tryons: 500 }, enterprise: { agents: 99999, tryons: 99999 } }
+const PLAN_LABELS  = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+const PLAN_ICONS   = { starter: '🌱', grower: '🌿', enterprise: '🏢' }
+const WHATSAPP_NUM = '917890123456'   // Update to your actual WhatsApp number
 
-let currentPlan = 'starter'
+let currentPlan   = 'starter'
+let billingCycle  = 'monthly'
+let currentUser   = null
+let plansData     = []
 
-function highlightCurrentPlan(plan) {
-  currentPlan = plan
-  ;['starter','grower','enterprise'].forEach(p => {
-    const card = document.getElementById('plan-' + p)
-    card.classList.remove('current')
-    // Remove old current badge
-    card.querySelectorAll('.plan-current-badge').forEach(el => el.remove())
-  })
+// ── Billing toggle ──────────────────────────────────────────────────────────
+function toggleBilling() {
+  billingCycle = document.getElementById('billing-toggle').checked ? 'yearly' : 'monthly'
+  document.getElementById('label-monthly').classList.toggle('active', billingCycle === 'monthly')
+  document.getElementById('label-yearly').classList.toggle('active',  billingCycle === 'yearly')
+  renderPlans()
+}
 
-  const activeCard = document.getElementById('plan-' + plan)
-  if (activeCard) {
-    activeCard.classList.add('current')
-    // Remove popular badge if showing current
-    activeCard.querySelectorAll('.plan-popular-badge').forEach(el => el.remove())
-    const badge = document.createElement('div')
-    badge.className = 'plan-current-badge'
-    badge.textContent = 'Current Plan'
-    activeCard.insertBefore(badge, activeCard.firstChild)
-  }
+// ── Render plan cards ───────────────────────────────────────────────────────
+function renderPlans() {
+  const grid = document.getElementById('plans-grid')
+  if (!grid || !plansData.length) return
+  grid.innerHTML = ''
 
-  // Update button states
-  ;['starter','grower','enterprise'].forEach(p => {
-    const btn = document.getElementById(p + '-btn')
-    if (!btn) return
-    if (p === plan) {
-      btn.textContent = '✓ Current Plan'
-      btn.disabled = true
-      btn.className = 'btn btn-secondary'
+  plansData.forEach(plan => {
+    const isCurrent  = plan.id === currentPlan
+    const isUpgrade  = ['starter','grower','enterprise'].indexOf(plan.id) > ['starter','grower','enterprise'].indexOf(currentPlan)
+    const price      = plan.price_inr[billingCycle]
+    const savings    = billingCycle === 'yearly' ? (plan.savings_inr?.yearly || 0) : 0
+
+    const card = document.createElement('div')
+    card.className = `plan-card${plan.popular ? ' popular' : ''}${isCurrent ? ' current' : ''}`
+    card.id        = 'plan-' + plan.id
+
+    let badge = ''
+    if (isCurrent) badge = '<div class="plan-current-badge">Current Plan</div>'
+    else if (plan.popular && !isCurrent) badge = '<div class="plan-popular-badge">Most Popular</div>'
+
+    const priceHtml = price === 0
+      ? `<div class="plan-price">Free</div>`
+      : plan.contact
+        ? `<div class="plan-price" style="font-size:28px">Custom</div>`
+        : `<div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/${billingCycle === 'yearly' ? 'yr' : 'mo'}</span></div>`
+
+    const savingsHtml = savings > 0
+      ? `<div class="plan-savings">Save ₹${savings.toLocaleString('en-IN')} vs monthly</div>`
+      : `<div class="plan-savings"></div>`
+
+    const featuresHtml = plan.features.map(f =>
+      `<div class="plan-feat${f.included ? '' : ' disabled'}">
+        <span class="plan-feat-icon${f.included ? '' : ' no'}">${f.included ? '✅' : '✕'}</span>
+        <span>${f.text}</span>
+      </div>`
+    ).join('')
+
+    let btnHtml = ''
+    if (isCurrent) {
+      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>✓ Current Plan</button>`
+    } else if (plan.contact) {
+      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">💬 Contact Sales</button>`
+    } else if (plan.id === 'starter') {
+      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>Free Plan</button>`
+    } else if (isUpgrade) {
+      btnHtml = `<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="startPayment('${plan.id}')">⬆️ ${plan.cta}</button>`
+    } else {
+      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">Contact Us</button>`
     }
+
+    card.innerHTML = `
+      ${badge}
+      <div class="plan-name">${PLAN_ICONS[plan.id] || ''} ${plan.name}</div>
+      ${priceHtml}
+      ${savingsHtml}
+      <div class="plan-divider"></div>
+      <div class="plan-features">${featuresHtml}</div>
+      <div class="plan-action">${btnHtml}</div>
+    `
+    grid.appendChild(card)
   })
 }
 
-function requestUpgrade(plan) {
-  if (plan === currentPlan) return
-  const names = { starter: 'Starter (₹299/mo)', grower: 'Grower (₹999/mo)', enterprise: 'Enterprise (Custom)' }
-  const msg = `Hi! I'd like to upgrade my BoutiqueAI account to the ${names[plan]} plan.`
-  const waUrl = `https://wa.me/917890123456?text=${encodeURIComponent(msg)}`
-  window.open(waUrl, '_blank')
+// ── Contact Sales (WhatsApp) ────────────────────────────────────────────────
+function contactSales(plan) {
+  const name  = plan.charAt(0).toUpperCase() + plan.slice(1)
+  const msg   = `Hi! I'd like to know more about the BoutiqueAI ${name} plan.`
+  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 
+// ── Overlay helpers ─────────────────────────────────────────────────────────
+function showOverlay(title, msg) {
+  document.getElementById('overlay-title').textContent = title
+  document.getElementById('overlay-msg').textContent   = msg
+  document.getElementById('payment-overlay').classList.add('active')
+}
+function hideOverlay() {
+  document.getElementById('payment-overlay').classList.remove('active')
+}
+
+// ── Start Razorpay checkout ─────────────────────────────────────────────────
+async function startPayment(planId) {
+  if (!currentUser) return toast('Please log in first.', 'error')
+
+  showOverlay('Creating Order…', 'Setting up your payment. Just a moment.')
+
+  try {
+    const data = await apiFetch('/payment/create-order', {
+      method:  'POST',
+      headers: apiHeaders(),
+      body:    JSON.stringify({ plan: planId, billing: billingCycle }),
+    })
+
+    if (data.error || !data.order_id) {
+      hideOverlay()
+      return toast(data.error || 'Could not create order. Please try again.', 'error')
+    }
+
+    hideOverlay()
+
+    const options = {
+      key:         data.key_id,
+      amount:      data.amount,
+      currency:    data.currency,
+      name:        'BoutiqueAI',
+      description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — ${billingCycle}`,
+      image:       '/favicon.ico',
+      order_id:    data.order_id,
+      prefill: {
+        name:  data.user_name  || '',
+        email: data.user_email || '',
+      },
+      theme: { color: '#7C6FFF' },
+      modal: {
+        ondismiss: () => {
+          hideOverlay()
+          toast('Payment cancelled.', 'info')
+        },
+      },
+      handler: async (response) => {
+        // Payment succeeded — verify on backend
+        showOverlay('Verifying Payment…', 'Confirming your payment with our server…')
+        try {
+          const verifyData = await apiFetch('/payment/verify', {
+            method:  'POST',
+            headers: apiHeaders(),
+            body:    JSON.stringify({
+              razorpay_order_id:   response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature,
+              plan:                planId,
+              billing:             billingCycle,
+            }),
+          })
+
+          if (verifyData.error) {
+            hideOverlay()
+            toast('Payment received but verification failed. Contact support.', 'error')
+            return
+          }
+
+          hideOverlay()
+          toast(`🎉 ${verifyData.message || 'Plan upgraded successfully!'}`, 'success', 5000)
+
+          // Refresh page after short delay to show new plan
+          setTimeout(() => location.reload(), 2000)
+        } catch (err) {
+          hideOverlay()
+          toast('Verification error. If money was deducted, please contact support.', 'error', 6000)
+        }
+      },
+    }
+
+    const rzp = new Razorpay(options)
+    rzp.on('payment.failed', (response) => {
+      hideOverlay()
+      toast(`Payment failed: ${response.error.description || 'Please try again.'}`, 'error', 5000)
+    })
+    rzp.open()
+  } catch (err) {
+    hideOverlay()
+    toast(err.message || 'Something went wrong. Please try again.', 'error')
+  }
+}
+
+// ── Render payment history ───────────────────────────────────────────────────
+function renderPaymentHistory(payments) {
+  const card = document.getElementById('payment-history-card')
+  const body = document.getElementById('payment-history-body')
+  if (!payments || !payments.length) return
+
+  card.style.display = 'block'
+  body.innerHTML = payments.map(p => `
+    <div class="payment-row">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span class="payment-plan-badge">${PLAN_ICONS[p.plan] || ''} ${p.plan}</span>
+          <span style="font-size:11.5px;color:var(--text-3);text-transform:capitalize">${p.billing}</span>
+        </div>
+        <div class="payment-meta">
+          ${fmtDate(p.paid_at)}
+          ${p.expires_at ? ` · Expires ${fmtDate(p.expires_at)}` : ''}
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="payment-amount">₹${(p.amount_inr || 0).toLocaleString('en-IN')}</div>
+        <div style="margin-top:4px">
+          <span class="payment-status ${p.status}">${p.status}</span>
+        </div>
+      </div>
+    </div>
+  `).join('')
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
 ;(async () => {
   const nav = await renderNav('billing')
   if (!nav) return
 
-  const data = await apiFetch('/account')
-  const user  = data.user || data
+  // Load account + plans in parallel
+  const [accountData, plansRes, historyData] = await Promise.all([
+    apiFetch('/account'),
+    apiFetch('/payment/plans'),
+    apiFetch('/payment/history'),
+  ])
+
+  currentUser = accountData.user || accountData
+  const user  = currentUser
+  const plan  = user.plan || 'starter'
+  currentPlan = plan
+
+  // Populate plan cards data
+  plansData = plansRes.plans || []
 
   // Current plan badge
-  const plan = user.plan || 'starter'
   document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan
 
   // Usage stats
@@ -362,23 +578,37 @@ function requestUpgrade(plan) {
 
   document.getElementById('u-used').textContent = usedTry
   document.getElementById('u-cap').textContent  = capTry === 99999 ? '∞' : capTry
-  const bar = document.getElementById('u-bar')
+  const bar    = document.getElementById('u-bar')
   bar.style.width = pctTry + '%'
   bar.className   = 'progress-fill' + (pctTry >= 90 ? ' danger' : pctTry >= 70 ? ' warn' : '')
   document.getElementById('u-pct').textContent   = pctTry + '% used'
   document.getElementById('u-reset').textContent = usage.reset_at ? 'Resets ' + fmtDate(usage.reset_at) : ''
-  document.getElementById('u-reset-date').textContent = usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly'
+
+  const expiresDate = user.plan_expires_at
+    ? fmtDate(user.plan_expires_at)
+    : (usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly')
+  document.getElementById('u-expires-date').textContent = expiresDate
+  document.getElementById('u-expires-label').textContent = user.plan_billing === 'yearly'
+    ? 'Annual plan — expires on the date above.'
+    : 'Monthly plan — renews or resets on the date above.'
 
   document.getElementById('u-agents').textContent     = usedAg
-  document.getElementById('u-agents-cap').textContent = capAg
+  document.getElementById('u-agents-cap').textContent  = capAg
   const agBar = document.getElementById('u-agents-bar')
   agBar.style.width = pctAg + '%'
   agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
   document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
 
-  highlightCurrentPlan(plan)
+  // Render plan cards
+  renderPlans()
 
-  document.getElementById('page-content').style.display = 'block'
+  // Payment history
+  if (historyData.payments) {
+    renderPaymentHistory(historyData.payments)
+  }
+
+  document.getElementById('page-skeleton').style.display = 'none'
+  document.getElementById('page-content').style.display  = 'block'
 })()
 </script>
 </body>
