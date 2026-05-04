@@ -28,6 +28,19 @@
 .slug-preview .slug-base{color:var(--text-3)}
 .avatar-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:6px}
 @media(max-width:640px){.category-grid{grid-template-columns:repeat(2,1fr)}}
+/* Quality selector */
+.quality-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.quality-btn{padding:12px 8px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;text-align:center;transition:var(--t);font-family:var(--font);position:relative;overflow:hidden}
+.quality-btn:hover{border-color:var(--accent);background:var(--accent-dim)}
+.quality-btn.selected{border-color:var(--accent);background:var(--accent-dim)}
+.quality-btn .q-icon{font-size:20px;margin-bottom:4px}
+.quality-btn .q-label{font-size:11.5px;font-weight:700;display:block;color:var(--text)}
+.quality-btn .q-desc{font-size:10px;color:var(--text-3);display:block;margin-top:2px;line-height:1.4}
+.quality-btn.selected .q-label{color:var(--accent)}
+.quality-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--surface-3);color:var(--text-3);border:1px solid var(--border-md)}
+.quality-badge.q-low{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-border)}
+.quality-badge.q-medium{background:var(--green-dim);color:var(--green);border-color:var(--green-border)}
+.quality-badge.q-high{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-border)}
 /* Edit modal */
 .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle-switch input{opacity:0;width:0;height:0}
@@ -127,6 +140,27 @@
               <button class="category-btn" data-value="footwear" onclick="selectCategory(this)"><div class="cat-icon">👠</div><div class="cat-label">Footwear</div></button>
               <button class="category-btn" data-value="mixed" onclick="selectCategory(this)"><div class="cat-icon">🛍️</div><div class="cat-label">Mixed / All</div></button>
             </div>
+          </div>
+          <div class="field">
+            <label class="field-label">Try-On Quality</label>
+            <div class="quality-grid">
+              <button class="quality-btn" data-value="low" onclick="selectQuality(this,false)">
+                <div class="q-icon">⚡</div>
+                <span class="q-label">Fast</span>
+                <span class="q-desc">Cheaper & quicker<br>~₹1–2 per try-on</span>
+              </button>
+              <button class="quality-btn selected" data-value="medium" onclick="selectQuality(this,false)">
+                <div class="q-icon">✨</div>
+                <span class="q-label">Balanced</span>
+                <span class="q-desc">Best value<br>~₹3–4 per try-on</span>
+              </button>
+              <button class="quality-btn" data-value="high" onclick="selectQuality(this,false)">
+                <div class="q-icon">💎</div>
+                <span class="q-label">Premium</span>
+                <span class="q-desc">Highest quality<br>~₹6–10 per try-on</span>
+              </button>
+            </div>
+            <div class="field-hint">Higher quality uses a better AI model. You can change this anytime.</div>
           </div>
           <div class="field">
             <label class="field-label">Your Agent's URL</label>
@@ -289,6 +323,26 @@
           <label class="field-label">Welcome Message</label>
           <textarea class="textarea" id="edit-welcome" style="min-height:80px" placeholder="Hi! I'm your AI stylist..."></textarea>
         </div>
+        <div class="field">
+          <label class="field-label">Try-On Quality</label>
+          <div class="quality-grid">
+            <button class="quality-btn" data-value="low" onclick="selectQuality(this,true)">
+              <div class="q-icon">⚡</div>
+              <span class="q-label">Fast</span>
+              <span class="q-desc">~₹1–2 / try-on</span>
+            </button>
+            <button class="quality-btn" data-value="medium" onclick="selectQuality(this,true)">
+              <div class="q-icon">✨</div>
+              <span class="q-label">Balanced</span>
+              <span class="q-desc">~₹3–4 / try-on</span>
+            </button>
+            <button class="quality-btn" data-value="high" onclick="selectQuality(this,true)">
+              <div class="q-icon">💎</div>
+              <span class="q-label">Premium</span>
+              <span class="q-desc">~₹6–10 / try-on</span>
+            </button>
+          </div>
+        </div>
 
         <!-- Custom Domain (Grower+ only) -->
         <div id="edit-domain-section">
@@ -358,6 +412,15 @@
 <script>
 // SUBDOMAIN_BASE from api.js
 let currentStep = 1, selectedCategory = '', selectedColor = '#7C6FFF', avatarBase64 = null
+let selectedQuality = 'medium', editSelectedQuality = 'medium'
+
+function selectQuality(btn, isEdit) {
+  const grid = isEdit ? '#edit-quality-grid .quality-btn' : '#step-1 .quality-btn'
+  document.querySelectorAll(grid).forEach(b => b.classList.remove('selected'))
+  btn.classList.add('selected')
+  if (isEdit) editSelectedQuality = btn.dataset.value
+  else        selectedQuality     = btn.dataset.value
+}
 
 function openCreateWizard() {
   currentStep = 1; renderWizardStep(1)
@@ -367,7 +430,7 @@ function closeCreateWizard() {
   document.getElementById('create-modal').classList.remove('open'); resetWizard()
 }
 function resetWizard() {
-  currentStep=1; selectedCategory=''; selectedColor='#7C6FFF'; avatarBase64=null
+  currentStep=1; selectedCategory=''; selectedColor='#7C6FFF'; avatarBase64=null; selectedQuality='medium'
   document.getElementById('w-biz-name').value=''
   document.getElementById('w-agent-name').value=''
   document.getElementById('w-welcome').value=''
@@ -376,6 +439,9 @@ function resetWizard() {
   document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('selected'))
   document.querySelector('[data-color="#7C6FFF"]')?.classList.add('selected')
   document.getElementById('avatar-upload-box').innerHTML='<span id="avatar-preview-icon">📷</span>'
+  // Reset quality to medium
+  document.querySelectorAll('#step-1 .quality-btn').forEach(b=>b.classList.remove('selected'))
+  document.querySelector('#step-1 .quality-btn[data-value="medium"]')?.classList.add('selected')
 }
 function renderWizardStep(n) {
   document.querySelectorAll('.wizard-step').forEach((s,i)=>s.classList.toggle('active',i+1===n))
@@ -430,6 +496,7 @@ async function createAgent(){
       category:selectedCategory,brand_color:selectedColor,
       welcome_msg:document.getElementById('w-welcome').value.trim(),
       logo_base64:avatarBase64||null,
+      quality:selectedQuality,
     })})
     toast('Agent created! 🎉','success')
     closeCreateWizard(); loadAgents()
@@ -469,6 +536,7 @@ function openEditModal(id) {
     if (!a || a.error) { toast('Could not load agent', 'error'); return }
     editingAgentId = id
     editColor = a.brand_color || '#7C6FFF'
+    editSelectedQuality = a.quality || 'medium'
     editAvatarBase64 = null  // reset — null means keep existing logo
 
     document.getElementById('edit-agent-name').value = a.agent_name || ''
@@ -510,6 +578,9 @@ function openEditModal(id) {
       document.getElementById('edit-domain-remove-btn').style.display = 'none'
     }
 
+    document.querySelectorAll('#edit-modal .quality-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.value === editSelectedQuality)
+    })
     document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
     document.getElementById('edit-modal').classList.add('open')
   }).catch(e => toast(e.message, 'error'))
@@ -580,6 +651,7 @@ async function saveAgent() {
     brand_color:   editColor,
     welcome_msg:   document.getElementById('edit-welcome').value.trim(),
     published,
+    quality:       editSelectedQuality,
   }
   // Only send logo if user picked a new one
   if (editAvatarBase64) body.logo_base64 = editAvatarBase64
@@ -707,6 +779,10 @@ async function loadAgents(){
           </div>
           <div style="flex:1;min-width:0">
             <div style="font-size:14px;font-weight:700;letter-spacing:-.02em">${a.agent_name||a.name}</div>
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:6px">
+              <span>${a.category||''}</span>
+              ${a.quality ? `<span class="quality-badge q-${a.quality||'medium'}">${{low:'⚡ Fast',medium:'✨ Balanced',high:'💎 Premium'}[a.quality||'medium']}</span>` : ''}
+            </div>
             <div style="font-size:12px;color:var(--text-2);margin-top:2px">${a.business_name||''}</div>
             <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
               <span class="badge badge-accent" style="font-size:10px">${catLabels[a.category]||a.category||'Boutique'}</span>
