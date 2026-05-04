@@ -41,6 +41,13 @@
 .quality-badge.q-low{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-border)}
 .quality-badge.q-medium{background:var(--green-dim);color:var(--green);border-color:var(--green-border)}
 .quality-badge.q-high{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-border)}
+/* Rate Limit section */
+.rate-limit-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.rate-limit-input{width:90px;text-align:center;font-family:var(--mono);font-weight:700;font-size:15px}
+.rate-limit-select{flex:1;min-width:0}
+.rate-limit-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.rate-limit-badge.unlimited{background:rgba(25,163,122,.1);color:#19a37a;border:1px solid rgba(25,163,122,.25)}
+.rate-limit-badge.limited{background:rgba(245,158,11,.1);color:#d97706;border:1px solid rgba(245,158,11,.25)}
 /* Edit modal */
 .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle-switch input{opacity:0;width:0;height:0}
@@ -50,6 +57,8 @@
 .toggle-switch input:checked+.toggle-track::before{transform:translateX(20px)}
 .publish-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)}
 .danger-zone{margin-top:8px;padding:12px 16px;background:var(--red-dim,rgba(239,68,68,.06));border:1px solid var(--red-border,rgba(239,68,68,.18));border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between}
+.section-divider{height:1px;background:var(--border);margin:4px 0 16px}
+.section-label{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -101,7 +110,9 @@
   </div>
 </div>
 
-<!-- Create Agent Wizard -->
+<!-- ══════════════════════════════════════════════════════════════
+     Create Agent Wizard
+═══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="create-modal">
   <div class="modal" style="max-width:540px">
     <div class="modal-header">
@@ -162,6 +173,24 @@
             </div>
             <div class="field-hint">Higher quality uses a better AI model. You can change this anytime.</div>
           </div>
+
+          <!-- ── Per-user Rate Limit (NEW) ── -->
+          <div class="field">
+            <label class="field-label">Per-Customer Try-On Limit 🛡️</label>
+            <div class="rate-limit-row">
+              <input class="input rate-limit-input" id="w-limit-count" type="number" min="0" max="9999"
+                     value="10" placeholder="10" oninput="updateWizardLimitPreview()">
+              <select class="input rate-limit-select" id="w-limit-window" onchange="updateWizardLimitPreview()">
+                <option value="day">per day</option>
+                <option value="week">per week</option>
+                <option value="month">per month</option>
+                <option value="total">total (lifetime)</option>
+              </select>
+            </div>
+            <div style="margin-top:7px" id="w-limit-preview"></div>
+            <div class="field-hint">Prevents spam. Set to <strong>0</strong> for unlimited. You can change this anytime.</div>
+          </div>
+
           <div class="field">
             <label class="field-label">Your Agent's URL</label>
             <div class="slug-preview">
@@ -232,6 +261,7 @@
         </div>
         <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px">
           <div class="info-row" style="padding:6px 0"><span class="info-row-label">Agent URL</span><span style="font-size:12px;font-family:var(--mono);color:var(--accent)" id="review-url">—</span></div>
+          <div class="info-row" style="padding:6px 0"><span class="info-row-label">Try-on limit</span><span style="font-size:12px;color:var(--text-2)" id="review-limit">—</span></div>
           <div class="info-row" style="padding:6px 0;border:none"><span class="info-row-label">Welcome message</span><span style="font-size:12px;color:var(--text-2);max-width:220px;text-align:right" id="review-welcome">—</span></div>
         </div>
         <div style="margin-top:14px;padding:12px 14px;background:var(--accent-dim);border:1px solid rgba(124,111,255,.18);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2)">
@@ -247,7 +277,9 @@
   </div>
 </div>
 
-<!-- Edit Agent Modal -->
+<!-- ══════════════════════════════════════════════════════════════
+     Edit Agent Modal
+═══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
@@ -345,12 +377,31 @@
           <div class="field-hint">Higher quality uses a better AI model. Takes effect on the next try-on.</div>
         </div>
 
-        <!-- Custom Domain (Grower+ only) -->
-        <div id="edit-domain-section">
-          <div style="height:1px;background:var(--border);margin:4px 0 16px"></div>
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px">
-            🌐 Custom Domain
+        <!-- ── Per-user Rate Limit (NEW) ── -->
+        <div>
+          <div class="section-divider"></div>
+          <div class="section-label">🛡️ Per-Customer Try-On Limit</div>
+          <div class="rate-limit-row">
+            <input class="input rate-limit-input" id="edit-limit-count" type="number" min="0" max="9999"
+                   value="10" placeholder="10" oninput="updateEditLimitPreview()">
+            <select class="input rate-limit-select" id="edit-limit-window" onchange="updateEditLimitPreview()">
+              <option value="day">per day</option>
+              <option value="week">per week</option>
+              <option value="month">per month</option>
+              <option value="total">total (lifetime)</option>
+            </select>
           </div>
+          <div style="margin-top:7px" id="edit-limit-preview"></div>
+          <div class="field-hint">Limits how many try-ons each customer can do. Set to <strong>0</strong> for unlimited.</div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-secondary btn-sm" onclick="openUserStatsModal()">📊 View Usage by Customer</button>
+          </div>
+        </div>
+
+        <!-- Custom Domain -->
+        <div id="edit-domain-section">
+          <div class="section-divider"></div>
+          <div class="section-label">🌐 Custom Domain</div>
           <div id="edit-domain-form">
           <div id="edit-domain-current" style="display:none;margin-bottom:12px"></div>
           <div class="field" style="margin-bottom:10px">
@@ -390,6 +441,7 @@
               Verify DNS
             </button>
             <button class="btn btn-sm" id="edit-domain-remove-btn" onclick="removeAgentDomain()" style="display:none;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25))">Remove Domain</button>
+          </div>
           </div><!-- /edit-domain-form -->
         </div><!-- /edit-domain-section -->
 
@@ -410,13 +462,75 @@
   </div>
 </div>
 
-<script>
-// SUBDOMAIN_BASE from api.js
-let currentStep = 1, selectedCategory = '', selectedColor = '#7C6FFF', avatarBase64 = null
-let selectedQuality = 'medium', editSelectedQuality = 'medium'
+<!-- ══════════════════════════════════════════════════════════════
+     User Stats Modal  (per-customer usage for this agent)
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="user-stats-modal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Customer Usage</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="user-stats-sub">Try-on usage per customer</div>
+      </div>
+      <button class="modal-close" onclick="closeUserStatsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="user-stats-content" style="min-height:100px;display:flex;align-items:center;justify-content:center">
+        <div style="color:var(--text-3);font-size:13px">Loading…</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeUserStatsModal()">Close</button>
+    </div>
+  </div>
+</div>
 
+<script>
+const SUBDOMAIN_BASE = 'boutiquesaas.aasaitech.in'
+
+// ── Helpers ──────────────────────────────────────────────────
+function toSlug(s=''){return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,40).replace(/^-+|-+$/g,'')}
+function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':String(n)}
+function fmtRelative(d){
+  if(!d)return''
+  const s=Math.round((Date.now()-new Date(d))/1000)
+  if(s<60)return'just now'
+  if(s<3600)return Math.floor(s/60)+'m ago'
+  if(s<86400)return Math.floor(s/3600)+'h ago'
+  return Math.floor(s/86400)+'d ago'
+}
+function copyText(t,msg){navigator.clipboard.writeText(t).then(()=>toast(msg||'Copied!','success'))}
+function shareUrl(url,name){
+  if(navigator.share){navigator.share({title:name,url})}
+  else{copyText(url,'Link copied!')}
+}
+
+// ── Wizard state ─────────────────────────────────────────────
+let currentStep=1, selectedCategory='', selectedColor='#7C6FFF', avatarBase64=null, selectedQuality='medium'
+
+// ── Rate limit preview helpers ────────────────────────────────
+function limitPreviewHtml(count, window) {
+  const n = parseInt(count)
+  if (isNaN(n) || n === 0) {
+    return `<span class="rate-limit-badge unlimited">♾ Unlimited try-ons per customer</span>`
+  }
+  const windowLabel = {day:'per day',week:'per week',month:'per month',total:'lifetime total'}[window]||'per day'
+  const cls = n <= 3 ? 'limited' : 'unlimited'
+  return `<span class="rate-limit-badge ${cls}">🛡 Max ${n} try-on${n===1?'':'s'} ${windowLabel} per customer</span>`
+}
+function updateWizardLimitPreview() {
+  const cnt = document.getElementById('w-limit-count').value
+  const win = document.getElementById('w-limit-window').value
+  document.getElementById('w-limit-preview').innerHTML = limitPreviewHtml(cnt, win)
+}
+function updateEditLimitPreview() {
+  const cnt = document.getElementById('edit-limit-count').value
+  const win = document.getElementById('edit-limit-window').value
+  document.getElementById('edit-limit-preview').innerHTML = limitPreviewHtml(cnt, win)
+}
+
+// Quality selector
 function selectQuality(btn, isEdit) {
-  // Scope deselection to the immediate parent grid so create/edit grids never cross-affect
   const parentGrid = btn.closest('.quality-grid')
   if (parentGrid) {
     parentGrid.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'))
@@ -429,9 +543,11 @@ function selectQuality(btn, isEdit) {
   else        selectedQuality     = btn.dataset.value
 }
 
+// ── Wizard ─────────────────────────────────────────────────────
 function openCreateWizard() {
   currentStep = 1; renderWizardStep(1)
   document.getElementById('create-modal').classList.add('open')
+  updateWizardLimitPreview()
 }
 function closeCreateWizard() {
   document.getElementById('create-modal').classList.remove('open'); resetWizard()
@@ -442,11 +558,13 @@ function resetWizard() {
   document.getElementById('w-agent-name').value=''
   document.getElementById('w-welcome').value=''
   document.getElementById('slug-preview-val').textContent='your-boutique'
+  document.getElementById('w-limit-count').value='10'
+  document.getElementById('w-limit-window').value='day'
+  document.getElementById('w-limit-preview').innerHTML=''
   document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
   document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('selected'))
   document.querySelector('[data-color="#7C6FFF"]')?.classList.add('selected')
   document.getElementById('avatar-upload-box').innerHTML='<span id="avatar-preview-icon">📷</span>'
-  // Reset quality to medium
   document.querySelectorAll('#step-1 .quality-btn').forEach(b=>b.classList.remove('selected'))
   document.querySelector('#step-1 .quality-btn[data-value="medium"]')?.classList.add('selected')
 }
@@ -469,6 +587,9 @@ function wizardNext() {
   if(currentStep===1){
     if(!document.getElementById('w-biz-name').value.trim()){toast('Please enter your business name','error');return}
     if(!selectedCategory){toast('Please select a category','error');return}
+    // validate limit
+    const lv = parseInt(document.getElementById('w-limit-count').value)
+    if(isNaN(lv)||lv<0){toast('Please enter a valid try-on limit (0 = unlimited)','error');return}
     currentStep=2; renderWizardStep(2)
     if(!document.getElementById('w-agent-name').value)
       document.getElementById('w-agent-name').value=document.getElementById('w-biz-name').value.trim().split(' ')[0]+' AI'
@@ -479,31 +600,40 @@ function wizardNext() {
 }
 function wizardBack(){ if(currentStep>1){currentStep--;renderWizardStep(currentStep)} }
 function prepareReview(){
-  const biz=document.getElementById('w-biz-name').value.trim()
-  const agent=document.getElementById('w-agent-name').value.trim()
-  const welcome=document.getElementById('w-welcome').value.trim()
-  const slug=toSlug(biz)||'your-boutique'
-  const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed / All'}
-  const logoEl=document.getElementById('review-logo')
+  const biz     = document.getElementById('w-biz-name').value.trim()
+  const agent   = document.getElementById('w-agent-name').value.trim()
+  const welcome = document.getElementById('w-welcome').value.trim()
+  const slug    = toSlug(biz)||'your-boutique'
+  const cnt     = parseInt(document.getElementById('w-limit-count').value)||10
+  const win     = document.getElementById('w-limit-window').value||'day'
+  const windowLabel = {day:'per day',week:'per week',month:'per month',total:'lifetime'}[win]||'per day'
+  const catLabels = {sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed / All'}
+  const logoEl = document.getElementById('review-logo')
   logoEl.style.background=selectedColor
-  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')  // preview: local base64 until saved
+  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')
   document.getElementById('review-name').textContent=agent||'—'
   document.getElementById('review-biz').textContent=biz||'—'
   document.getElementById('review-category').textContent=catLabels[selectedCategory]||selectedCategory
   document.getElementById('review-url').textContent=slug+'.'+SUBDOMAIN_BASE
+  document.getElementById('review-limit').textContent=cnt===0?'Unlimited':cnt+' try-ons '+windowLabel
   document.getElementById('review-welcome').textContent=welcome||'(Using default welcome message)'
 }
 async function createAgent(){
   const btn=document.getElementById('wizard-next-btn')
   btn.disabled=true; btn.textContent='Creating…'
+  const limitCount  = parseInt(document.getElementById('w-limit-count').value)
+  const limitWindow = document.getElementById('w-limit-window').value
   try{
-    const result=await apiFetch('/agents',{method:'POST',body:JSON.stringify({
-      business_name:document.getElementById('w-biz-name').value.trim(),
-      agent_name:document.getElementById('w-agent-name').value.trim(),
-      category:selectedCategory,brand_color:selectedColor,
-      welcome_msg:document.getElementById('w-welcome').value.trim(),
-      logo_base64:avatarBase64||null,
-      quality:selectedQuality,
+    await apiFetch('/agents',{method:'POST',body:JSON.stringify({
+      business_name:        document.getElementById('w-biz-name').value.trim(),
+      agent_name:           document.getElementById('w-agent-name').value.trim(),
+      category:             selectedCategory,
+      brand_color:          selectedColor,
+      welcome_msg:          document.getElementById('w-welcome').value.trim(),
+      logo_base64:          avatarBase64||null,
+      quality:              selectedQuality,
+      tryon_limit_per_user: isNaN(limitCount)||limitCount<0 ? 10 : limitCount,
+      tryon_limit_window:   limitWindow||'day',
     })})
     toast('Agent created! 🎉','success')
     closeCreateWizard(); loadAgents()
@@ -529,26 +659,24 @@ function handleAvatarUpload(input){
   r.readAsDataURL(file)
 }
 
-// ── EDIT AGENT ──────────────────────────────────────────────
-let currentUser = null       // set after renderNav
-let editingAgentId = null
-let editColor = '#7C6FFF'
-let editAvatarBase64 = null  // null = keep existing
+// ── Edit Agent ────────────────────────────────────────────────
+let currentUser       = null
+let editingAgentId    = null
+let editColor         = '#7C6FFF'
+let editAvatarBase64  = null
+let editSelectedQuality = 'medium'
 
 function openEditModal(id) {
-  // find agent from cached grid data
-  const card = document.querySelector(`[onclick="openEditModal('${id}')"]`)
-  // re-fetch to get fresh data
   apiFetch('/agents/' + id).then(a => {
     if (!a || a.error) { toast('Could not load agent', 'error'); return }
-    editingAgentId = id
-    editColor = a.brand_color || '#7C6FFF'
+    editingAgentId    = id
+    editColor         = a.brand_color || '#7C6FFF'
     editSelectedQuality = a.quality || 'medium'
-    editAvatarBase64 = null  // reset — null means keep existing logo
+    editAvatarBase64  = null
 
-    document.getElementById('edit-agent-name').value = a.agent_name || ''
-    document.getElementById('edit-biz-name').value   = a.business_name || ''
-    document.getElementById('edit-welcome').value    = a.welcome_msg || ''
+    document.getElementById('edit-agent-name').value  = a.agent_name || ''
+    document.getElementById('edit-biz-name').value    = a.business_name || ''
+    document.getElementById('edit-welcome').value     = a.welcome_msg || ''
     document.getElementById('edit-published').checked = !!a.published
 
     // Avatar preview
@@ -568,10 +696,24 @@ function openEditModal(id) {
       s.classList.toggle('selected', s.dataset.color === editColor)
     })
 
+    // Quality
+    document.querySelectorAll('#edit-quality-grid .quality-btn').forEach(b => {
+      b.classList.toggle('selected', b.dataset.value === editSelectedQuality)
+    })
+
+    // Rate limit (FEAT 4)
+    const lc = document.getElementById('edit-limit-count')
+    const lw = document.getElementById('edit-limit-window')
+    lc.value = (a.tryon_limit_per_user !== undefined && a.tryon_limit_per_user !== null)
+      ? a.tryon_limit_per_user
+      : 10
+    lw.value = a.tryon_limit_window || 'day'
+    updateEditLimitPreview()
+
     // URL display
     updatePublishLabel(a)
 
-    // Custom domain — available on all plans
+    // Custom domain
     const domInput = document.getElementById('edit-domain-input')
     domInput.value = a.custom_domain || ''
     document.getElementById('edit-cname-host').textContent = a.custom_domain ? a.custom_domain.split('.')[0] : 'shop'
@@ -585,9 +727,6 @@ function openEditModal(id) {
       document.getElementById('edit-domain-remove-btn').style.display = 'none'
     }
 
-    document.querySelectorAll('#edit-quality-grid .quality-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.value === editSelectedQuality)
-    })
     document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
     document.getElementById('edit-modal').classList.add('open')
   }).catch(e => toast(e.message, 'error'))
@@ -624,7 +763,6 @@ function handleEditAvatar(input) {
 function updatePublishLabel(agent) {
   const checked = document.getElementById('edit-published').checked
   const urlDiv  = document.getElementById('edit-url-display')
-  // Try to build URL from agent data if passed, else just show/hide
   if (checked) {
     urlDiv.style.display = 'block'
     if (agent && agent.slug) {
@@ -646,21 +784,26 @@ async function saveAgent() {
   const selCat = document.querySelector('#edit-category-grid .category-btn.selected')
   if (!selCat)  { toast('Please select a category', 'error'); return }
 
-  const published = document.getElementById('edit-published').checked
+  const limitCount = parseInt(document.getElementById('edit-limit-count').value)
+  if (isNaN(limitCount) || limitCount < 0) { toast('Enter a valid try-on limit (0 = unlimited)', 'error'); return }
+
+  const published   = document.getElementById('edit-published').checked
+  const limitWindow = document.getElementById('edit-limit-window').value
 
   const btn = document.getElementById('edit-save-btn')
   btn.disabled = true; btn.textContent = 'Saving…'
 
   const body = {
-    agent_name:    agentName,
-    business_name: bizName,
-    category:      selCat.dataset.value,
-    brand_color:   editColor,
-    welcome_msg:   document.getElementById('edit-welcome').value.trim(),
+    agent_name:           agentName,
+    business_name:        bizName,
+    category:             selCat.dataset.value,
+    brand_color:          editColor,
+    welcome_msg:          document.getElementById('edit-welcome').value.trim(),
     published,
-    quality:       editSelectedQuality,
+    quality:              editSelectedQuality,
+    tryon_limit_per_user: limitCount,
+    tryon_limit_window:   limitWindow,
   }
-  // Only send logo if user picked a new one
   if (editAvatarBase64) body.logo_base64 = editAvatarBase64
 
   try {
@@ -695,7 +838,67 @@ async function deleteAgent() {
   }
 }
 
-// ── PER-AGENT CUSTOM DOMAIN ─────────────────────────────────
+// ── User Stats Modal (per-customer usage) ──────────────────────
+async function openUserStatsModal() {
+  if (!editingAgentId) return
+  document.getElementById('user-stats-modal').classList.add('open')
+
+  // window label
+  const winEl  = document.getElementById('edit-limit-window')
+  const win    = winEl?.value || 'day'
+  const winLbl = {day:'today',week:'this week',month:'this month',total:'all time'}[win]||'this period'
+  document.getElementById('user-stats-sub').textContent = `Try-on usage per customer ${winLbl}`
+
+  const content = document.getElementById('user-stats-content')
+  content.innerHTML = '<div style="color:var(--text-3);font-size:13px;text-align:center;width:100%">Loading…</div>'
+
+  try {
+    const data = await apiFetch(`/agents/${editingAgentId}/user-stats?limit=50`)
+    const stats = data.stats || []
+    if (!stats.length) {
+      content.innerHTML = '<div style="color:var(--text-3);font-size:13px;text-align:center;width:100%">No try-ons recorded yet.</div>'
+      return
+    }
+    const limit = data.agent_limit
+    content.innerHTML = `
+      <div style="width:100%">
+        <div style="margin-bottom:10px;font-size:12px;color:var(--text-3)">
+          Showing ${stats.length} customer${stats.length===1?'':'s'} · Limit: ${limit===0?'Unlimited':limit+' '+data.limit_window+'ly'}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto">
+          ${stats.map(s => {
+            const pct   = limit===0 ? 0 : Math.min(100, Math.round(s.used/limit*100))
+            const color = s.at_limit ? 'var(--red,#EF4444)' : pct>=80 ? 'var(--amber,#d97706)' : 'var(--green,#19a37a)'
+            const mob   = s.mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1••••$3')
+            return `<div style="padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                <span style="font-family:var(--mono);font-size:13px;font-weight:600">📱 ${mob}</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <span style="font-size:12px;font-weight:700;color:${color}">
+                    ${s.used}${limit>0?'/'+limit:''} used
+                  </span>
+                  ${s.at_limit ? `<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25));font-weight:700">AT LIMIT</span>` : ''}
+                </div>
+              </div>
+              ${limit>0 ? `<div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:.3s"></div>
+              </div>` : ''}
+              <div style="font-size:10px;color:var(--text-3);margin-top:5px">Last try-on: ${fmtRelative(s.last_at)}</div>
+            </div>`
+          }).join('')}
+        </div>
+      </div>
+    `
+  } catch(e) {
+    content.innerHTML = `<div style="color:var(--red,#EF4444);font-size:13px;text-align:center;width:100%">Failed to load: ${e.message}</div>`
+  }
+}
+
+function closeUserStatsModal() {
+  document.getElementById('user-stats-modal').classList.remove('open')
+}
+
+// ── PER-AGENT CUSTOM DOMAIN ──────────────────────────────────
 async function saveAgentDomain() {
   if (!editingAgentId) return
   const domain = document.getElementById('edit-domain-input').value.trim().toLowerCase()
@@ -765,10 +968,11 @@ function showEditDomainStatus(status) {
   icon.textContent = s.icon; msg.textContent = s.text
 }
 
+// ── Load agents grid ──────────────────────────────────────────
 async function loadAgents(){
   try{
-    const data=await apiFetch('/agents')
-    const grid=document.getElementById('agents-grid')
+    const data  = await apiFetch('/agents')
+    const grid  = document.getElementById('agents-grid')
     const agents = data.agents || []
     if(!agents.length){
       grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to start showcasing your boutique to customers.</div><button class="btn btn-primary" onclick="openCreateWizard()">+ Create Your First Agent</button></div></div>`
@@ -776,9 +980,16 @@ async function loadAgents(){
     }
     const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed'}
     grid.innerHTML=agents.map(a=>{
-      const url=a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+SUBDOMAIN_BASE):null
-      const disp=url?(a.custom_domain||a.slug+'.'+SUBDOMAIN_BASE):null
-      const aid = a._id
+      const url  = a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+SUBDOMAIN_BASE):null
+      const disp = url?(a.custom_domain||a.slug+'.'+SUBDOMAIN_BASE):null
+      const aid  = a._id
+      const limit = a.tryon_limit_per_user
+      const limitWin = a.tryon_limit_window || 'day'
+      const winLabelShort = {day:'/day',week:'/wk',month:'/mo',total:' total'}[limitWin]||'/day'
+      const limitBadge = (limit===0||limit===undefined||limit===null)
+        ? `<span class="rate-limit-badge unlimited" style="font-size:9px">♾ Unlimited</span>`
+        : `<span class="rate-limit-badge limited" style="font-size:9px">🛡 ${limit}${winLabelShort}</span>`
+
       return `<div class="agent-card" onclick="openEditModal('${aid}')">
         <div class="agent-card-header">
           <div class="agent-card-logo" style="background:${a.brand_color||'#7C6FFF'}">
@@ -786,9 +997,10 @@ async function loadAgents(){
           </div>
           <div style="flex:1;min-width:0">
             <div style="font-size:14px;font-weight:700;letter-spacing:-.02em">${a.agent_name||a.name}</div>
-            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:6px">
+            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
               <span>${a.category||''}</span>
               ${a.quality ? `<span class="quality-badge q-${a.quality||'medium'}">${{low:'⚡ Fast',medium:'✨ Balanced',high:'💎 Premium'}[a.quality||'medium']}</span>` : ''}
+              ${limitBadge}
             </div>
             <div style="font-size:12px;color:var(--text-2);margin-top:2px">${a.business_name||''}</div>
             <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
@@ -815,7 +1027,7 @@ async function loadAgents(){
 ;(async()=>{
   const nav=await renderNav('agents')
   if(!nav) return
-  currentUser = nav.user   // store for plan checks in edit modal
+  currentUser = nav.user
   await loadAgents()
   document.getElementById('page-content').style.display='block'
   const p=new URLSearchParams(location.search)
