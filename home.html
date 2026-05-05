@@ -13,6 +13,16 @@
 .chart-wrap{height:200px;position:relative}
 .quickstart-banner{background:linear-gradient(135deg,var(--accent-soft),var(--accent-dim));border:1px solid rgba(124,111,255,.15);border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px;display:flex;align-items:center;gap:18px}
 .qsb-icon{width:50px;height:50px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 14px var(--accent-glow)}
+.credit-ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 14px;flex-shrink:0}
+.credit-ring-wrap svg{transform:rotate(-90deg)}
+.credit-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.credit-ring-num{font-size:21px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;line-height:1}
+.credit-ring-label{font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-top:2px}
+.q-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;font-size:11.5px;font-weight:700}
+.q-badge.low{background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.2)}
+.q-badge.medium{background:rgba(234,179,8,.1);color:#ca8a04;border:1px solid rgba(234,179,8,.2)}
+.q-badge.high{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.2)}
+[data-theme=dark] .q-badge.low{color:#4ade80}[data-theme=dark] .q-badge.medium{color:#facc15}[data-theme=dark] .q-badge.high{color:#f87171}
 @media(max-width:1100px){.dash-grid{grid-template-columns:1fr}}
 @media(max-width:648px){.dash-grid{gap:14px}.quickstart-banner{flex-direction:column;text-align:center;gap:12px;padding:16px}.qsb-icon{width:40px;height:40px;font-size:18px}.agent-row{padding:10px 14px;gap:10px}.agent-share-btn{display:none}.agent-url-chip{max-width:130px;font-size:9.5px}.chart-wrap{height:160px}}
 </style>
@@ -33,9 +43,7 @@
 <div id="toast-container"></div>
 <div class="mobile-topbar">
   <div class="mob-left">
-    <button class="hamburger" onclick="openMobileSidebar()">
-      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
-    </button>
+    <button class="hamburger" onclick="openMobileSidebar()"><svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
     <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
   </div>
   <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
@@ -44,23 +52,14 @@
 <div class="sidebar" id="sidebar"></div>
 
 <div id="page-skeleton">
-  <div class="skel-topbar">
-    <div class="skel" style="height:13px;width:200px;border-radius:4px"></div>
-    <div class="skel" style="height:34px;width:120px;border-radius:var(--r-sm)"></div>
-  </div>
+  <div class="skel-topbar"><div class="skel" style="height:13px;width:200px;border-radius:4px"></div><div class="skel" style="height:34px;width:120px;border-radius:var(--r-sm)"></div></div>
   <div class="skel-body">
     <div class="stats-row" style="margin-bottom:20px">
-      <div class="skel" style="height:78px;border-radius:var(--r-lg)"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.8"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.6"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.4"></div>
+      <div class="skel" style="height:78px;border-radius:var(--r-lg)"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.8"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.6"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.4"></div>
     </div>
     <div class="dash-grid">
       <div class="skel" style="height:320px;border-radius:var(--r-lg)"></div>
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="skel" style="height:160px;border-radius:var(--r-lg)"></div>
-        <div class="skel" style="height:130px;border-radius:var(--r-lg)"></div>
-      </div>
+      <div style="display:flex;flex-direction:column;gap:14px"><div class="skel" style="height:200px;border-radius:var(--r-lg)"></div><div class="skel" style="height:160px;border-radius:var(--r-lg)"></div></div>
     </div>
   </div>
 </div>
@@ -79,7 +78,7 @@
       <div class="qsb-icon">👗</div>
       <div style="flex:1">
         <div style="font-size:15px;font-weight:800;margin-bottom:4px">Welcome to BoutiqueAI!</div>
-        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">Create your first AI try-on agent in 3 steps — upload products, customise, and share your link.</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">You have <strong>200 free credits</strong> to get started — create your first agent and start trying on products!</div>
         <a href="agents.html?create=1" class="btn btn-primary btn-sm">Create Your First Agent →</a>
       </div>
       <button onclick="this.closest('.quickstart-banner').style.display='none'" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">✕</button>
@@ -94,6 +93,8 @@
 
     <div class="dash-grid">
       <div style="display:flex;flex-direction:column;gap:20px">
+
+        <!-- 14-day chart -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">📈</span>Try-Ons (last 14 days)</div>
@@ -101,6 +102,34 @@
           </div>
           <div style="padding:20px"><div class="chart-wrap"><canvas id="daily-chart"></canvas></div></div>
         </div>
+
+        <!-- Quality breakdown -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">⚡</span>Try-Ons by Quality</div>
+            <span class="badge badge-accent" id="credits-used-badge">0 credits used</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div class="q-badge low">🟢 Low · <span id="q-low-count">0</span> · <span id="q-low-credits">0</span> cr</div>
+              <div class="q-badge medium">🟡 Medium · <span id="q-med-count">0</span> · <span id="q-med-credits">0</span> cr</div>
+              <div class="q-badge high">🔴 High · <span id="q-high-count">0</span> · <span id="q-high-credits">0</span> cr</div>
+            </div>
+            <div>
+              <div style="font-size:10.5px;color:var(--text-3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.07em">Credit usage split</div>
+              <div style="height:10px;border-radius:99px;background:var(--surface-3);overflow:hidden;display:flex">
+                <div id="q-bar-low"    style="height:100%;background:#4ade80;transition:width .6s ease" title="Low"></div>
+                <div id="q-bar-medium" style="height:100%;background:#facc15;transition:width .6s ease" title="Medium"></div>
+                <div id="q-bar-high"   style="height:100%;background:#f87171;transition:width .6s ease" title="High"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:5px">
+                <span>🟢 Low (1 cr)</span><span>🟡 Medium (2 cr)</span><span>🔴 High (3 cr)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent agents -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🤖</span>Your Agents</div>
@@ -114,78 +143,126 @@
           </div>
         </div>
       </div>
+
+      <!-- Right sidebar -->
       <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:68px">
+
+        <!-- Credits ring card -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
             <a href="payments.html#credits-section" class="btn-ghost">Top Up →</a>
           </div>
           <div class="card-body">
-            <div style="text-align:center;margin-bottom:14px">
-              <div style="font-size:32px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;color:var(--accent)" id="tu-credits">—</div>
-              <div style="font-size:12px;color:var(--text-3)">credits available</div>
+            <div class="credit-ring-wrap">
+              <svg width="110" height="110" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="55" cy="55" r="46" fill="none" stroke="var(--surface-3)" stroke-width="10"/>
+                <circle id="ring-arc" cx="55" cy="55" r="46" fill="none"
+                  stroke="#4ade80" stroke-width="10" stroke-linecap="round"
+                  stroke-dasharray="0 289"
+                  style="transition:stroke-dasharray .7s ease,stroke .3s"/>
+              </svg>
+              <div class="credit-ring-center">
+                <div class="credit-ring-num" id="ring-balance">—</div>
+                <div class="credit-ring-label">credits</div>
+              </div>
             </div>
-            <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-size:11.5px;margin-bottom:14px">
-              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🟢 Low = 1</span>
-              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🟡 Med = 2</span>
-              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🔴 High = 3</span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:8px 4px">
+                <div style="font-size:15px;font-weight:800;font-family:var(--mono)" id="stat-used">0</div>
+                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Used</div>
+              </div>
+              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:8px 4px">
+                <div style="font-size:15px;font-weight:800;font-family:var(--mono)" id="stat-pct">—%</div>
+                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Remaining</div>
+              </div>
             </div>
-            <div class="info-row"><span class="info-row-label">Plan</span><span class="info-row-val" id="tu-plan">—</span></div>
-            <a href="payments.html#credits-section" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:14px">Top Up Credits</a>
+            <div class="info-row" style="border:none;padding-bottom:0">
+              <span class="info-row-label">Plan</span>
+              <span class="info-row-val" id="tu-plan">—</span>
+            </div>
+            <a href="payments.html#credits-section" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px">Top Up Credits</a>
           </div>
         </div>
+
+        <!-- Quick links -->
         <div class="card">
-          <div class="card-header"><div class="card-title"><span class="card-icon">⚡</span>Quick Links</div></div>
+          <div class="card-header"><div class="card-title"><span class="card-icon">🔗</span>Quick Links</div></div>
           <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
             <a href="agents.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>🤖</span>My Agents</a>
             <a href="conversations.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💬</span>Conversations</a>
+            <a href="payments.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💳</span>Billing & Plans</a>
             <a href="account.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>⚙️</span>Account Settings</a>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>
 
 <script>
-;(async()=>{
-  const nav = await renderNav('dashboard')
-  if(!nav) return
-  const{user}=nav
-  const hr=new Date().getHours()
-  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening'
-  document.getElementById('greeting').textContent=greet+', '+(user?.name?.split(' ')[0]||'there')+' 👋'
+function setRing(balance, used, total) {
+  const circ   = 2 * Math.PI * 46
+  const pct    = total > 0 ? Math.min(1, used / total) : 0
+  const dash   = pct * circ
+  const arc    = document.getElementById('ring-arc')
+  arc.setAttribute('stroke-dasharray', `${dash.toFixed(1)} ${(circ - dash).toFixed(1)}`)
+  const rem = total > 0 ? balance / total : 1
+  arc.setAttribute('stroke', rem > 0.5 ? '#4ade80' : rem > 0.2 ? '#facc15' : '#f87171')
+  document.getElementById('ring-balance').textContent = (balance || 0).toLocaleString('en-IN')
+  document.getElementById('stat-used').textContent    = (used || 0).toLocaleString('en-IN')
+  const remPct = total > 0 ? Math.round((balance / total) * 100) : 100
+  document.getElementById('stat-pct').textContent     = remPct + '%'
+}
 
-  try{
+function setQuality(qb, totalUsed) {
+  const low = qb.low || {count:0,credits:0}, med = qb.medium || {count:0,credits:0}, hi = qb.high || {count:0,credits:0}
+  document.getElementById('q-low-count').textContent    = low.count.toLocaleString('en-IN')
+  document.getElementById('q-low-credits').textContent  = low.credits.toLocaleString('en-IN')
+  document.getElementById('q-med-count').textContent    = med.count.toLocaleString('en-IN')
+  document.getElementById('q-med-credits').textContent  = med.credits.toLocaleString('en-IN')
+  document.getElementById('q-high-count').textContent   = hi.count.toLocaleString('en-IN')
+  document.getElementById('q-high-credits').textContent = hi.credits.toLocaleString('en-IN')
+  document.getElementById('credits-used-badge').textContent = (totalUsed || 0).toLocaleString('en-IN') + ' credits used'
+  const tot = (low.credits + med.credits + hi.credits) || 1
+  document.getElementById('q-bar-low').style.width    = (low.credits / tot * 100).toFixed(1) + '%'
+  document.getElementById('q-bar-medium').style.width = (med.credits / tot * 100).toFixed(1) + '%'
+  document.getElementById('q-bar-high').style.width   = (hi.credits  / tot * 100).toFixed(1) + '%'
+}
+
+;(async () => {
+  const nav = await renderNav('dashboard')
+  if (!nav) return
+  const { user } = nav
+  const hr = new Date().getHours()
+  document.getElementById('greeting').textContent = (hr<12?'Good morning':hr<17?'Good afternoon':'Good evening') + ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
+  const planLabels = {starter:'🌱 Starter',grower:'🌿 Grower',enterprise:'🏢 Enterprise'}
+  document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
+
+  try {
     const d = await apiFetch('/dashboard')
     document.getElementById('s-agents').textContent = fmtNum(d.agents_count||0)
     document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count||0)
     document.getElementById('s-chats').textContent  = fmtNum(d.chats_count||0)
     document.getElementById('s-today').textContent  = fmtNum(d.today_count||0)
-    document.querySelectorAll('.stat-value.loading').forEach(e=>e.classList.remove('loading'))
+    document.querySelectorAll('.stat-value.loading').forEach(e => e.classList.remove('loading'))
 
-    const usage = d.usage||{}
-    const planLabels = {starter:'🌱 Starter',grower:'🌿 Grower',enterprise:'🏢 Enterprise'}
-    document.getElementById('tu-plan').textContent = planLabels[user?.plan]||user?.plan||'—'
+    // Credits ring
+    const cs = d.credits_stats || {}
+    setRing(cs.balance||0, cs.total_used||0, cs.total_purchased||200)
 
-    // Show credit balance (fetched from /auth/me which returns the full user)
-    const credits = user?.credits || 0
-    const credEl  = document.getElementById('tu-credits')
-    if (credEl) {
-      credEl.textContent = credits.toLocaleString('en-IN')
-      credEl.style.color = credits === 0 ? 'var(--danger, #e53e3e)' : credits < 5 ? '#d97706' : 'var(--accent)'
-    }
+    // Quality breakdown
+    if (d.quality_breakdown) setQuality(d.quality_breakdown, cs.total_used||0)
 
-    if(!d.agents_count) document.getElementById('quickstart-banner').style.display='flex'
+    if (!d.agents_count) document.getElementById('quickstart-banner').style.display = 'flex'
 
     // Chart
-    const last14=Array.from({length:14},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-(13-i));return dt.toISOString().slice(0,10)})
-    const statMap={};(d.daily_stats||[]).forEach(s=>statMap[s._id]=s.count||0)
-    const labels=last14.map(day=>{const[,m,dd]=day.split('-');return dd+'/'+m})
-    const values=last14.map(day=>statMap[day]||0)
-    document.getElementById('chart-total').textContent=values.reduce((a,b)=>a+b,0).toLocaleString()+' total'
-    const isDark=document.documentElement.getAttribute('data-theme')==='dark'
+    const last14  = Array.from({length:14},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-(13-i));return dt.toISOString().slice(0,10)})
+    const statMap = {}; (d.daily_stats||[]).forEach(s=>statMap[s._id]=s.count||0)
+    const labels  = last14.map(day=>{const[,m,dd]=day.split('-');return dd+'/'+m})
+    const values  = last14.map(day=>statMap[day]||0)
+    document.getElementById('chart-total').textContent = values.reduce((a,b)=>a+b,0).toLocaleString()+' total'
+    const isDark = document.documentElement.getAttribute('data-theme')==='dark'
     new Chart(document.getElementById('daily-chart').getContext('2d'),{
       type:'bar',
       data:{labels,datasets:[{data:values,backgroundColor:'rgba(124,111,255,.2)',borderColor:'rgba(124,111,255,.7)',borderWidth:1.5,borderRadius:5,hoverBackgroundColor:'rgba(124,111,255,.35)'}]},
@@ -193,16 +270,16 @@
     })
 
     // Recent agents
-    const wrap=document.getElementById('recent-agents-wrap')
-    const BASE='boutiquesaas.aasaitech.in'
-    if(!d.recent_agents?.length){
+    const wrap = document.getElementById('recent-agents-wrap')
+    const BASE  = 'boutiquesaas.aasaitech.in'
+    if (!d.recent_agents?.length) {
       wrap.innerHTML='<div class="empty-state" style="padding:36px 20px"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to get started.</div><a href="agents.html?create=1" class="btn btn-primary">Create Agent</a></div>'
     } else {
       wrap.innerHTML=d.recent_agents.map(a=>{
         const url=a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+BASE):null
         const disp=a.published&&a.slug?(a.custom_domain?a.custom_domain:a.slug+'.'+BASE):'Not published yet'
         return `<div class="agent-row" onclick="location.href='agents.html'">
-          <div class="agent-logo" style="background:${a.brand_color||'#7C6FFF'}">${a.logo_base64?`<img src="${a.logo_base64}" alt=""/>`:((a.agent_name||a.name||'A')[0].toUpperCase())}</div>
+          <div class="agent-logo" style="background:${a.brand_color||'#7C6FFF'}">${(a.agent_name||a.name||'A')[0].toUpperCase()}</div>
           <div style="flex:1;min-width:0">
             <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.agent_name||a.name}</div>
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
@@ -217,9 +294,9 @@
         </div>`
       }).join('')
     }
-  }catch(e){ toast(e.message,'error') }
+  } catch(e){ toast(e.message,'error') }
 
-  document.getElementById('page-content').style.display='block'
+  document.getElementById('page-content').style.display = 'block'
 })();
 </script>
 </body>
