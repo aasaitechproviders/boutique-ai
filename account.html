@@ -8,19 +8,30 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-.settings-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.settings-grid{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
 .domain-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--r-sm);font-size:13px;font-weight:600;margin-top:12px}
 .domain-status.verified{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
 .domain-status.pending{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border)}
 .domain-status.error{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
-.dns-table{width:100%;border-collapse:collapse;font-size:12.5px}
-.dns-table th{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border)}
-.dns-table td{padding:10px;border-bottom:1px solid var(--border);font-family:var(--mono);color:var(--text)}
-.dns-table td.label{font-family:var(--font);font-weight:600;color:var(--text-2)}
-.dns-table td.accent{color:var(--accent)}
-.dns-table tr:last-child td{border-bottom:none}
 .step-row{display:flex;gap:12px;margin-bottom:14px}
 .step-num-sm{width:24px;height:24px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+/* Payment history */
+.payment-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px}
+.payment-row:last-child{border-bottom:none}
+.payment-plan-badge{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(124,111,255,.2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:capitalize}
+.payment-meta{font-size:11.5px;color:var(--text-3);margin-top:2px}
+/* Invoice modal */
+.invoice-modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:16px}
+.invoice-modal.open{display:flex}
+.invoice-paper{background:#fff;color:#111;border-radius:12px;padding:32px;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.inv-logo{font-size:20px;font-weight:900;letter-spacing:-.04em;margin-bottom:4px}
+.inv-divider{height:1px;background:#e5e7eb;margin:16px 0}
+.inv-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.inv-row.total{font-weight:800;font-size:15px;border-top:2px solid #111;margin-top:8px;padding-top:10px}
+/* Support */
+.support-category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.support-cat{padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:.15s;background:var(--surface)}
+.support-cat:hover,.support-cat.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
 @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin .8s linear infinite}
 @media(max-width:1000px){.settings-grid{grid-template-columns:1fr}}
 </style>
@@ -53,9 +64,10 @@
     <div style="display:grid;grid-template-columns:1fr 300px;gap:20px">
       <div style="display:flex;flex-direction:column;gap:16px">
         <div class="skel" style="height:120px;border-radius:var(--r-lg)"></div>
-        <div class="skel" style="height:300px;border-radius:var(--r-lg)"></div>
+        <div class="skel" style="height:200px;border-radius:var(--r-lg)"></div>
+        <div class="skel" style="height:180px;border-radius:var(--r-lg)"></div>
       </div>
-      <div class="skel" style="height:200px;border-radius:var(--r-lg)"></div>
+      <div class="skel" style="height:300px;border-radius:var(--r-lg)"></div>
     </div>
   </div>
 </div>
@@ -68,7 +80,7 @@
   <div class="content" id="page-content" style="display:none">
     <div class="settings-grid">
 
-      <!-- LEFT -->
+      <!-- ── LEFT ── -->
       <div style="display:flex;flex-direction:column;gap:20px">
 
         <!-- Profile -->
@@ -80,15 +92,88 @@
               <div>
                 <div style="font-size:16px;font-weight:700" id="profile-name">—</div>
                 <div style="font-size:13px;color:var(--text-2);margin-top:2px" id="profile-email">—</div>
-                <div style="margin-top:6px"><span class="badge badge-accent" id="profile-plan">—</span></div>
+                <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+                  <span class="badge badge-accent" id="profile-plan">—</span>
+                  <span style="font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);border-radius:5px;padding:2px 8px">⚡ <span id="profile-credits">—</span> credits</span>
+                </div>
               </div>
             </div>
             <div class="divider"></div>
-            <div style="font-size:12.5px;color:var(--text-3)">Your profile is managed via Google Sign-In. To update your name or photo, update your Google account.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:800;font-family:var(--mono)" id="stat-tryons">—</div>
+                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Try-Ons</div>
+              </div>
+              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:800;font-family:var(--mono)" id="stat-agents">—</div>
+                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Agents</div>
+              </div>
+              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:10px">
+                <div style="font-size:18px;font-weight:800;font-family:var(--mono)" id="stat-joined">—</div>
+                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Member since</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Custom Domain — moved to per-agent in My Agents → Edit -->
+        <!-- GST Details -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🏛️</span>GST Details</div>
+            <span style="font-size:11px;color:var(--text-3)">Optional — for GST invoices</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+            <div class="field">
+              <label class="field-label">GSTIN</label>
+              <input class="input" id="gst-gstin" placeholder="22AAAAA0000A1Z5" maxlength="15">
+            </div>
+            <div class="field">
+              <label class="field-label">Business Name (as on GST)</label>
+              <input class="input" id="gst-business" placeholder="Your Business Pvt Ltd">
+            </div>
+            <div class="field">
+              <label class="field-label">Address</label>
+              <input class="input" id="gst-address" placeholder="123, MG Road, Chennai">
+            </div>
+            <div class="field">
+              <label class="field-label">State</label>
+              <input class="input" id="gst-state" placeholder="Tamil Nadu">
+            </div>
+            <button class="btn btn-secondary btn-sm" style="align-self:flex-start" onclick="saveGst()">Save GST Details</button>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="card">
+          <div class="card-header"><div class="card-title"><span class="card-icon">🎧</span>Raise a Support Request</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Category</div>
+              <div class="support-category-grid">
+                <div class="support-cat selected" data-cat="billing" onclick="selectCat(this)">💳 Billing</div>
+                <div class="support-cat" data-cat="technical" onclick="selectCat(this)">🔧 Technical</div>
+                <div class="support-cat" data-cat="account" onclick="selectCat(this)">👤 Account</div>
+                <div class="support-cat" data-cat="tryon" onclick="selectCat(this)">👗 Try-Ons</div>
+                <div class="support-cat" data-cat="feature" onclick="selectCat(this)">💡 Feature Request</div>
+                <div class="support-cat" data-cat="other" onclick="selectCat(this)">📋 Other</div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="field-label">Subject</label>
+              <input class="input" id="sup-subject" placeholder="Brief description of your issue">
+            </div>
+            <div class="field">
+              <label class="field-label">Message</label>
+              <textarea class="input" id="sup-message" rows="4" placeholder="Describe your issue in detail…" style="resize:vertical"></textarea>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+              <div style="font-size:12px;color:var(--text-3)">📧 We'll reply to your registered email within 24 hours.</div>
+              <button class="btn btn-primary btn-sm" onclick="submitSupport()">Submit Request</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Domain -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🌐</span>Custom Domain</div>
@@ -99,10 +184,7 @@
               <div style="font-size:28px;flex-shrink:0">🤖</div>
               <div>
                 <div style="font-size:14px;font-weight:700;margin-bottom:6px">Custom domains are set per agent</div>
-                <div style="font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:16px">
-                  Each agent can have its own custom domain (e.g. <code style="font-family:var(--mono);font-size:11.5px;background:var(--surface-3);padding:2px 6px;border-radius:4px">shop.yourboutique.com</code>).
-                  Open any agent's edit panel to configure and verify its custom domain.
-                </div>
+                <div style="font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:16px">Each agent can have its own custom domain (e.g. <code style="font-family:var(--mono);font-size:11.5px;background:var(--surface-3);padding:2px 6px;border-radius:4px">shop.yourboutique.com</code>). Open any agent's edit panel to configure and verify its custom domain.</div>
                 <a href="agents.html" class="btn btn-primary btn-sm">Go to My Agents →</a>
               </div>
             </div>
@@ -116,33 +198,58 @@
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
               <div>
                 <div style="font-size:13.5px;font-weight:600">Delete Account</div>
-                <div style="font-size:12.5px;color:var(--text-2);margin-top:3px">Permanently deletes your account and all agents. Cannot be undone.</div>
+                <div style="font-size:12.5px;color:var(--text-2);margin-top:3px">Permanently deletes your account, all agents, tryons and media. Cannot be undone.</div>
               </div>
               <button class="btn btn-danger" onclick="confirmDelete()">Delete Account</button>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- RIGHT -->
+      <!-- ── RIGHT ── -->
       <div style="display:flex;flex-direction:column;gap:16px">
+
+        <!-- Plan + credits -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Current Plan</div>
+            <a href="payments.html" class="btn-ghost">Upgrade →</a>
           </div>
           <div class="card-body">
             <div style="text-align:center;padding:10px 0 16px">
               <div style="font-size:28px;margin-bottom:8px" id="plan-icon">🌱</div>
               <div style="font-size:20px;font-weight:800;letter-spacing:-.03em" id="plan-name">Starter</div>
-              <div style="font-size:13px;color:var(--text-2);margin-top:4px" id="plan-price">₹299/month</div>
+              <div style="font-size:13px;color:var(--text-2);margin-top:4px" id="plan-price">Free</div>
             </div>
             <div class="divider"></div>
-            <div class="info-row"><span class="info-row-label">Try-ons used</span><span class="info-row-val" id="plan-tryons">—</span></div>
-            <div class="info-row"><span class="info-row-label">Agents</span><span class="info-row-val" id="plan-agents">—</span></div>
-            <div class="info-row"><span class="info-row-label">Resets</span><span class="info-row-val" id="plan-reset">—</span></div>
+            <!-- Credits instead of try-on quota -->
+            <div class="info-row">
+              <span class="info-row-label">⚡ Credits</span>
+              <span class="info-row-val" id="plan-credits" style="font-weight:800;color:var(--accent)">—</span>
+            </div>
+            <div class="info-row">
+              <span class="info-row-label">Agents</span>
+              <span class="info-row-val" id="plan-agents">—</span>
+            </div>
+            <div class="info-row" style="border:none">
+              <span class="info-row-label">Member since</span>
+              <span class="info-row-val" id="plan-joined">—</span>
+            </div>
+            <a href="payments.html#credits-section" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px">Top Up Credits</a>
           </div>
         </div>
+
+        <!-- Payment history -->
+        <div class="card" id="payment-history-card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">🧾</span>Payment History</div>
+          </div>
+          <div class="card-body" id="payment-history-body">
+            <div style="color:var(--text-3);font-size:13px">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Account info -->
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">ℹ️</span>Account Info</div></div>
           <div class="card-body">
@@ -165,7 +272,7 @@
       <button class="modal-close" onclick="closeDeleteModal()">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:14px;color:var(--text-2);line-height:1.65;margin-bottom:16px">This will permanently delete your account, all agents, and all data. <strong style="color:var(--text)">This cannot be undone.</strong></p>
+      <p style="font-size:14px;color:var(--text-2);line-height:1.65;margin-bottom:16px">This will permanently delete your account, all agents, all try-on images and all customer data. <strong style="color:var(--text)">This cannot be undone.</strong></p>
       <div class="field">
         <label class="field-label">Type <strong>DELETE</strong> to confirm</label>
         <input class="input" id="delete-confirm-input" placeholder="DELETE">
@@ -178,44 +285,230 @@
   </div>
 </div>
 
+<!-- Invoice Modal -->
+<div class="invoice-modal" id="invoice-modal">
+  <div class="invoice-paper" id="invoice-content">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
 <script>
-async function loadAccount(){
-  try{
-    const data=await apiFetch('/account')
-    const user=data.user||data
-    const planMeta={starter:{icon:'🌱',label:'Starter',price:'₹299/month'},grower:{icon:'🌿',label:'Grower',price:'₹799/month'},enterprise:{icon:'🏢',label:'Enterprise',price:'₹1,999/month'}}
-    const pm=planMeta[user.plan]||planMeta.starter
-    const av=document.getElementById('profile-avatar')
-    if(user.picture) av.innerHTML=`<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-    else av.textContent=(user.name?.[0]||'U').toUpperCase()
-    document.getElementById('profile-name').textContent=user.name||'—'
-    document.getElementById('profile-email').textContent=user.email||'—'
-    document.getElementById('profile-plan').textContent=pm.label
-    document.getElementById('plan-icon').textContent=pm.icon
-    document.getElementById('plan-name').textContent=pm.label
-    document.getElementById('plan-price').textContent=pm.price
-    document.getElementById('plan-tryons').textContent=`${fmtNum(user.usage?.used||0)} / ${fmtNum(user.usage?.cap||0)}`
-    document.getElementById('plan-agents').textContent=`${user.agents_count||0} active`
-    document.getElementById('plan-reset').textContent=user.usage?.reset_at?fmtDate(user.usage.reset_at):'—'
-    document.getElementById('info-joined').textContent=fmtDate(user.created_at)
-    document.getElementById('info-id').textContent=(user._id||'—').slice(-12)
+// ── State ─────────────────────────────────────────────────────────────────
+let selectedCat = 'billing'
 
-  }catch(e){toast(e.message,'error')}
+// ── Support category picker ────────────────────────────────────────────────
+function selectCat(el) {
+  document.querySelectorAll('.support-cat').forEach(c => c.classList.remove('selected'))
+  el.classList.add('selected')
+  selectedCat = el.dataset.cat
 }
 
-function confirmDelete(){ document.getElementById('delete-modal').classList.add('open') }
-function closeDeleteModal(){ document.getElementById('delete-modal').classList.remove('open');document.getElementById('delete-confirm-input').value='' }
-async function doDeleteAccount(){
-  if(document.getElementById('delete-confirm-input').value!=='DELETE'){toast('Type DELETE exactly','error');return}
-  try{await apiFetch('/account',{method:'DELETE'});localStorage.removeItem('ba_token');location.replace('/index.html')}
-  catch(e){toast(e.message,'error')}
+// ── GST save ──────────────────────────────────────────────────────────────
+async function saveGst() {
+  const body = {
+    gstin:         document.getElementById('gst-gstin').value.trim(),
+    business_name: document.getElementById('gst-business').value.trim(),
+    address:       document.getElementById('gst-address').value.trim(),
+    state:         document.getElementById('gst-state').value.trim(),
+  }
+  try {
+    await apiFetch('/account/gst', { method: 'PUT', body: JSON.stringify(body) })
+    toast('GST details saved', 'success')
+  } catch(e) { toast(e.message, 'error') }
 }
 
-;(async()=>{
-  const nav=await renderNav('account')
-  if(!nav) return
-  await loadAccount()
-  document.getElementById('page-content').style.display='block'
+// ── Support submit ────────────────────────────────────────────────────────
+async function submitSupport() {
+  const subject = document.getElementById('sup-subject').value.trim()
+  const message = document.getElementById('sup-message').value.trim()
+  if (!subject) return toast('Please enter a subject', 'error')
+  if (!message) return toast('Please describe your issue', 'error')
+  try {
+    const r = await apiFetch('/account/support', {
+      method: 'POST',
+      body: JSON.stringify({ subject, message, category: selectedCat }),
+    })
+    toast(r.message || 'Support request submitted!', 'success', 5000)
+    document.getElementById('sup-subject').value = ''
+    document.getElementById('sup-message').value = ''
+  } catch(e) { toast(e.message, 'error') }
+}
+
+// ── Invoice ───────────────────────────────────────────────────────────────
+async function openInvoice(paymentId) {
+  try {
+    const inv = await apiFetch(`/payment/invoice/${paymentId}`)
+    const gstRow = inv.gst_amount > 0
+      ? `<div class="inv-row"><span>Base Amount</span><span>₹${inv.base_amount.toLocaleString('en-IN')}</span></div>
+         <div class="inv-row"><span>GST (${inv.gst_rate}%)</span><span>₹${inv.gst_amount.toLocaleString('en-IN')}</span></div>`
+      : ''
+    const custGst = inv.customer.gstin
+      ? `<div style="font-size:12px;margin-top:2px;color:#555">GSTIN: ${inv.customer.gstin}</div>`
+      : ''
+
+    document.getElementById('invoice-content').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div>
+          <div class="inv-logo">BoutiqueAI</div>
+          <div style="font-size:11px;color:#666">${inv.seller.address}</div>
+          <div style="font-size:11px;color:#666">${inv.seller.email}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:700;color:#888;letter-spacing:.06em">TAX INVOICE</div>
+          <div style="font-size:15px;font-weight:800;font-family:monospace">${inv.invoice_number}</div>
+          <div style="font-size:11px;color:#666">${fmtDate(inv.invoice_date)}</div>
+        </div>
+      </div>
+      <div class="inv-divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:4px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.07em;margin-bottom:4px">BILLED TO</div>
+          <div style="font-weight:700">${inv.customer.business_name || inv.customer.name}</div>
+          <div style="font-size:12px;color:#555">${inv.customer.email}</div>
+          ${custGst}
+          ${inv.customer.address ? `<div style="font-size:12px;color:#555;margin-top:2px">${inv.customer.address}</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.07em;margin-bottom:4px">PAYMENT INFO</div>
+          <div style="font-size:12px;color:#555">Payment ID</div>
+          <div style="font-size:11px;font-family:monospace;word-break:break-all">${inv.payment_id || '—'}</div>
+        </div>
+      </div>
+      <div class="inv-divider"></div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">
+          <span>Description</span><span>Amount</span>
+        </div>
+        <div class="inv-row">
+          <span style="font-weight:600">${inv.plan_label} — ${inv.billing} billing</span>
+          <span>₹${inv.amount_inr.toLocaleString('en-IN')}</span>
+        </div>
+        ${inv.expires_at ? `<div style="font-size:11px;color:#888;margin-top:4px">Valid until: ${fmtDate(inv.expires_at)}</div>` : ''}
+      </div>
+      <div class="inv-divider"></div>
+      ${gstRow}
+      <div class="inv-row total"><span>Total</span><span>₹${inv.amount_inr.toLocaleString('en-IN')}</span></div>
+      <div class="inv-divider"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button onclick="window.print()" class="btn btn-primary btn-sm" style="background:#111;border-color:#111">🖨️ Print / Save PDF</button>
+        <button onclick="closeInvoice()" class="btn btn-secondary btn-sm">Close</button>
+      </div>
+    `
+    document.getElementById('invoice-modal').classList.add('open')
+  } catch(e) { toast(e.message, 'error') }
+}
+
+function closeInvoice() {
+  document.getElementById('invoice-modal').classList.remove('open')
+}
+document.getElementById('invoice-modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeInvoice()
+})
+
+// ── Payment history renderer ──────────────────────────────────────────────
+function renderPaymentHistory(payments) {
+  const card = document.getElementById('payment-history-card')
+  const body = document.getElementById('payment-history-body')
+  if (!payments?.length) {
+    body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No payments yet. <a href="payments.html">Browse plans →</a></div>'
+    return
+  }
+  card.style.display = ''
+  const icons = { starter: '🌱', grower: '🌿', enterprise: '🏢' }
+  body.innerHTML = payments.map(p => `
+    <div class="payment-row">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span class="payment-plan-badge">${icons[p.plan] || ''} ${p.plan}</span>
+          <span style="font-size:11.5px;color:var(--text-3);text-transform:capitalize">${p.billing || ''}</span>
+        </div>
+        <div class="payment-meta">${fmtDate(p.paid_at)} · ₹${(p.amount_inr||0).toLocaleString('en-IN')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span class="badge ${p.status==='paid'||p.status==='captured'?'badge-green':'badge-gray'}">${p.status}</span>
+        <button class="btn btn-secondary btn-sm" style="padding:4px 10px;font-size:11px" onclick="openInvoice('${p._id}')">🧾 Invoice</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+// ── Main loader ───────────────────────────────────────────────────────────
+async function loadAccount() {
+  try {
+    const data = await apiFetch('/account')
+    const user = data.user || data
+    const planMeta = {
+      starter:    { icon: '🌱', label: '🌱 Starter',    price: 'Free — top up credits anytime' },
+      grower:     { icon: '🌿', label: '🌿 Grower',     price: '₹999 / month' },
+      enterprise: { icon: '🏢', label: '🏢 Enterprise', price: '₹4,999 / month' },
+    }
+    const pm = planMeta[user.plan] || planMeta.starter
+
+    // Profile
+    const av = document.getElementById('profile-avatar')
+    if (user.picture) av.innerHTML = `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    else av.textContent = (user.name?.[0] || 'U').toUpperCase()
+    document.getElementById('profile-name').textContent    = user.name  || '—'
+    document.getElementById('profile-email').textContent   = user.email || '—'
+    document.getElementById('profile-plan').textContent    = pm.label
+    document.getElementById('profile-credits').textContent = (user.credits || 0).toLocaleString('en-IN')
+
+    // Mini stats
+    document.getElementById('stat-tryons').textContent  = fmtNum(user.usage?.used || 0)
+    document.getElementById('stat-agents').textContent  = user.agents_count || 0
+    document.getElementById('stat-joined').textContent  = new Date(user.created_at).getFullYear()
+
+    // Plan card
+    document.getElementById('plan-icon').textContent    = pm.icon
+    document.getElementById('plan-name').textContent    = pm.label
+    document.getElementById('plan-price').textContent   = pm.price
+    document.getElementById('plan-credits').textContent = (user.credits || 0).toLocaleString('en-IN') + ' remaining'
+    document.getElementById('plan-agents').textContent  = `${user.agents_count || 0} active`
+    document.getElementById('plan-joined').textContent  = fmtDate(user.created_at)
+
+    // Account info
+    document.getElementById('info-joined').textContent = fmtDate(user.created_at)
+    document.getElementById('info-id').textContent     = (user._id || '—').slice(-12)
+
+    // GST pre-fill
+    if (user.gst_details) {
+      document.getElementById('gst-gstin').value    = user.gst_details.gstin    || ''
+      document.getElementById('gst-business').value = user.gst_details.business_name || ''
+      document.getElementById('gst-address').value  = user.gst_details.address  || ''
+      document.getElementById('gst-state').value    = user.gst_details.state    || ''
+    }
+
+  } catch(e) { toast(e.message, 'error') }
+}
+
+async function loadPayments() {
+  try {
+    const data = await apiFetch('/payment/history')
+    renderPaymentHistory(data.payments || [])
+  } catch {
+    document.getElementById('payment-history-body').innerHTML =
+      '<div style="font-size:13px;color:var(--text-3)">Could not load payment history.</div>'
+  }
+}
+
+// ── Delete account ────────────────────────────────────────────────────────
+function confirmDelete()   { document.getElementById('delete-modal').classList.add('open') }
+function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); document.getElementById('delete-confirm-input').value = '' }
+async function doDeleteAccount() {
+  if (document.getElementById('delete-confirm-input').value !== 'DELETE') { toast('Type DELETE exactly', 'error'); return }
+  try {
+    await apiFetch('/account', { method: 'DELETE' })
+    localStorage.removeItem('ba_token')
+    location.replace('/index.html')
+  } catch(e) { toast(e.message, 'error') }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+;(async () => {
+  const nav = await renderNav('account')
+  if (!nav) return
+  await Promise.all([loadAccount(), loadPayments()])
+  document.getElementById('page-content').style.display = 'block'
 })();
 </script>
 </body>
