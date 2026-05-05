@@ -217,16 +217,16 @@
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
 
           <div>
-            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Try-On Usage</div>
-            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px">
-              <span id="u-used">—</span><span style="font-size:14px;color:var(--text-3);font-weight:500"> / <span id="u-cap">—</span></span>
+            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">⚡ Credit Balance</div>
+            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px;color:var(--accent)">
+              <span id="u-credits">—</span>
             </div>
-            <div class="progress-bar" style="height:6px;margin-bottom:6px">
-              <div class="progress-fill" id="u-bar" style="width:0%"></div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:6px">
+              credits available
             </div>
-            <div class="usage-detail">
-              <span id="u-pct">0% used</span>
-              <span id="u-reset"></span>
+            <div class="usage-detail" style="display:flex;flex-direction:column;gap:3px">
+              <span style="font-size:11.5px">🟢 Low = 1 &nbsp;🟡 Med = 2 &nbsp;🔴 High = 3</span>
+              <a href="#credits-section" style="font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:600">Top up ↓</a>
             </div>
           </div>
 
@@ -292,8 +292,8 @@
       <div class="card-body" style="display:flex;flex-direction:column;gap:18px">
 
         <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I hit my try-on limit?</div>
-          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until your usage resets at the start of the next month. Upgrade anytime to immediately increase your limit.</div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I run out of credits?</div>
+          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until you top up. Credits never expire — top up anytime with the packages below.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
@@ -329,13 +329,13 @@
 
     <!-- CREDITS SECTION -->
     <div style="height:32px"></div>
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Try-On Credits</div>
+    <div id="credits-section" style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Try-On Credits</div>
     <div style="font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6">
       Credits are consumed when your customers generate virtual try-ons.
       <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟢 Low = <strong>1</strong> credit</span>
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟡 Medium = <strong>2</strong> credits</span>
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🔴 High = <strong>3</strong> credits</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟢 Low = <strong id="qcost-low">1</strong> credit</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟡 Medium = <strong id="qcost-medium">2</strong> credits</span>
+        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🔴 High = <strong id="qcost-high">3</strong> credits</span>
       </div>
     </div>
 
@@ -369,10 +369,16 @@
 </div>
 
 <script>
-const PLAN_LIMITS  = { starter: { agents: 1, tryons: 50 }, grower: { agents: 5, tryons: 500 }, enterprise: { agents: 99999, tryons: 99999 } }
-const PLAN_LABELS  = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
-const PLAN_ICONS   = { starter: '🌱', grower: '🌿', enterprise: '🏢' }
+// ── All pricing/plan/credit data is loaded from the API (DB-driven) ──────────
+// Edit values anytime via:  PUT /admin/settings/pricing  (X-Admin-Secret header)
+// or directly in MongoDB Atlas → settings collection → _id:"pricing"
 const WHATSAPP_NUM = '917890123456'   // Update to your actual WhatsApp number
+
+// Runtime state — populated from APIs in init(), not hardcoded
+let PLAN_LIMITS         = {}   // loaded from /payment/plans
+let PLAN_LABELS         = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+let CREDIT_PACKAGES_DATA = []  // loaded from /credits/packages
+let qualityCosts         = { low: 1, medium: 2, high: 3 }  // loaded from /credits/packages
 
 let currentPlan   = 'starter'
 let billingCycle  = 'monthly'
@@ -579,27 +585,43 @@ function renderPaymentHistory(payments) {
   `).join('')
 }
 
-// ── Credit packages data (mirrors CREDIT_PACKAGES in chat.js) ───────────────
-const CREDIT_PACKAGES_DATA = [
-  { id: 'pack_50',   credits: 50,   price_inr: 500,   label: '50 Credits',    tag: 'Starter',   ppc: '₹10/credit' },
-  { id: 'pack_300',  credits: 300,  price_inr: 2500,  label: '300 Credits',   tag: 'Value',     ppc: '₹8.33/credit', saving: 'Save 17%' },
-  { id: 'pack_1250', credits: 1250, price_inr: 10000, label: '1,250 Credits', tag: 'Best Value', ppc: '₹8/credit',    saving: 'Save 20%' },
-]
+// ── Show plans load error ────────────────────────────────────────────────────
+function showPlansError(msg) {
+  const grid = document.getElementById('plans-grid')
+  if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:14px">⚠️ ${msg}</div>`
+}
 
-// ── Render credit packages ───────────────────────────────────────────────────
-function renderCreditPackages() {
+// ── Render credit packages (data comes from /credits/packages API — DB-driven) ─
+function renderCreditPackages(packages, qcosts) {
+  CREDIT_PACKAGES_DATA = packages || CREDIT_PACKAGES_DATA
+  if (qcosts) {
+    qualityCosts = qcosts
+    // Update the quality cost badges from DB values
+    const el = id => document.getElementById(id)
+    if (el('qcost-low'))    el('qcost-low').textContent    = qcosts.low    ?? 1
+    if (el('qcost-medium')) el('qcost-medium').textContent = qcosts.medium ?? 2
+    if (el('qcost-high'))   el('qcost-high').textContent   = qcosts.high   ?? 3
+  }
   const grid = document.getElementById('credit-packages-grid')
   if (!grid) return
-  grid.innerHTML = CREDIT_PACKAGES_DATA.map(p => `
-    <div class="plan-card${p.id === 'pack_1250' ? ' popular' : ''}" style="cursor:default">
-      ${p.id === 'pack_1250' ? '<div class="plan-popular-badge">Best Value</div>' : ''}
+  if (!CREDIT_PACKAGES_DATA.length) {
+    grid.innerHTML = '<div style="color:var(--text-3);font-size:13px">No packages available.</div>'
+    return
+  }
+  grid.innerHTML = CREDIT_PACKAGES_DATA.map((p, i) => {
+    const ppc    = p.price_per_credit ? `₹${p.price_per_credit}/credit` : ''
+    const saving = p.saving || ''
+    const pop    = p.tag === 'Best Value'
+    return `
+    <div class="plan-card${pop ? ' popular' : ''}" style="cursor:default">
+      ${pop ? `<div class="plan-popular-badge">${p.tag}</div>` : ''}
       <div class="plan-name">${p.tag}</div>
-      <div class="plan-price">₹${p.price_inr.toLocaleString('en-IN')}</div>
-      <div class="plan-savings">${p.saving || ''}</div>
+      <div class="plan-price">₹${(p.price_inr||0).toLocaleString('en-IN')}</div>
+      <div class="plan-savings">${saving}</div>
       <div class="plan-divider"></div>
       <div class="plan-features">
-        <div class="plan-feat"><span class="plan-feat-icon">⚡</span><span><strong>${p.credits.toLocaleString('en-IN')} credits</strong></span></div>
-        <div class="plan-feat"><span class="plan-feat-icon">💰</span><span>${p.ppc}</span></div>
+        <div class="plan-feat"><span class="plan-feat-icon">⚡</span><span><strong>${(p.credits||0).toLocaleString('en-IN')} credits</strong></span></div>
+        <div class="plan-feat"><span class="plan-feat-icon">💰</span><span>${ppc}</span></div>
         <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Never expires</span></div>
         <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>All quality tiers</span></div>
       </div>
@@ -609,13 +631,20 @@ function renderCreditPackages() {
           Buy ${p.label}
         </button>
       </div>
-    </div>
-  `).join('')
+    </div>`
+  }).join('')
 }
 
 // ── Render credit balance history ─────────────────────────────────────────────
 function renderCreditHistory(transactions, balance) {
-  document.getElementById('credit-balance').textContent = (balance || 0).toLocaleString('en-IN')
+  const bal = balance || 0
+  document.getElementById('credit-balance').textContent = bal.toLocaleString('en-IN')
+  // Keep usage card in sync
+  const credEl = document.getElementById('u-credits')
+  if (credEl) {
+    credEl.textContent = bal.toLocaleString('en-IN')
+    credEl.style.color = bal === 0 ? 'var(--danger, #e53e3e)' : bal < 5 ? '#d97706' : 'var(--accent)'
+  }
   const body = document.getElementById('credit-history-body')
   if (!transactions || !transactions.length) {
     body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No credit purchases yet. Top up below to get started.</div>'
@@ -695,6 +724,11 @@ async function buyCredits(packId, credits, priceInr, label) {
           // Immediately update balance on screen
           const balEl = document.getElementById('credit-balance')
           if (balEl) balEl.textContent = (verifyData.new_balance || 0).toLocaleString('en-IN')
+          const credEl2 = document.getElementById('u-credits')
+          if (credEl2) {
+            credEl2.textContent = (verifyData.new_balance || 0).toLocaleString('en-IN')
+            credEl2.style.color = (verifyData.new_balance || 0) === 0 ? 'var(--danger, #e53e3e)' : 'var(--accent)'
+          }
           toast(`⚡ ${verifyData.message || `${credits} credits added!`}`, 'success', 5000)
           setTimeout(() => location.reload(), 2500)
         } catch (err) {
@@ -716,46 +750,8 @@ async function buyCredits(packId, credits, priceInr, label) {
   }
 }
 
-// ── Hardcoded fallback plans (shown if /payment/plans API not yet deployed) ──
-const FALLBACK_PLANS = [
-  {
-    id: 'starter', name: 'Starter',
-    price_inr: { monthly: 0, yearly: 0 }, amount_paise: { monthly: 0, yearly: 0 },
-    limits: PLAN_LIMITS.starter,
-    features: [
-      { text: '1 AI Agent', included: true }, { text: '50 try-ons / month', included: true },
-      { text: 'Free subdomain', included: true }, { text: 'Product catalog & chat', included: true },
-      { text: 'Custom domain', included: false }, { text: 'Priority support', included: false },
-    ],
-    popular: false, cta: 'Get Started Free', contact: false,
-  },
-  {
-    id: 'grower', name: 'Grower',
-    price_inr: { monthly: 999, yearly: 9999 },
-    amount_paise: { monthly: 99900, yearly: 999900 },
-    savings_inr: { yearly: 1989 },
-    limits: PLAN_LIMITS.grower,
-    features: [
-      { text: '5 AI Agents', included: true }, { text: '500 try-ons / month', included: true },
-      { text: 'Free subdomain', included: true }, { text: 'Product catalog & chat', included: true },
-      { text: 'Custom domain support', included: true }, { text: 'Priority email support', included: true },
-    ],
-    popular: true, cta: 'Upgrade to Grower', contact: false,
-  },
-  {
-    id: 'enterprise', name: 'Enterprise',
-    price_inr: { monthly: 4999, yearly: 49999 },
-    amount_paise: { monthly: 499900, yearly: 4999900 },
-    savings_inr: { yearly: 9989 },
-    limits: PLAN_LIMITS.enterprise,
-    features: [
-      { text: 'Unlimited Agents', included: true }, { text: 'Unlimited try-ons', included: true },
-      { text: 'Custom domain per agent', included: true }, { text: 'White-label branding', included: true },
-      { text: 'Dedicated support', included: true }, { text: 'SLA guarantee', included: true },
-    ],
-    popular: false, cta: 'Contact Sales', contact: true,
-  },
-]
+// FALLBACK_PLANS removed — all plan data is now DB-driven via /payment/plans API.
+// If the API fails, showPlansError() renders an error state instead of stale data.
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 ;(async () => {
@@ -771,25 +767,22 @@ const FALLBACK_PLANS = [
     currentPlan = plan
 
     // Current plan badge
-    document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan
+    document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase() + plan.slice(1)
 
     // Usage stats
     const usage   = user.usage || {}
-    const limits  = PLAN_LIMITS[plan] || PLAN_LIMITS.starter
-    const usedTry = usage.used || 0
-    const capTry  = usage.cap  || limits.tryons
-    const pctTry  = capTry ? Math.min(100, Math.round((usedTry / capTry) * 100)) : 0
+    const limits  = PLAN_LIMITS[plan] || { agents: 1 }  // populated from /payment/plans API
+    const credits = user.credits || 0
     const usedAg  = user.agents_count || 0
     const capAg   = limits.agents === 99999 ? '∞' : limits.agents
     const pctAg   = limits.agents !== 99999 ? Math.min(100, Math.round((usedAg / limits.agents) * 100)) : 0
 
-    document.getElementById('u-used').textContent = usedTry
-    document.getElementById('u-cap').textContent  = capTry === 99999 ? '∞' : capTry
-    const bar = document.getElementById('u-bar')
-    bar.style.width = pctTry + '%'
-    bar.className   = 'progress-fill' + (pctTry >= 90 ? ' danger' : pctTry >= 70 ? ' warn' : '')
-    document.getElementById('u-pct').textContent   = pctTry + '% used'
-    document.getElementById('u-reset').textContent = usage.reset_at ? 'Resets ' + fmtDate(usage.reset_at) : ''
+    // Credit balance in usage card (top section)
+    const credEl = document.getElementById('u-credits')
+    if (credEl) {
+      credEl.textContent = credits.toLocaleString('en-IN')
+      credEl.style.color = credits === 0 ? 'var(--danger, #e53e3e)' : credits < 5 ? '#d97706' : 'var(--accent)'
+    }
 
     const expiresDate = user.plan_expires_at
       ? fmtDate(user.plan_expires_at)
@@ -806,16 +799,33 @@ const FALLBACK_PLANS = [
     agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
     document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
 
-    // 2. Plans (falls back to hardcoded if route not deployed yet)
+    // 2. Plans — from DB via /payment/plans (no hardcoded fallback)
     try {
       const plansRes = await apiFetch('/payment/plans')
-      plansData = (plansRes && plansRes.plans) ? plansRes.plans : FALLBACK_PLANS
-    } catch { plansData = FALLBACK_PLANS }
+      if (plansRes && plansRes.plans) {
+        plansData = plansRes.plans
+        // Sync PLAN_LIMITS runtime map from API response
+        plansData.forEach(p => { if (p.limits) PLAN_LIMITS[p.id] = p.limits })
+        // Sync plan labels
+        plansData.forEach(p => { PLAN_LABELS[p.id] = p.name })
+      } else {
+        showPlansError('Could not load plans — please refresh.')
+      }
+    } catch (e) {
+      console.error('[payments] /payment/plans failed:', e)
+      showPlansError('Could not load plans — please refresh.')
+    }
 
     renderPlans()
 
-    // 3. Credit packages (static — no API call needed)
-    renderCreditPackages()
+    // 3. Credit packages — from DB via /credits/packages (no hardcoded fallback)
+    try {
+      const pkgRes = await apiFetch('/credits/packages')
+      if (pkgRes) renderCreditPackages(pkgRes.packages || [], pkgRes.quality_costs)
+    } catch (e) {
+      console.warn('[payments] /credits/packages failed:', e)
+      renderCreditPackages([], {})
+    }
 
     // 4. Credit balance + history
     try {
@@ -837,7 +847,7 @@ const FALLBACK_PLANS = [
   } catch (err) {
     console.error('[payments] Init error:', err)
     // Still show page even if something failed
-    plansData = FALLBACK_PLANS
+    showPlansError('Could not load page data — please refresh.')
     renderPlans()
     renderCreditPackages()
   } finally {
