@@ -117,20 +117,21 @@
       <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:68px">
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-icon">👗</span>Try-On Usage</div>
-            <a href="account.html" class="btn-ghost">Upgrade →</a>
+            <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
+            <a href="payments.html#credits-section" class="btn-ghost">Top Up →</a>
           </div>
           <div class="card-body">
             <div style="text-align:center;margin-bottom:14px">
-              <div style="font-size:26px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em" id="tu-used">—</div>
-              <div style="font-size:12px;color:var(--text-3)">of <span id="tu-cap">—</span> try-ons this month</div>
+              <div style="font-size:32px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;color:var(--accent)" id="tu-credits">—</div>
+              <div style="font-size:12px;color:var(--text-3)">credits available</div>
             </div>
-            <div class="progress-bar" style="height:7px;margin-bottom:7px"><div class="progress-fill" id="tu-bar" style="width:0%"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:14px">
-              <span id="tu-pct">0% used</span><span id="tu-reset">—</span>
+            <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;font-size:11.5px;margin-bottom:14px">
+              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🟢 Low = 1</span>
+              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🟡 Med = 2</span>
+              <span style="background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 8px">🔴 High = 3</span>
             </div>
             <div class="info-row"><span class="info-row-label">Plan</span><span class="info-row-val" id="tu-plan">—</span></div>
-            <a href="account.html" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:14px">Manage Account</a>
+            <a href="payments.html#credits-section" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:14px">Top Up Credits</a>
           </div>
         </div>
         <div class="card">
@@ -165,15 +166,16 @@
     document.querySelectorAll('.stat-value.loading').forEach(e=>e.classList.remove('loading'))
 
     const usage = d.usage||{}
-    document.getElementById('tu-used').textContent = fmtNum(usage.used||0)
-    document.getElementById('tu-cap').textContent  = fmtNum(usage.cap||0)
     const planLabels = {starter:'🌱 Starter',grower:'🌿 Grower',enterprise:'🏢 Enterprise'}
     document.getElementById('tu-plan').textContent = planLabels[user?.plan]||user?.plan||'—'
-    const pct = usage.cap ? Math.min(100,Math.round((usage.used/usage.cap)*100)) : 0
-    const bar = document.getElementById('tu-bar')
-    bar.style.width=pct+'%'; bar.className='progress-fill'+(pct>=90?' danger':pct>=70?' warn':'')
-    document.getElementById('tu-pct').textContent=pct+'% used'
-    document.getElementById('tu-reset').textContent=usage.reset_at?'Resets '+fmtDate(usage.reset_at):''
+
+    // Show credit balance (fetched from /auth/me which returns the full user)
+    const credits = user?.credits || 0
+    const credEl  = document.getElementById('tu-credits')
+    if (credEl) {
+      credEl.textContent = credits.toLocaleString('en-IN')
+      credEl.style.color = credits === 0 ? 'var(--danger, #e53e3e)' : credits < 5 ? '#d97706' : 'var(--accent)'
+    }
 
     if(!d.agents_count) document.getElementById('quickstart-banner').style.display='flex'
 
