@@ -649,7 +649,14 @@ function renderPaymentHistory(payments) {
 // ── Account data loader ────────────────────────────────────────────────────
 async function loadAccount() {
   try {
-    const data = await apiFetch('/account')
+    // Fetch account + dashboard in parallel.
+    // Dashboard computes credits_stats correctly via credit_burns collection,
+    // including a fallback for legacy accounts where total_credits_allotted
+    // may be 0 or missing in the user document.
+    const [data, dashData] = await Promise.all([
+      apiFetch('/account'),
+      apiFetch('/dashboard').catch(() => null),
+    ])
     const user = data.user || data
     const planMeta = {
       starter:    { icon: '🌱', label: '🌱 Starter',    price: 'Free — top up credits anytime' },
@@ -665,11 +672,17 @@ async function loadAccount() {
     document.getElementById('profile-name').textContent    = user.name  || '—'
     document.getElementById('profile-email').textContent   = user.email || '—'
     document.getElementById('profile-plan').textContent    = pm.label
-    const balance      = Math.max(0, Number(user.credits) || 0)
-    const allotted     = Math.max(balance, Number(user.total_credits_allotted) || 0)
-    const usedCredits  = Math.max(0, allotted - balance)
-    const remPct       = allotted > 0 ? Math.min(100, Math.round(balance / allotted * 100)) : 100
-    const creditColor  = balance > 100 ? 'var(--green)' : balance > 30 ? 'var(--amber)' : 'var(--red)'
+
+    // Use dashboard's credits_stats for accurate total_allotted.
+    // The dashboard endpoint uses credit_burns to compute total_used and
+    // derives effectiveAllotted = max(total_credits_allotted, balance + total_used),
+    // which is correct even for accounts where total_credits_allotted is missing.
+    const balance     = dashData?.credits_stats?.balance      ?? Math.max(0, Number(user.credits) || 0)
+    const totalUsed   = dashData?.credits_stats?.total_used   ?? 0
+    const allotted    = dashData?.credits_stats?.total_allotted ?? Math.max(balance, Number(user.total_credits_allotted) || 0)
+    const usedCredits = Math.max(0, allotted - balance)
+    const remPct      = allotted > 0 ? Math.min(100, Math.round(balance / allotted * 100)) : 100
+    const creditColor = balance > 100 ? 'var(--green)' : balance > 30 ? 'var(--amber)' : 'var(--red)'
 
     document.getElementById('profile-credits').textContent = balance.toLocaleString('en-IN')
     document.getElementById('plan-credits').innerHTML =
