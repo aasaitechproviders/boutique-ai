@@ -13,18 +13,37 @@
 .chart-wrap{height:200px;position:relative}
 .quickstart-banner{background:linear-gradient(135deg,var(--accent-soft),var(--accent-dim));border:1px solid rgba(124,111,255,.15);border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px;display:flex;align-items:center;gap:18px}
 .qsb-icon{width:50px;height:50px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 14px var(--accent-glow)}
+
+/* ── Credit ring ── */
 .credit-ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 14px;flex-shrink:0}
 .credit-ring-wrap svg{transform:rotate(-90deg)}
 .credit-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .credit-ring-num{font-size:21px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;line-height:1}
 .credit-ring-label{font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-top:2px}
-.q-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;font-size:11.5px;font-weight:700}
-.q-badge.low{background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.2)}
-.q-badge.medium{background:rgba(234,179,8,.1);color:#ca8a04;border:1px solid rgba(234,179,8,.2)}
-.q-badge.high{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.2)}
-[data-theme=dark] .q-badge.low{color:#4ade80}[data-theme=dark] .q-badge.medium{color:#facc15}[data-theme=dark] .q-badge.high{color:#f87171}
+
+/* ── Quality rows ── */
+.quality-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.quality-row:last-child{border-bottom:none;padding-bottom:0}
+.quality-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.quality-label{font-size:12.5px;font-weight:700;min-width:52px}
+.quality-cost{font-size:10px;color:var(--text-3);font-weight:500;white-space:nowrap}
+.quality-bar-track{flex:1;height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden}
+.quality-bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.quality-stat{text-align:right;min-width:72px;flex-shrink:0}
+.quality-stat-count{font-size:12px;font-weight:700;font-family:var(--mono)}
+.quality-stat-cr{font-size:10px;color:var(--text-3);margin-top:1px}
+
 @media(max-width:1100px){.dash-grid{grid-template-columns:1fr}}
-@media(max-width:648px){.dash-grid{gap:14px}.quickstart-banner{flex-direction:column;text-align:center;gap:12px;padding:16px}.qsb-icon{width:40px;height:40px;font-size:18px}.agent-row{padding:10px 14px;gap:10px}.agent-share-btn{display:none}.agent-url-chip{max-width:130px;font-size:9.5px}.chart-wrap{height:160px}}
+@media(max-width:648px){
+  .dash-grid{gap:14px}
+  .quickstart-banner{flex-direction:column;text-align:center;gap:12px;padding:16px}
+  .qsb-icon{width:40px;height:40px;font-size:18px}
+  .agent-row{padding:10px 14px;gap:10px}
+  .agent-share-btn{display:none}
+  .agent-url-chip{max-width:130px;font-size:9.5px}
+  .chart-wrap{height:160px}
+  .quality-cost{display:none}
+}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -103,29 +122,79 @@
           <div style="padding:20px"><div class="chart-wrap"><canvas id="daily-chart"></canvas></div></div>
         </div>
 
-        <!-- Quality breakdown -->
+        <!-- Quality breakdown — redesigned -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Try-Ons by Quality</div>
             <span class="badge badge-accent" id="credits-used-badge">0 credits used</span>
           </div>
-          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
-            <div style="display:flex;gap:8px;flex-wrap:wrap">
-              <div class="q-badge low">🟢 Low · <span id="q-low-count">0</span> · <span id="q-low-credits">0</span> cr</div>
-              <div class="q-badge medium">🟡 Medium · <span id="q-med-count">0</span> · <span id="q-med-credits">0</span> cr</div>
-              <div class="q-badge high">🔴 High · <span id="q-high-count">0</span> · <span id="q-high-credits">0</span> cr</div>
+          <div class="card-body" style="padding-top:4px">
+
+            <!-- Summary chips -->
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+              <div id="chip-low"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(74,222,128,.1);color:#16a34a;border:1px solid rgba(74,222,128,.25)">
+                <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block"></span>
+                Low &mdash; <span id="chip-low-val">0 try-ons</span>
+              </div>
+              <div id="chip-med"   style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(250,204,21,.1);color:#ca8a04;border:1px solid rgba(250,204,21,.25)">
+                <span style="width:7px;height:7px;border-radius:50%;background:#facc15;display:inline-block"></span>
+                Medium &mdash; <span id="chip-med-val">0 try-ons</span>
+              </div>
+              <div id="chip-hi"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(248,113,113,.1);color:#dc2626;border:1px solid rgba(248,113,113,.25)">
+                <span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>
+                High &mdash; <span id="chip-hi-val">0 try-ons</span>
+              </div>
             </div>
+
+            <!-- Per-quality rows with individual bars -->
             <div>
-              <div style="font-size:10.5px;color:var(--text-3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.07em">Credit usage split</div>
-              <div style="height:10px;border-radius:99px;background:var(--surface-3);overflow:hidden;display:flex">
-                <div id="q-bar-low"    style="height:100%;background:#4ade80;transition:width .6s ease" title="Low"></div>
-                <div id="q-bar-medium" style="height:100%;background:#facc15;transition:width .6s ease" title="Medium"></div>
-                <div id="q-bar-high"   style="height:100%;background:#f87171;transition:width .6s ease" title="High"></div>
+              <!-- Low -->
+              <div class="quality-row">
+                <span class="quality-dot" style="background:#4ade80"></span>
+                <div style="min-width:52px">
+                  <div class="quality-label" style="color:#16a34a">Low</div>
+                  <div class="quality-cost">1 cr / try-on</div>
+                </div>
+                <div class="quality-bar-track">
+                  <div class="quality-bar-fill" id="bar-low" style="background:#4ade80;width:0%"></div>
+                </div>
+                <div class="quality-stat">
+                  <div class="quality-stat-count" id="stat-low-count">0</div>
+                  <div class="quality-stat-cr" id="stat-low-cr">0 cr used</div>
+                </div>
               </div>
-              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:5px">
-                <span>🟢 Low (1 cr)</span><span>🟡 Medium (2 cr)</span><span>🔴 High (3 cr)</span>
+              <!-- Medium -->
+              <div class="quality-row">
+                <span class="quality-dot" style="background:#facc15"></span>
+                <div style="min-width:52px">
+                  <div class="quality-label" style="color:#ca8a04">Medium</div>
+                  <div class="quality-cost">2 cr / try-on</div>
+                </div>
+                <div class="quality-bar-track">
+                  <div class="quality-bar-fill" id="bar-medium" style="background:#facc15;width:0%"></div>
+                </div>
+                <div class="quality-stat">
+                  <div class="quality-stat-count" id="stat-med-count">0</div>
+                  <div class="quality-stat-cr" id="stat-med-cr">0 cr used</div>
+                </div>
+              </div>
+              <!-- High -->
+              <div class="quality-row">
+                <span class="quality-dot" style="background:#f87171"></span>
+                <div style="min-width:52px">
+                  <div class="quality-label" style="color:#dc2626">High</div>
+                  <div class="quality-cost">3 cr / try-on</div>
+                </div>
+                <div class="quality-bar-track">
+                  <div class="quality-bar-fill" id="bar-high" style="background:#f87171;width:0%"></div>
+                </div>
+                <div class="quality-stat">
+                  <div class="quality-stat-count" id="stat-hi-count">0</div>
+                  <div class="quality-stat-cr" id="stat-hi-cr">0 cr used</div>
+                </div>
               </div>
             </div>
+
           </div>
         </div>
 
@@ -147,7 +216,7 @@
       <!-- Right sidebar -->
       <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:68px">
 
-        <!-- Credits ring card -->
+        <!-- Credits ring card — FIXED: ring shows used/total, % shows balance/(balance+used) -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
@@ -189,10 +258,10 @@
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">🔗</span>Quick Links</div></div>
           <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
-            <a href="agents.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>🤖</span>My Agents</a>
+            <a href="agents.html"        class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>🤖</span>My Agents</a>
             <a href="conversations.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💬</span>Conversations</a>
-            <a href="payments.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💳</span>Billing & Plans</a>
-            <a href="account.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>⚙️</span>Account Settings</a>
+            <a href="payments.html"      class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💳</span>Billing & Plans</a>
+            <a href="account.html"       class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>⚙️</span>Account Settings</a>
           </div>
         </div>
       </div>
@@ -201,33 +270,59 @@
 </div>
 
 <script>
-function setRing(balance, used, total) {
-  const circ   = 2 * Math.PI * 46
-  const pct    = total > 0 ? Math.min(1, used / total) : 0
-  const dash   = pct * circ
-  const arc    = document.getElementById('ring-arc')
-  arc.setAttribute('stroke-dasharray', `${dash.toFixed(1)} ${(circ - dash).toFixed(1)}`)
-  const rem = total > 0 ? balance / total : 1
-  arc.setAttribute('stroke', rem > 0.5 ? '#4ade80' : rem > 0.2 ? '#facc15' : '#f87171')
+// ─── Credit ring ──────────────────────────────────────────────────────────
+// FIX: remaining% = balance / (balance + used)
+// This is always 0–100% regardless of how many credits were ever purchased.
+// The ring arc shows how much of your current pool has been consumed.
+function setRing(balance, used) {
+  const circ    = 2 * Math.PI * 46        // circumference ≈ 289 px
+  const total   = balance + used           // total ever held = remaining + used
+  const usedPct = total > 0 ? Math.min(1, used / total) : 0
+  const dash    = usedPct * circ           // filled arc = used portion
+
+  const arc = document.getElementById('ring-arc')
+  arc.setAttribute('stroke-dasharray', `${(circ - dash).toFixed(1)} ${dash.toFixed(1)}`)
+
+  // Colour by how much is left: green ≥50%  amber 20–50%  red <20%
+  const remFrac = total > 0 ? balance / total : 1
+  arc.setAttribute('stroke', remFrac > 0.5 ? '#4ade80' : remFrac > 0.2 ? '#facc15' : '#f87171')
+
   document.getElementById('ring-balance').textContent = (balance || 0).toLocaleString('en-IN')
-  document.getElementById('stat-used').textContent    = (used || 0).toLocaleString('en-IN')
+  document.getElementById('stat-used').textContent    = (used    || 0).toLocaleString('en-IN')
+
+  // Remaining % — always 0–100
   const remPct = total > 0 ? Math.round((balance / total) * 100) : 100
-  document.getElementById('stat-pct').textContent     = remPct + '%'
+  document.getElementById('stat-pct').textContent = remPct + '%'
 }
 
+// ─── Quality breakdown rows ───────────────────────────────────────────────
+// Each tier has an individual bar scaled to the tier that used the most credits.
+// This makes it obvious which tier consumed the most at a glance.
 function setQuality(qb, totalUsed) {
-  const low = qb.low || {count:0,credits:0}, med = qb.medium || {count:0,credits:0}, hi = qb.high || {count:0,credits:0}
-  document.getElementById('q-low-count').textContent    = low.count.toLocaleString('en-IN')
-  document.getElementById('q-low-credits').textContent  = low.credits.toLocaleString('en-IN')
-  document.getElementById('q-med-count').textContent    = med.count.toLocaleString('en-IN')
-  document.getElementById('q-med-credits').textContent  = med.credits.toLocaleString('en-IN')
-  document.getElementById('q-high-count').textContent   = hi.count.toLocaleString('en-IN')
-  document.getElementById('q-high-credits').textContent = hi.credits.toLocaleString('en-IN')
+  const low = qb.low    || { count: 0, credits: 0 }
+  const med = qb.medium || { count: 0, credits: 0 }
+  const hi  = qb.high   || { count: 0, credits: 0 }
+
+  // Summary chips
+  document.getElementById('chip-low-val').textContent = low.count.toLocaleString('en-IN') + ' try-on' + (low.count !== 1 ? 's' : '')
+  document.getElementById('chip-med-val').textContent = med.count.toLocaleString('en-IN') + ' try-on' + (med.count !== 1 ? 's' : '')
+  document.getElementById('chip-hi-val').textContent  = hi.count.toLocaleString('en-IN')  + ' try-on' + (hi.count  !== 1 ? 's' : '')
+
+  // Per-row stats
+  document.getElementById('stat-low-count').textContent = low.count.toLocaleString('en-IN') + ' try-on' + (low.count !== 1 ? 's' : '')
+  document.getElementById('stat-low-cr').textContent    = low.credits.toLocaleString('en-IN') + ' cr used'
+  document.getElementById('stat-med-count').textContent = med.count.toLocaleString('en-IN') + ' try-on' + (med.count !== 1 ? 's' : '')
+  document.getElementById('stat-med-cr').textContent    = med.credits.toLocaleString('en-IN') + ' cr used'
+  document.getElementById('stat-hi-count').textContent  = hi.count.toLocaleString('en-IN')  + ' try-on' + (hi.count  !== 1 ? 's' : '')
+  document.getElementById('stat-hi-cr').textContent     = hi.credits.toLocaleString('en-IN')  + ' cr used'
+
+  // Bars: each scaled to the max credits across all tiers (not a stacked split)
+  const maxCr = Math.max(low.credits, med.credits, hi.credits, 1)
+  document.getElementById('bar-low').style.width    = (low.credits / maxCr * 100).toFixed(1) + '%'
+  document.getElementById('bar-medium').style.width = (med.credits / maxCr * 100).toFixed(1) + '%'
+  document.getElementById('bar-high').style.width   = (hi.credits  / maxCr * 100).toFixed(1) + '%'
+
   document.getElementById('credits-used-badge').textContent = (totalUsed || 0).toLocaleString('en-IN') + ' credits used'
-  const tot = (low.credits + med.credits + hi.credits) || 1
-  document.getElementById('q-bar-low').style.width    = (low.credits / tot * 100).toFixed(1) + '%'
-  document.getElementById('q-bar-medium').style.width = (med.credits / tot * 100).toFixed(1) + '%'
-  document.getElementById('q-bar-high').style.width   = (hi.credits  / tot * 100).toFixed(1) + '%'
 }
 
 ;(async () => {
@@ -235,66 +330,101 @@ function setQuality(qb, totalUsed) {
   if (!nav) return
   const { user } = nav
   const hr = new Date().getHours()
-  document.getElementById('greeting').textContent = (hr<12?'Good morning':hr<17?'Good afternoon':'Good evening') + ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
-  const planLabels = {starter:'🌱 Starter',grower:'🌿 Grower',enterprise:'🏢 Enterprise'}
+  document.getElementById('greeting').textContent =
+    (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') +
+    ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
+
+  const planLabels = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
   document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
 
   try {
     const d = await apiFetch('/dashboard')
-    document.getElementById('s-agents').textContent = fmtNum(d.agents_count||0)
-    document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count||0)
-    document.getElementById('s-chats').textContent  = fmtNum(d.chats_count||0)
-    document.getElementById('s-today').textContent  = fmtNum(d.today_count||0)
+    document.getElementById('s-agents').textContent = fmtNum(d.agents_count || 0)
+    document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count || 0)
+    document.getElementById('s-chats').textContent  = fmtNum(d.chats_count  || 0)
+    document.getElementById('s-today').textContent  = fmtNum(d.today_count  || 0)
     document.querySelectorAll('.stat-value.loading').forEach(e => e.classList.remove('loading'))
 
-    // Credits ring
+    // Credits ring — FIXED: pass balance + used only, no total_purchased
     const cs = d.credits_stats || {}
-    setRing(cs.balance||0, cs.total_used||0, cs.total_purchased||200)
+    setRing(cs.balance || 0, cs.total_used || 0)
 
     // Quality breakdown
-    if (d.quality_breakdown) setQuality(d.quality_breakdown, cs.total_used||0)
+    if (d.quality_breakdown) setQuality(d.quality_breakdown, cs.total_used || 0)
 
     if (!d.agents_count) document.getElementById('quickstart-banner').style.display = 'flex'
 
-    // Chart
-    const last14  = Array.from({length:14},(_,i)=>{const dt=new Date();dt.setDate(dt.getDate()-(13-i));return dt.toISOString().slice(0,10)})
-    const statMap = {}; (d.daily_stats||[]).forEach(s=>statMap[s._id]=s.count||0)
-    const labels  = last14.map(day=>{const[,m,dd]=day.split('-');return dd+'/'+m})
-    const values  = last14.map(day=>statMap[day]||0)
-    document.getElementById('chart-total').textContent = values.reduce((a,b)=>a+b,0).toLocaleString()+' total'
-    const isDark = document.documentElement.getAttribute('data-theme')==='dark'
-    new Chart(document.getElementById('daily-chart').getContext('2d'),{
-      type:'bar',
-      data:{labels,datasets:[{data:values,backgroundColor:'rgba(124,111,255,.2)',borderColor:'rgba(124,111,255,.7)',borderWidth:1.5,borderRadius:5,hoverBackgroundColor:'rgba(124,111,255,.35)'}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:isDark?'#0C0E16':'#fff',titleColor:isDark?'#878BAA':'#5A5E78',bodyColor:isDark?'#ECEDF4':'#0F1117',borderColor:isDark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)',borderWidth:1,padding:10}},scales:{x:{grid:{display:false},ticks:{color:isDark?'#474B65':'#9EA3BB',font:{size:10,family:'Plus Jakarta Sans'}}},y:{grid:{color:isDark?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)'},ticks:{color:isDark?'#474B65':'#9EA3BB',font:{size:10,family:'Plus Jakarta Sans'},precision:0},beginAtZero:true}}}
+    // 14-day bar chart
+    const last14  = Array.from({ length: 14 }, (_, i) => {
+      const dt = new Date(); dt.setDate(dt.getDate() - (13 - i))
+      return dt.toISOString().slice(0, 10)
+    })
+    const statMap = {}
+    ;(d.daily_stats || []).forEach(s => statMap[s._id] = s.count || 0)
+    const labels = last14.map(day => { const [, m, dd] = day.split('-'); return dd + '/' + m })
+    const values = last14.map(day => statMap[day] || 0)
+    document.getElementById('chart-total').textContent = values.reduce((a, b) => a + b, 0).toLocaleString() + ' total'
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+    new Chart(document.getElementById('daily-chart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          data: values,
+          backgroundColor:     'rgba(124,111,255,.2)',
+          borderColor:         'rgba(124,111,255,.7)',
+          borderWidth:         1.5,
+          borderRadius:        5,
+          hoverBackgroundColor:'rgba(124,111,255,.35)',
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: isDark ? '#0C0E16' : '#fff',
+            titleColor:      isDark ? '#878BAA' : '#5A5E78',
+            bodyColor:       isDark ? '#ECEDF4' : '#0F1117',
+            borderColor:     isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)',
+            borderWidth: 1, padding: 10,
+          },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: isDark ? '#474B65' : '#9EA3BB', font: { size: 10, family: 'Plus Jakarta Sans' } } },
+          y: { grid: { color: isDark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.04)' }, ticks: { color: isDark ? '#474B65' : '#9EA3BB', font: { size: 10, family: 'Plus Jakarta Sans' }, precision: 0 }, beginAtZero: true },
+        },
+      },
     })
 
     // Recent agents
     const wrap = document.getElementById('recent-agents-wrap')
     const BASE  = 'boutiquesaas.aasaitech.in'
     if (!d.recent_agents?.length) {
-      wrap.innerHTML='<div class="empty-state" style="padding:36px 20px"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to get started.</div><a href="agents.html?create=1" class="btn btn-primary">Create Agent</a></div>'
+      wrap.innerHTML = '<div class="empty-state" style="padding:36px 20px"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to get started.</div><a href="agents.html?create=1" class="btn btn-primary">Create Agent</a></div>'
     } else {
-      wrap.innerHTML=d.recent_agents.map(a=>{
-        const url=a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+BASE):null
-        const disp=a.published&&a.slug?(a.custom_domain?a.custom_domain:a.slug+'.'+BASE):'Not published yet'
+      wrap.innerHTML = d.recent_agents.map(a => {
+        const url  = a.published && a.slug ? (a.custom_domain ? 'https://' + a.custom_domain : 'https://' + a.slug + '.' + BASE) : null
+        const disp = a.published && a.slug ? (a.custom_domain ? a.custom_domain : a.slug + '.' + BASE) : 'Not published yet'
         return `<div class="agent-row" onclick="location.href='agents.html'">
-          <div class="agent-logo" style="background:${a.brand_color||'#7C6FFF'}">${(a.agent_name||a.name||'A')[0].toUpperCase()}</div>
+          <div class="agent-logo" style="background:${a.brand_color || '#7C6FFF'}">${(a.agent_name || a.name || 'A')[0].toUpperCase()}</div>
           <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.agent_name||a.name}</div>
+            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.agent_name || a.name}</div>
             <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
-              <span class="badge badge-accent" style="font-size:9.5px;padding:1px 7px">${a.category||'Boutique'}</span>
-              ${url?`<a class="agent-url-chip" href="${url}" target="_blank" onclick="event.stopPropagation()">🔗 ${disp}</a>`:`<span class="agent-url-chip draft">⏸ ${disp}</span>`}
-              <span style="font-size:10px;color:var(--text-3)">${fmtNum(a.tryon_count||0)} try-ons</span>
+              <span class="badge badge-accent" style="font-size:9.5px;padding:1px 7px">${a.category || 'Boutique'}</span>
+              ${url ? `<a class="agent-url-chip" href="${url}" target="_blank" onclick="event.stopPropagation()">🔗 ${disp}</a>` : `<span class="agent-url-chip draft">⏸ ${disp}</span>`}
+              <span style="font-size:10px;color:var(--text-3)">${fmtNum(a.tryon_count || 0)} try-ons</span>
             </div>
           </div>
-          <span class="badge ${a.published?'badge-green':'badge-gray'}">${a.published?'Live':'Draft'}</span>
-          ${url?`<button class="agent-share-btn" onclick="event.stopPropagation();shareUrl('${url}','${(a.agent_name||a.name||'').replace(/'/g,"\\'")}')">🔗 Share</button>`:''}
+          <span class="badge ${a.published ? 'badge-green' : 'badge-gray'}">${a.published ? 'Live' : 'Draft'}</span>
+          ${url ? `<button class="agent-share-btn" onclick="event.stopPropagation();shareUrl('${url}','${(a.agent_name || a.name || '').replace(/'/g, "\\'")}')">🔗 Share</button>` : ''}
           <svg width="12" height="12" fill="none" stroke="var(--text-3)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </div>`
       }).join('')
     }
-  } catch(e){ toast(e.message,'error') }
+  } catch (e) { toast(e.message, 'error') }
 
   document.getElementById('page-content').style.display = 'block'
 })();
