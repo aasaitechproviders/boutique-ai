@@ -665,7 +665,16 @@ async function loadAccount() {
     document.getElementById('profile-name').textContent    = user.name  || '—'
     document.getElementById('profile-email').textContent   = user.email || '—'
     document.getElementById('profile-plan').textContent    = pm.label
-    document.getElementById('profile-credits').textContent = (user.credits || 0).toLocaleString('en-IN')
+    const balance      = Math.max(0, Number(user.credits) || 0)
+    const allotted     = Math.max(balance, Number(user.total_credits_allotted) || 0)
+    const usedCredits  = Math.max(0, allotted - balance)
+    const remPct       = allotted > 0 ? Math.min(100, Math.round(balance / allotted * 100)) : 100
+    const creditColor  = balance > 100 ? 'var(--green)' : balance > 30 ? 'var(--amber)' : 'var(--red)'
+
+    document.getElementById('profile-credits').textContent = balance.toLocaleString('en-IN')
+    document.getElementById('plan-credits').innerHTML =
+      `<span style="color:${creditColor}">${balance.toLocaleString('en-IN')} remaining</span>` +
+      `<span style="font-weight:500;color:var(--text-3);font-size:11px;margin-left:6px">(${remPct}% of ${allotted.toLocaleString('en-IN')})</span>`
 
     // Mini stats
     document.getElementById('stat-tryons').textContent = fmtNum(user.usage?.used || 0)
@@ -676,7 +685,7 @@ async function loadAccount() {
     document.getElementById('plan-icon').textContent    = pm.icon
     document.getElementById('plan-name').textContent    = pm.label
     document.getElementById('plan-price').textContent   = pm.price
-    document.getElementById('plan-credits').textContent = (user.credits || 0).toLocaleString('en-IN') + ' remaining'
+    // plan-credits is set above together with profile-credits
     document.getElementById('plan-agents').textContent  = `${user.agents_count || 0} active`
     document.getElementById('plan-joined').textContent  = fmtDate(user.created_at)
 
