@@ -15,11 +15,13 @@
 .domain-status.error{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
 .step-row{display:flex;gap:12px;margin-bottom:14px}
 .step-num-sm{width:24px;height:24px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(124,111,255,.2);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+
 /* Payment history */
 .payment-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);gap:12px}
 .payment-row:last-child{border-bottom:none}
 .payment-plan-badge{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(124,111,255,.2);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;text-transform:capitalize}
 .payment-meta{font-size:11.5px;color:var(--text-3);margin-top:2px}
+
 /* Invoice modal */
 .invoice-modal{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:16px}
 .invoice-modal.open{display:flex}
@@ -28,12 +30,50 @@
 .inv-divider{height:1px;background:#e5e7eb;margin:16px 0}
 .inv-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
 .inv-row.total{font-weight:800;font-size:15px;border-top:2px solid #111;margin-top:8px;padding-top:10px}
-/* Support */
+
+/* Support form category grid */
 .support-category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .support-cat{padding:10px 8px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:12px;font-weight:600;transition:.15s;background:var(--surface)}
 .support-cat:hover,.support-cat.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+
+/* ── Support Tickets ── */
+.ticket-row{
+  border:1px solid var(--border);border-radius:var(--r-sm);
+  background:var(--surface);overflow:hidden;
+  transition:border-color .15s,box-shadow .15s;
+  cursor:pointer;
+}
+.ticket-row:hover{border-color:var(--border-md);box-shadow:var(--sh-sm)}
+.ticket-header{
+  display:flex;align-items:center;gap:10px;padding:12px 14px;
+}
+.ticket-cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ticket-subject{flex:1;font-size:13px;font-weight:600;min-width:0;
+                white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ticket-meta{font-size:10.5px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ticket-id{font-family:var(--mono);font-size:10px;color:var(--text-3);background:var(--surface-3);
+           border:1px solid var(--border);border-radius:4px;padding:1px 6px;flex-shrink:0}
+.ticket-chevron{flex-shrink:0;color:var(--text-3);transition:transform .2s}
+.ticket-row.open-expanded .ticket-chevron{transform:rotate(90deg)}
+.ticket-body{
+  display:none;border-top:1px solid var(--border);
+  padding:12px 14px;background:var(--surface-2);
+}
+.ticket-row.open-expanded .ticket-body{display:block}
+.ticket-message{font-size:13px;color:var(--text-2);line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.ticket-status-bar{display:flex;align-items:center;justify-content:space-between;
+                   flex-wrap:wrap;gap:8px;margin-top:10px;
+                   padding-top:10px;border-top:1px solid var(--border)}
+
+/* Status badge colour map (applied via JS) */
+.ts-open       {background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border)}
+.ts-in_progress{background:var(--blue-dim); color:var(--blue); border:1px solid var(--blue-border)}
+.ts-resolved   {background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+.ts-closed     {background:var(--surface-3);color:var(--text-3);border:1px solid var(--border-md)}
+
 @keyframes spin{to{transform:rotate(360deg)}}.spin{animation:spin .8s linear infinite}
 @media(max-width:1000px){.settings-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.support-category-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -66,6 +106,7 @@
         <div class="skel" style="height:120px;border-radius:var(--r-lg)"></div>
         <div class="skel" style="height:200px;border-radius:var(--r-lg)"></div>
         <div class="skel" style="height:180px;border-radius:var(--r-lg)"></div>
+        <div class="skel" style="height:160px;border-radius:var(--r-lg)"></div>
       </div>
       <div class="skel" style="height:300px;border-radius:var(--r-lg)"></div>
     </div>
@@ -80,10 +121,12 @@
   <div class="content" id="page-content" style="display:none">
     <div class="settings-grid">
 
-      <!-- ── LEFT ── -->
+      <!-- ══════════════════════════════════════════════════
+           LEFT COLUMN
+      ══════════════════════════════════════════════════ -->
       <div style="display:flex;flex-direction:column;gap:20px">
 
-        <!-- Profile -->
+        <!-- Profile ──────────────────────────────────────── -->
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">👤</span>Profile</div></div>
           <div class="card-body">
@@ -116,7 +159,7 @@
           </div>
         </div>
 
-        <!-- GST Details -->
+        <!-- GST Details ───────────────────────────────────── -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🏛️</span>GST Details</div>
@@ -143,19 +186,19 @@
           </div>
         </div>
 
-        <!-- Support -->
+        <!-- Raise a Support Request ───────────────────────── -->
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">🎧</span>Raise a Support Request</div></div>
           <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
             <div>
               <div style="font-size:12px;font-weight:600;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Category</div>
               <div class="support-category-grid">
-                <div class="support-cat selected" data-cat="billing" onclick="selectCat(this)">💳 Billing</div>
-                <div class="support-cat" data-cat="technical" onclick="selectCat(this)">🔧 Technical</div>
-                <div class="support-cat" data-cat="account" onclick="selectCat(this)">👤 Account</div>
-                <div class="support-cat" data-cat="tryon" onclick="selectCat(this)">👗 Try-Ons</div>
-                <div class="support-cat" data-cat="feature" onclick="selectCat(this)">💡 Feature Request</div>
-                <div class="support-cat" data-cat="other" onclick="selectCat(this)">📋 Other</div>
+                <div class="support-cat selected" data-cat="billing"   onclick="selectCat(this)">💳 Billing</div>
+                <div class="support-cat"           data-cat="technical" onclick="selectCat(this)">🔧 Technical</div>
+                <div class="support-cat"           data-cat="account"   onclick="selectCat(this)">👤 Account</div>
+                <div class="support-cat"           data-cat="tryon"     onclick="selectCat(this)">👗 Try-Ons</div>
+                <div class="support-cat"           data-cat="feature"   onclick="selectCat(this)">💡 Feature Request</div>
+                <div class="support-cat"           data-cat="other"     onclick="selectCat(this)">📋 Other</div>
               </div>
             </div>
             <div class="field">
@@ -173,7 +216,24 @@
           </div>
         </div>
 
-        <!-- Custom Domain -->
+        <!-- ═══════════════════════════════════════════════════
+             MY SUPPORT TICKETS  (new section)
+        ═══════════════════════════════════════════════════ -->
+        <div class="card" id="tickets-card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">📋</span>My Support Tickets</div>
+            <span class="badge badge-accent" id="tickets-count-badge" style="display:none"></span>
+          </div>
+          <div id="tickets-wrap">
+            <!-- Loading skeleton -->
+            <div id="tickets-loading" style="padding:16px;display:flex;flex-direction:column;gap:8px">
+              <div class="skel" style="height:52px;border-radius:var(--r-sm)"></div>
+              <div class="skel" style="height:52px;border-radius:var(--r-sm);opacity:.7"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Domain ──────────────────────────────────── -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🌐</span>Custom Domain</div>
@@ -191,7 +251,7 @@
           </div>
         </div>
 
-        <!-- Danger Zone -->
+        <!-- Danger Zone ────────────────────────────────────── -->
         <div class="card" style="border-color:var(--red-border)">
           <div class="card-header"><div class="card-title" style="color:var(--red)"><span class="card-icon">⚠️</span>Danger Zone</div></div>
           <div class="card-body">
@@ -206,10 +266,12 @@
         </div>
       </div>
 
-      <!-- ── RIGHT ── -->
+      <!-- ══════════════════════════════════════════════════
+           RIGHT COLUMN
+      ══════════════════════════════════════════════════ -->
       <div style="display:flex;flex-direction:column;gap:16px">
 
-        <!-- Plan + credits -->
+        <!-- Plan + credits ────────────────────────────────── -->
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Current Plan</div>
@@ -222,7 +284,6 @@
               <div style="font-size:13px;color:var(--text-2);margin-top:4px" id="plan-price">Free</div>
             </div>
             <div class="divider"></div>
-            <!-- Credits instead of try-on quota -->
             <div class="info-row">
               <span class="info-row-label">⚡ Credits</span>
               <span class="info-row-val" id="plan-credits" style="font-weight:800;color:var(--accent)">—</span>
@@ -239,7 +300,7 @@
           </div>
         </div>
 
-        <!-- Payment history -->
+        <!-- Payment history ────────────────────────────────── -->
         <div class="card" id="payment-history-card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🧾</span>Payment History</div>
@@ -249,7 +310,7 @@
           </div>
         </div>
 
-        <!-- Account info -->
+        <!-- Account info ───────────────────────────────────── -->
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">ℹ️</span>Account Info</div></div>
           <div class="card-body">
@@ -287,13 +348,28 @@
 
 <!-- Invoice Modal -->
 <div class="invoice-modal" id="invoice-modal">
-  <div class="invoice-paper" id="invoice-content">
-    <!-- rendered by JS -->
-  </div>
+  <div class="invoice-paper" id="invoice-content"></div>
 </div>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────
+// ── Constants ──────────────────────────────────────────────────────────────
+const CAT_META = {
+  billing:   { icon: '💳', label: 'Billing',          color: '#7C6FFF', dot: '#7C6FFF' },
+  technical: { icon: '🔧', label: 'Technical',        color: '#3B82F6', dot: '#60A5FA' },
+  account:   { icon: '👤', label: 'Account',          color: '#19a37a', dot: '#2DD4A0' },
+  tryon:     { icon: '👗', label: 'Try-Ons',          color: '#d97706', dot: '#F5A523' },
+  feature:   { icon: '💡', label: 'Feature Request',  color: '#7C3AED', dot: '#A78BFA' },
+  other:     { icon: '📋', label: 'Other',            color: '#64748b', dot: '#94A3B8' },
+}
+
+const STATUS_META = {
+  open:        { label: '🟡 Open',        cls: 'ts-open'        },
+  in_progress: { label: '🔵 In Progress', cls: 'ts-in_progress' },
+  resolved:    { label: '✅ Resolved',    cls: 'ts-resolved'    },
+  closed:      { label: '⭕ Closed',      cls: 'ts-closed'      },
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
 let selectedCat = 'billing'
 
 // ── Support category picker ────────────────────────────────────────────────
@@ -317,7 +393,7 @@ async function saveGst() {
   } catch(e) { toast(e.message, 'error') }
 }
 
-// ── Support submit ────────────────────────────────────────────────────────
+// ── Support submit ─────────────────────────────────────────────────────────
 async function submitSupport() {
   const subject = document.getElementById('sup-subject').value.trim()
   const message = document.getElementById('sup-message').value.trim()
@@ -331,10 +407,151 @@ async function submitSupport() {
     toast(r.message || 'Support request submitted!', 'success', 5000)
     document.getElementById('sup-subject').value = ''
     document.getElementById('sup-message').value = ''
+    // Refresh ticket list so the new ticket shows immediately
+    await loadTickets()
+    // Scroll to tickets section
+    document.getElementById('tickets-card').scrollIntoView({ behavior: 'smooth', block: 'start' })
   } catch(e) { toast(e.message, 'error') }
 }
 
-// ── Invoice ───────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+// TICKETS  ──  load, render, toggle expand
+//
+// Backend route needed (add to index.js):
+//
+//   app.get('/account/support', auth, async (req, res) => {
+//     try {
+//       const db = await getDb()
+//       const tickets = await db.collection('support_requests')
+//         .find({ user_id: req.user.user_id })
+//         .sort({ created_at: -1 })
+//         .limit(50)
+//         .toArray()
+//       R(res, { tickets: tickets.map(t => ({ ...t, _id: t._id.toString() })) })
+//     } catch (err) { E(res, err.message) }
+//   })
+//
+// ══════════════════════════════════════════════════════════════════════════
+
+function buildTicketHTML(t) {
+  const cat    = CAT_META[t.category] || CAT_META.other
+  const status = STATUS_META[t.status] || STATUS_META.open
+  const date   = t.created_at ? fmtDate(t.created_at) : '—'
+  const shortId = (t._id || '').toString().slice(-8).toUpperCase()
+
+  return `
+  <div class="ticket-row" onclick="toggleTicket(this)" data-id="${t._id}">
+    <div class="ticket-header">
+      <span class="ticket-cat-dot" style="background:${cat.dot}"></span>
+      <div style="flex:1;min-width:0">
+        <div class="ticket-subject">${escHtml(t.subject || '(no subject)')}</div>
+        <div class="ticket-meta">
+          <span>${cat.icon} ${cat.label}</span>
+          <span>·</span>
+          <span>${date}</span>
+        </div>
+      </div>
+      <span class="badge ${status.cls}" style="font-size:10.5px;flex-shrink:0">${status.label}</span>
+      <span class="ticket-id">#${shortId}</span>
+      <svg class="ticket-chevron" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </div>
+    <div class="ticket-body">
+      <div class="ticket-message">${escHtml(t.message || '')}</div>
+      <div class="ticket-status-bar">
+        <div style="font-size:11.5px;color:var(--text-3)">
+          Ticket ID: <span style="font-family:var(--mono)">#${shortId}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          ${t.status === 'open' || t.status === 'in_progress'
+            ? `<span style="font-size:11.5px;color:var(--text-3)">📧 We'll reply to your email within 24h</span>`
+            : t.status === 'resolved'
+            ? `<span style="font-size:11.5px;color:var(--green)">✅ This ticket has been resolved</span>`
+            : `<span style="font-size:11.5px;color:var(--text-3)">This ticket is closed</span>`
+          }
+        </div>
+      </div>
+    </div>
+  </div>`
+}
+
+function toggleTicket(row) {
+  row.classList.toggle('open-expanded')
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+async function loadTickets() {
+  const wrap = document.getElementById('tickets-wrap')
+  const badge = document.getElementById('tickets-count-badge')
+
+  // Show loading skeleton
+  wrap.innerHTML = `
+    <div id="tickets-loading" style="padding:16px;display:flex;flex-direction:column;gap:8px">
+      <div class="skel" style="height:52px;border-radius:var(--r-sm)"></div>
+      <div class="skel" style="height:52px;border-radius:var(--r-sm);opacity:.7"></div>
+    </div>`
+
+  try {
+    const data = await apiFetch('/account/support')
+    const tickets = data.tickets || []
+
+    if (!tickets.length) {
+      badge.style.display = 'none'
+      wrap.innerHTML = `
+        <div class="empty-state" style="padding:32px 20px">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title">No tickets yet</div>
+          <div class="empty-desc">When you raise a support request, it will appear here so you can track its status.</div>
+        </div>`
+      return
+    }
+
+    // Badge count
+    badge.textContent = `${tickets.length} ticket${tickets.length !== 1 ? 's' : ''}`
+    badge.style.display = ''
+
+    // Group by status for summary row
+    const counts = { open: 0, in_progress: 0, resolved: 0, closed: 0 }
+    tickets.forEach(t => { if (counts[t.status] !== undefined) counts[t.status]++ })
+
+    // Summary strip
+    const summaryParts = []
+    if (counts.open)        summaryParts.push(`<span class="badge ts-open"        style="font-size:10.5px">🟡 ${counts.open} Open</span>`)
+    if (counts.in_progress) summaryParts.push(`<span class="badge ts-in_progress" style="font-size:10.5px">🔵 ${counts.in_progress} In Progress</span>`)
+    if (counts.resolved)    summaryParts.push(`<span class="badge ts-resolved"    style="font-size:10.5px">✅ ${counts.resolved} Resolved</span>`)
+    if (counts.closed)      summaryParts.push(`<span class="badge ts-closed"      style="font-size:10.5px">⭕ ${counts.closed} Closed</span>`)
+
+    const summary = summaryParts.length > 1
+      ? `<div style="padding:10px 14px 12px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--border)">${summaryParts.join('')}</div>`
+      : ''
+
+    wrap.innerHTML = summary + `<div style="padding:12px 14px;display:flex;flex-direction:column;gap:8px">${tickets.map(buildTicketHTML).join('')}</div>`
+
+  } catch(e) {
+    // API endpoint may not exist yet — show a friendly notice instead of an error
+    badge.style.display = 'none'
+    wrap.innerHTML = `
+      <div style="padding:18px 16px;display:flex;align-items:flex-start;gap:12px;background:var(--amber-dim);border-top:1px solid var(--amber-border)">
+        <span style="font-size:18px;flex-shrink:0">⚠️</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--amber);margin-bottom:3px">Ticket history not available yet</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.6">
+            Add <code style="font-family:var(--mono);font-size:11px;background:var(--surface-3);padding:1px 5px;border-radius:3px">GET /account/support</code> to your backend to enable ticket tracking. See the code comment in account.html for the exact route.
+          </div>
+        </div>
+      </div>`
+  }
+}
+
+// ── Invoice ────────────────────────────────────────────────────────────────
 async function openInvoice(paymentId) {
   try {
     const inv = await apiFetch(`/payment/invoice/${paymentId}`)
@@ -392,8 +609,7 @@ async function openInvoice(paymentId) {
       <div style="display:flex;gap:10px;margin-top:4px">
         <button onclick="window.print()" class="btn btn-primary btn-sm" style="background:#111;border-color:#111">🖨️ Print / Save PDF</button>
         <button onclick="closeInvoice()" class="btn btn-secondary btn-sm">Close</button>
-      </div>
-    `
+      </div>`
     document.getElementById('invoice-modal').classList.add('open')
   } catch(e) { toast(e.message, 'error') }
 }
@@ -405,15 +621,13 @@ document.getElementById('invoice-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeInvoice()
 })
 
-// ── Payment history renderer ──────────────────────────────────────────────
+// ── Payment history ────────────────────────────────────────────────────────
 function renderPaymentHistory(payments) {
-  const card = document.getElementById('payment-history-card')
   const body = document.getElementById('payment-history-body')
   if (!payments?.length) {
     body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No payments yet. <a href="payments.html">Browse plans →</a></div>'
     return
   }
-  card.style.display = ''
   const icons = { starter: '🌱', grower: '🌿', enterprise: '🏢' }
   body.innerHTML = payments.map(p => `
     <div class="payment-row">
@@ -432,7 +646,7 @@ function renderPaymentHistory(payments) {
   `).join('')
 }
 
-// ── Main loader ───────────────────────────────────────────────────────────
+// ── Account data loader ────────────────────────────────────────────────────
 async function loadAccount() {
   try {
     const data = await apiFetch('/account')
@@ -447,16 +661,16 @@ async function loadAccount() {
     // Profile
     const av = document.getElementById('profile-avatar')
     if (user.picture) av.innerHTML = `<img src="${user.picture}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-    else av.textContent = (user.name?.[0] || 'U').toUpperCase()
+    else              av.textContent = (user.name?.[0] || 'U').toUpperCase()
     document.getElementById('profile-name').textContent    = user.name  || '—'
     document.getElementById('profile-email').textContent   = user.email || '—'
     document.getElementById('profile-plan').textContent    = pm.label
     document.getElementById('profile-credits').textContent = (user.credits || 0).toLocaleString('en-IN')
 
     // Mini stats
-    document.getElementById('stat-tryons').textContent  = fmtNum(user.usage?.used || 0)
-    document.getElementById('stat-agents').textContent  = user.agents_count || 0
-    document.getElementById('stat-joined').textContent  = new Date(user.created_at).getFullYear()
+    document.getElementById('stat-tryons').textContent = fmtNum(user.usage?.used || 0)
+    document.getElementById('stat-agents').textContent = user.agents_count || 0
+    document.getElementById('stat-joined').textContent = new Date(user.created_at).getFullYear()
 
     // Plan card
     document.getElementById('plan-icon').textContent    = pm.icon
@@ -472,12 +686,11 @@ async function loadAccount() {
 
     // GST pre-fill
     if (user.gst_details) {
-      document.getElementById('gst-gstin').value    = user.gst_details.gstin    || ''
-      document.getElementById('gst-business').value = user.gst_details.business_name || ''
-      document.getElementById('gst-address').value  = user.gst_details.address  || ''
-      document.getElementById('gst-state').value    = user.gst_details.state    || ''
+      document.getElementById('gst-gstin').value    = user.gst_details.gstin            || ''
+      document.getElementById('gst-business').value = user.gst_details.business_name    || ''
+      document.getElementById('gst-address').value  = user.gst_details.address          || ''
+      document.getElementById('gst-state').value    = user.gst_details.state            || ''
     }
-
   } catch(e) { toast(e.message, 'error') }
 }
 
@@ -491,11 +704,16 @@ async function loadPayments() {
   }
 }
 
-// ── Delete account ────────────────────────────────────────────────────────
-function confirmDelete()   { document.getElementById('delete-modal').classList.add('open') }
-function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('open'); document.getElementById('delete-confirm-input').value = '' }
+// ── Delete account ─────────────────────────────────────────────────────────
+function confirmDelete()    { document.getElementById('delete-modal').classList.add('open') }
+function closeDeleteModal() {
+  document.getElementById('delete-modal').classList.remove('open')
+  document.getElementById('delete-confirm-input').value = ''
+}
 async function doDeleteAccount() {
-  if (document.getElementById('delete-confirm-input').value !== 'DELETE') { toast('Type DELETE exactly', 'error'); return }
+  if (document.getElementById('delete-confirm-input').value !== 'DELETE') {
+    toast('Type DELETE exactly', 'error'); return
+  }
   try {
     await apiFetch('/account', { method: 'DELETE' })
     localStorage.removeItem('ba_token')
@@ -503,13 +721,13 @@ async function doDeleteAccount() {
   } catch(e) { toast(e.message, 'error') }
 }
 
-// ── Init ──────────────────────────────────────────────────────────────────
+// ── Init ───────────────────────────────────────────────────────────────────
 ;(async () => {
   const nav = await renderNav('account')
   if (!nav) return
-  await Promise.all([loadAccount(), loadPayments()])
+  await Promise.all([loadAccount(), loadPayments(), loadTickets()])
   document.getElementById('page-content').style.display = 'block'
-})();
+})()
 </script>
 </body>
 </html>
