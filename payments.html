@@ -1094,13 +1094,33 @@ async function buyCredits(packId, credits, priceInr, label) {
 // If the API fails, showPlansError() renders an error state instead of stale data.
 
 // ── Init ─────────────────────────────────────────────────────────────────────
+// FIX: /account and /payment/plans are fetched IN PARALLEL so PLAN_LIMITS is
+//      fully populated before it is used to render the agents cap.
+//      Previously /payment/plans was fetched AFTER the agents bar was rendered,
+//      causing PLAN_LIMITS[plan] to always be undefined → fallback to {agents:1}
+//      → showing "4 / 1  100% used" even on the Grower (5-agent) plan.
 ;(async () => {
   const nav = await renderNav('billing')
   if (!nav) return
 
   try {
-    // 1. Account data (required)
-    const accountData = await apiFetch('/account')
+    // ── BATCH 1: account + plans in parallel ─────────────────────────────────
+    // Plans MUST resolve before we touch PLAN_LIMITS, so both go in batch 1.
+    const [accountData, plansRes] = await Promise.all([
+      apiFetch('/account'),
+      apiFetch('/payment/plans').catch(e => { console.error('[payments] /payment/plans failed:', e); return null }),
+    ])
+
+    // Populate PLAN_LIMITS + PLAN_LABELS from plans API BEFORE using them
+    if (plansRes && plansRes.plans) {
+      plansData = plansRes.plans
+      plansData.forEach(p => { if (p.limits) PLAN_LIMITS[p.id] = p.limits })
+      plansData.forEach(p => { PLAN_LABELS[p.id] = p.name })
+    } else {
+      showPlansError('Could not load plans — please refresh.')
+    }
+
+    // ── Account / usage ───────────────────────────────────────────────────────
     currentUser = accountData.user || accountData
     const user  = currentUser
     const plan  = user.plan || 'starter'
@@ -1109,9 +1129,9 @@ async function buyCredits(packId, credits, priceInr, label) {
     // Current plan badge
     document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase() + plan.slice(1)
 
-    // Usage stats
+    // Usage stats — PLAN_LIMITS is now correctly populated from the API above
     const usage   = user.usage || {}
-    const limits  = PLAN_LIMITS[plan] || { agents: 1 }  // populated from /payment/plans API
+    const limits  = PLAN_LIMITS[plan] || { agents: 1 }
     const credits = user.credits || 0
     const usedAg  = user.agents_count || 0
     const capAg   = limits.agents === 99999 ? '∞' : limits.agents
@@ -1132,66 +1152,46 @@ async function buyCredits(packId, credits, priceInr, label) {
       ? 'Annual plan — expires on the date above.'
       : 'Monthly plan — renews or resets on the date above.'
 
-    document.getElementById('u-agents').textContent    = usedAg
+    document.getElementById('u-agents').textContent     = usedAg
     document.getElementById('u-agents-cap').textContent = capAg
     const agBar = document.getElementById('u-agents-bar')
     agBar.style.width = pctAg + '%'
     agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
     document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
 
-    // 2. Plans — from DB via /payment/plans (no hardcoded fallback)
-    try {
-      const plansRes = await apiFetch('/payment/plans')
-      if (plansRes && plansRes.plans) {
-        plansData = plansRes.plans
-        // Sync PLAN_LIMITS runtime map from API response
-        plansData.forEach(p => { if (p.limits) PLAN_LIMITS[p.id] = p.limits })
-        // Sync plan labels
-        plansData.forEach(p => { PLAN_LABELS[p.id] = p.name })
-      } else {
-        showPlansError('Could not load plans — please refresh.')
-      }
-    } catch (e) {
-      console.error('[payments] /payment/plans failed:', e)
-      showPlansError('Could not load plans — please refresh.')
-    }
-
+    // Render plan cards (data already in plansData from batch 1)
     renderPlans()
 
-    // 3. Credit packages — from DB via /credits/packages (no hardcoded fallback)
-    try {
-      const pkgRes = await apiFetch('/credits/packages')
-      if (pkgRes) renderCreditPackages(pkgRes.packages || [], pkgRes.quality_costs)
-    } catch (e) {
-      console.warn('[payments] /credits/packages failed:', e)
-      renderCreditPackages([], {})
-    }
+    // ── BATCH 2: credits + payment history in parallel ────────────────────────
+    const [pkgRes, creditData, historyData] = await Promise.all([
+      apiFetch('/credits/packages').catch(e => { console.warn('[payments] /credits/packages failed:', e); return null }),
+      apiFetch('/credits/balance').catch(() => null),
+      apiFetch('/payment/history').catch(() => null),
+    ])
 
-    // 4. Credit balance + history
-    try {
-      const creditData = await apiFetch('/credits/balance')
-      if (creditData) renderCreditHistory(creditData.transactions, creditData.credits)
-    } catch {
-      const balEl = document.getElementById('credit-balance')
+    // Credit packages
+    if (pkgRes) renderCreditPackages(pkgRes.packages || [], pkgRes.quality_costs)
+    else        renderCreditPackages([], {})
+
+    // Credit balance + history
+    if (creditData) {
+      renderCreditHistory(creditData.transactions, creditData.credits)
+    } else {
+      const balEl  = document.getElementById('credit-balance')
       const bodyEl = document.getElementById('credit-history-body')
       if (balEl)  balEl.textContent = '0'
       if (bodyEl) bodyEl.innerHTML  = '<div style="font-size:13px;color:var(--text-3)">Top up below to get started.</div>'
     }
 
-    // 5. Payment history (optional — silently skip on error)
-    try {
-      const historyData = await apiFetch('/payment/history')
-      if (historyData && historyData.payments) renderPaymentHistory(historyData.payments)
-    } catch { /* not yet deployed or no history — that's fine */ }
+    // Payment history
+    if (historyData && historyData.payments) renderPaymentHistory(historyData.payments)
 
   } catch (err) {
     console.error('[payments] Init error:', err)
-    // Still show page even if something failed
     showPlansError('Could not load page data — please refresh.')
     renderPlans()
     renderCreditPackages()
   } finally {
-    // Always hide skeleton and show page
     const skel = document.getElementById('page-skeleton')
     const page = document.getElementById('page-content')
     if (skel) skel.style.display = 'none'
