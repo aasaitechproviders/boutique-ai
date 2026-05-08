@@ -310,6 +310,16 @@
           </div>
         </div>
 
+        <!-- Credit purchase history ─────────────────────────── -->
+        <div class="card" id="credit-history-card">
+          <div class="card-header">
+            <div class="card-title"><span class="card-icon">⚡</span>Credit Purchases</div>
+          </div>
+          <div class="card-body" id="credit-history-body">
+            <div style="color:var(--text-3);font-size:13px">Loading…</div>
+          </div>
+        </div>
+
         <!-- Account info ───────────────────────────────────── -->
         <div class="card">
           <div class="card-header"><div class="card-title"><span class="card-icon">ℹ️</span>Account Info</div></div>
@@ -621,6 +631,105 @@ document.getElementById('invoice-modal').addEventListener('click', e => {
   if (e.target === e.currentTarget) closeInvoice()
 })
 
+// ── Credit purchase history ────────────────────────────────────────────────
+function renderCreditPurchaseHistory(transactions) {
+  const body = document.getElementById('credit-history-body')
+  if (!transactions?.length) {
+    body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No credit purchases yet. <a href="payments.html#credits-section">Top up →</a></div>'
+    return
+  }
+  body.innerHTML = transactions.map(t => `
+    <div class="payment-row">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span class="payment-plan-badge" style="background:rgba(250,204,21,.1);color:#ca8a04">⚡ ${t.label || t.pack_id}</span>
+        </div>
+        <div class="payment-meta">${fmtDate(t.completed_at)} · ₹${(t.price_inr || 0).toLocaleString('en-IN')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span style="font-family:var(--mono);font-size:13px;font-weight:800;color:var(--accent)">+${(t.credits||0).toLocaleString('en-IN')}</span>
+        <span class="badge badge-green">paid</span>
+        <button class="btn btn-secondary btn-sm" style="padding:4px 10px;font-size:11px" onclick="openCreditInvoice('${t._id}')">🧾 Invoice</button>
+      </div>
+    </div>
+  `).join('')
+}
+
+async function loadCreditPurchases() {
+  try {
+    const data = await apiFetch('/credits/balance')
+    renderCreditPurchaseHistory(data.transactions || [])
+  } catch {
+    const body = document.getElementById('credit-history-body')
+    if (body) body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">Could not load credit purchases.</div>'
+  }
+}
+
+// ── Credit Invoice ─────────────────────────────────────────────────────────
+async function openCreditInvoice(txId) {
+  try {
+    const inv = await apiFetch(`/credits/invoice/${txId}`)
+    if (inv.error) { toast(inv.error, 'error'); return }
+
+    const gstRow = inv.gst_amount > 0
+      ? `<div class="inv-row"><span>Base Amount</span><span>₹${inv.base_amount.toLocaleString('en-IN')}</span></div>
+         <div class="inv-row"><span>GST (${inv.gst_rate}%)</span><span>₹${inv.gst_amount.toLocaleString('en-IN')}</span></div>`
+      : ''
+    const custGst = inv.customer?.gstin
+      ? `<div style="font-size:12px;margin-top:2px;color:#555">GSTIN: ${inv.customer.gstin}</div>`
+      : ''
+
+    document.getElementById('invoice-content').innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div>
+          <div class="inv-logo">BoutiqueAI</div>
+          <div style="font-size:11px;color:#666">${inv.seller?.address || ''}</div>
+          <div style="font-size:11px;color:#666">${inv.seller?.email || ''}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:11px;font-weight:700;color:#888;letter-spacing:.06em">TAX INVOICE</div>
+          <div style="font-size:15px;font-weight:800;font-family:monospace">${inv.invoice_number}</div>
+          <div style="font-size:11px;color:#666">${fmtDate(inv.invoice_date)}</div>
+        </div>
+      </div>
+      <div class="inv-divider"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:4px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.07em;margin-bottom:4px">BILLED TO</div>
+          <div style="font-weight:700">${inv.customer?.business_name || inv.customer?.name || ''}</div>
+          <div style="font-size:12px;color:#555">${inv.customer?.email || ''}</div>
+          ${custGst}
+          ${inv.customer?.address ? `<div style="font-size:12px;color:#555;margin-top:2px">${inv.customer.address}</div>` : ''}
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#888;letter-spacing:.07em;margin-bottom:4px">PAYMENT INFO</div>
+          <div style="font-size:12px;color:#555">Payment ID</div>
+          <div style="font-size:11px;font-family:monospace;word-break:break-all">${inv.payment_id || '—'}</div>
+        </div>
+      </div>
+      <div class="inv-divider"></div>
+      <div style="background:#f9fafb;border-radius:8px;padding:12px;margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">
+          <span>Description</span><span>Amount</span>
+        </div>
+        <div class="inv-row">
+          <span style="font-weight:600">⚡ ${inv.label} — Try-On Credits</span>
+          <span>₹${(inv.amount_inr || 0).toLocaleString('en-IN')}</span>
+        </div>
+        <div style="font-size:11px;color:#888;margin-top:4px">${(inv.credits || 0).toLocaleString('en-IN')} credits added to your account</div>
+      </div>
+      <div class="inv-divider"></div>
+      ${gstRow}
+      <div class="inv-row total"><span>Total</span><span>₹${(inv.amount_inr || 0).toLocaleString('en-IN')}</span></div>
+      <div class="inv-divider"></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button onclick="window.print()" class="btn btn-primary btn-sm" style="background:#111;border-color:#111">🖨️ Print / Save PDF</button>
+        <button onclick="closeInvoice()" class="btn btn-secondary btn-sm">Close</button>
+      </div>`
+    document.getElementById('invoice-modal').classList.add('open')
+  } catch(e) { toast(e.message, 'error') }
+}
+
 // ── Payment history ────────────────────────────────────────────────────────
 function renderPaymentHistory(payments) {
   const body = document.getElementById('payment-history-body')
@@ -747,7 +856,7 @@ async function doDeleteAccount() {
 ;(async () => {
   const nav = await renderNav('account')
   if (!nav) return
-  await Promise.all([loadAccount(), loadPayments(), loadTickets()])
+  await Promise.all([loadAccount(), loadPayments(), loadCreditPurchases(), loadTickets()])
   document.getElementById('page-content').style.display = 'block'
 })()
 </script>
