@@ -220,7 +220,12 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
-            <a href="payments.html#credits-section" class="btn-ghost">Top Up →</a>
+            <div style="display:flex;align-items:center;gap:8px">
+              <button id="refresh-credits-btn" onclick="refreshCredits()" title="Refresh balance"
+                style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:17px;padding:0 2px;line-height:1;transition:var(--t)"
+                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-3)'">↻</button>
+              <a href="payments.html#credits-section" class="btn-ghost">Top Up →</a>
+            </div>
           </div>
           <div class="card-body">
             <div class="credit-ring-wrap">
@@ -318,6 +323,36 @@ function setRing(balance, used, totalAllotted) {
   document.getElementById('stat-pct').textContent = remPct + '%'
 }
 
+// ─── Refresh credit ring (callable standalone, no page reload) ───────────────
+// Called by the ↻ button and automatically every 60 s so the owner sees
+// their balance go down in near-real-time as customers generate try-ons.
+let _creditRefreshTimer = null;
+
+async function refreshCredits(showSpinner = true) {
+  const btn = document.getElementById("refresh-credits-btn");
+  if (btn && showSpinner) {
+    btn.style.transform = "rotate(360deg)";
+    btn.style.transition = "transform 0.5s ease";
+    setTimeout(() => { btn.style.transform = ""; btn.style.transition = ""; }, 500);
+  }
+  try {
+    const d = await apiFetch("/dashboard");
+    const cs = d.credits_stats || {};
+    setRing(cs.balance, cs.total_used, cs.total_allotted);
+    if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0);
+    document.getElementById("s-tryons").textContent = fmtNum(d.tryons_count || 0);
+    document.getElementById("s-today").textContent  = fmtNum(d.today_count  || 0);
+  } catch (e) {
+    console.warn("[credits refresh]", e.message);
+  }
+}
+
+function startCreditAutoRefresh() {
+  if (_creditRefreshTimer) clearInterval(_creditRefreshTimer);
+  // Refresh every 60 seconds silently (no spinner)
+  _creditRefreshTimer = setInterval(() => refreshCredits(false), 60_000);
+}
+
 // ─── Quality breakdown rows ───────────────────────────────────────────────
 // Each tier has an individual bar scaled to the tier that used the most credits.
 // This makes it obvious which tier consumed the most at a glance.
@@ -374,6 +409,9 @@ function setQuality(qb, totalUsed) {
 
     // Quality breakdown
     if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0)
+
+    // Auto-refresh credit ring every 60 s — balance updates without page reload
+    startCreditAutoRefresh()
 
     if (!d.agents_count) document.getElementById('quickstart-banner').style.display = 'flex'
 
