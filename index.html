@@ -1,206 +1,413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>BoutiqueAI — Virtual Try-On for Boutiques & Textiles</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BoutiqueAI — Virtual Try-On for Boutiques & Textile Stores</title>
+<meta name="description" content="Give your customers their own AI dressing room. They upload a photo, pick an outfit, and see exactly how it looks on them. No app. No code. Live in 2 minutes.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#07080F;--surface:#0F111A;--border:rgba(255,255,255,.07);--accent:#7C6FFF;--accent-rgb:124,111,255;--text:#ECEEF8;--text2:#8084A8;--text3:#454A6A;}
+:root{--bg:#07080F;--surface:#0F111A;--surface-2:#141720;--surface-3:#1A1E2E;--border:rgba(255,255,255,.07);--border-md:rgba(255,255,255,.11);--accent:#7C6FFF;--accent-rgb:124,111,255;--accent-2:#6A5DEE;--accent-3:#5A4DDD;--accent-dim:rgba(124,111,255,.10);--accent-glow:rgba(124,111,255,.25);--green:#2DD4A0;--green-dim:rgba(45,212,160,.12);--green-bdr:rgba(45,212,160,.25);--amber:#F5A523;--amber-dim:rgba(245,165,35,.12);--amber-bdr:rgba(245,165,35,.25);--text:#ECEEF8;--text-2:#8084A8;--text-3:#454A6A;--font:'Plus Jakarta Sans',system-ui,sans-serif;--r:14px;--r-lg:20px;--r-xl:28px;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
-body::before{content:'';position:fixed;top:-300px;left:-300px;width:800px;height:800px;background:radial-gradient(circle,rgba(var(--accent-rgb),.10) 0%,transparent 65%);pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;bottom:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(var(--accent-rgb),.06) 0%,transparent 65%);pointer-events:none;z-index:0;}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,15,.8);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
-.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.03em;text-decoration:none;}
-.logo-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#5A4DDD);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;box-shadow:0 4px 14px rgba(var(--accent-rgb),.35);}
-.logo-ai{color:var(--accent)}
-.btn-login{display:flex;align-items:center;gap:8px;padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
-.btn-login:hover{background:rgba(var(--accent-rgb),.8);transform:translateY(-1px);}
-.hero{position:relative;z-index:1;padding:140px 40px 80px;text-align:center;max-width:900px;margin:0 auto;}
-.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border:1px solid rgba(var(--accent-rgb),.3);background:rgba(var(--accent-rgb),.08);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;margin-bottom:28px;}
-h1{font-size:clamp(34px,6vw,68px);font-weight:800;line-height:1.08;letter-spacing:-0.035em;margin-bottom:22px;}
-h1 span{background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:17px;color:var(--text2);line-height:1.75;max-width:560px;margin:0 auto 36px;}
-.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
-.btn-cta{display:flex;align-items:center;gap:9px;padding:14px 30px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
-.btn-cta:hover{background:rgba(var(--accent-rgb),.85);transform:translateY(-2px);box-shadow:0 8px 30px rgba(var(--accent-rgb),.3);}
-.btn-outline{display:flex;align-items:center;gap:9px;padding:14px 26px;border:1px solid var(--border);border-radius:12px;color:var(--text2);font-size:15px;cursor:pointer;text-decoration:none;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;}
-.btn-outline:hover{border-color:var(--text2);color:var(--text);}
-.note{margin-top:18px;font-size:12.5px;color:var(--text3);}
-.stats-strip{position:relative;z-index:1;display:flex;justify-content:center;gap:60px;padding:36px 40px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);flex-wrap:wrap;}
-.stat-n{font-size:30px;font-weight:800;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.stat-l{font-size:13px;color:var(--text2);margin-top:3px;}
-.section{position:relative;z-index:1;padding:80px 40px;max-width:1100px;margin:0 auto;}
-.section-eyebrow{font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
-.section-title{font-size:clamp(26px,4vw,40px);font-weight:800;letter-spacing:-.03em;margin-bottom:16px;line-height:1.12;}
-.section-sub{font-size:15px;color:var(--text2);line-height:1.75;max-width:520px;margin-bottom:50px;}
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;transition:all .2s;}
-.feature-card:hover{border-color:rgba(var(--accent-rgb),.3);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.3);}
-.feature-icon{width:46px;height:46px;border-radius:13px;background:rgba(var(--accent-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:15px;}
-.feature-title{font-size:15px;font-weight:700;margin-bottom:8px;}
-.feature-desc{font-size:13.5px;color:var(--text2);line-height:1.65;}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
-.step{text-align:center;padding:30px 20px;background:var(--surface);border:1px solid var(--border);border-radius:20px;}
-.step-num{width:52px;height:52px;border-radius:15px;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.2);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:var(--accent);margin:0 auto 18px;}
-.step-title{font-size:15px;font-weight:700;margin-bottom:8px;}
-.step-desc{font-size:13.5px;color:var(--text2);line-height:1.65;}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-.price-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:26px;position:relative;transition:all .2s;}
-.price-card.pop{border-color:rgba(var(--accent-rgb),.4);background:linear-gradient(180deg,rgba(var(--accent-rgb),.07) 0%,var(--surface) 50%);}
-.pop-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;}
-.price-name{font-size:15px;font-weight:800;margin-bottom:10px;}
-.price-amt{font-size:36px;font-weight:800;letter-spacing:-.04em;margin-bottom:4px;}
-.price-mo{font-size:14px;color:var(--text2);}
-.price-feats{margin:18px 0 22px;display:flex;flex-direction:column;gap:10px;}
-.pf{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);}
-.cta-section{position:relative;z-index:1;padding:80px 40px;text-align:center;max-width:700px;margin:0 auto;}
-.cta-card{background:linear-gradient(135deg,rgba(var(--accent-rgb),.1),rgba(167,139,250,.06));border:1px solid rgba(var(--accent-rgb),.22);border-radius:24px;padding:56px 40px;}
-footer{text-align:center;padding:28px;color:var(--text3);font-size:13px;border-top:1px solid var(--border);position:relative;z-index:1;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+img{display:block;max-width:100%;}
+body::before{content:'';position:fixed;top:-400px;left:-300px;width:900px;height:900px;background:radial-gradient(circle,rgba(var(--accent-rgb),.09) 0%,transparent 60%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-300px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(45,212,160,.05) 0%,transparent 60%);pointer-events:none;z-index:0;}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;padding:0 40px;display:flex;align-items:center;justify-content:space-between;background:rgba(7,8,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;letter-spacing:-.03em;color:var(--text);}
+.logo-mark{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;box-shadow:0 4px 14px var(--accent-glow);}
+.logo-ai{color:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-link{font-size:13.5px;font-weight:500;color:var(--text-2);transition:color .18s;}
+.nav-link:hover{color:var(--text);}
+.btn-signin{display:flex;align-items:center;gap:8px;padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .2s;text-decoration:none;}
+.btn-signin:hover{background:var(--accent-2);transform:translateY(-1px);box-shadow:0 6px 20px var(--accent-glow);}
+.hero{position:relative;z-index:1;padding:148px 40px 80px;text-align:center;max-width:860px;margin:0 auto;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 16px;border-radius:20px;border:1px solid rgba(var(--accent-rgb),.3);background:rgba(var(--accent-rgb),.08);font-size:12.5px;color:var(--accent);font-weight:600;margin-bottom:28px;animation:fadeUp .6s ease both;}
+.hero h1{font-size:clamp(36px,6.5vw,72px);font-weight:800;line-height:1.07;letter-spacing:-.04em;margin-bottom:22px;animation:fadeUp .6s .1s ease both;}
+.hero h1 .grad{background:linear-gradient(135deg,var(--accent) 0%,#a78bfa 50%,var(--green) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:17px;color:var(--text-2);line-height:1.8;max-width:580px;margin:0 auto 36px;animation:fadeUp .6s .18s ease both;}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .6s .26s ease both;}
+.btn-cta{display:inline-flex;align-items:center;gap:9px;padding:14px 28px;background:var(--accent);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;text-decoration:none;}
+.btn-cta:hover{background:var(--accent-2);transform:translateY(-2px);box-shadow:0 10px 32px var(--accent-glow);}
+.btn-outline{display:inline-flex;align-items:center;gap:9px;padding:14px 24px;border:1px solid var(--border-md);border-radius:12px;color:var(--text-2);font-size:15px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--font);text-decoration:none;}
+.btn-outline:hover{border-color:var(--text-2);color:var(--text);}
+.hero-note{margin-top:18px;font-size:12.5px;color:var(--text-3);animation:fadeUp .6s .34s ease both;}
+.hero-note span{color:var(--green);font-weight:600;}
+.trust-strip{position:relative;z-index:1;display:flex;justify-content:center;gap:48px;padding:28px 40px;flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:linear-gradient(180deg,var(--surface) 0%,transparent 100%);}
+.trust-item{display:flex;align-items:center;gap:8px;}
+.trust-icon{font-size:18px;}
+.trust-text{font-size:13px;color:var(--text-2);font-weight:500;}
+.trust-text strong{color:var(--text);font-weight:700;}
+.stats-row{position:relative;z-index:1;display:flex;justify-content:center;gap:0;max-width:800px;margin:0 auto;border:1px solid var(--border);border-radius:var(--r-xl);background:var(--surface);overflow:hidden;}
+.stat-item{flex:1;text-align:center;padding:28px 20px;border-right:1px solid var(--border);}
+.stat-item:last-child{border-right:none;}
+.stat-num{font-size:36px;font-weight:800;letter-spacing:-.05em;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.stat-lbl{font-size:12.5px;color:var(--text-3);font-weight:500;margin-top:6px;}
+.section{position:relative;z-index:1;padding:90px 40px;max-width:1100px;margin:0 auto;}
+.section-center{text-align:center;}
+.eyebrow{font-size:11.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;}
+.section-title{font-size:clamp(28px,4.5vw,44px);font-weight:800;letter-spacing:-.035em;line-height:1.1;margin-bottom:16px;}
+.section-sub{font-size:15px;color:var(--text-2);line-height:1.8;max-width:520px;margin-bottom:50px;}
+.section-center .section-sub{margin:0 auto 50px;}
+.demo-wrap{position:relative;z-index:1;padding:0 40px 90px;max-width:1100px;margin:0 auto;}
+.demo-screen{background:var(--surface);border:1px solid var(--border-md);border-radius:24px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.05);}
+.demo-topbar{display:flex;align-items:center;gap:8px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--surface-2);}
+.demo-dot{width:10px;height:10px;border-radius:50%;}
+.demo-dot-r{background:#ff5f57;}
+.demo-dot-y{background:#febc2e;}
+.demo-dot-g{background:#28c840;}
+.demo-url{flex:1;text-align:center;font-size:12px;color:var(--text-3);font-family:monospace;background:var(--surface-3);padding:5px 14px;border-radius:6px;margin:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.demo-body{display:grid;grid-template-columns:280px 1fr;min-height:420px;}
+.demo-sidebar{border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:10px;}
+.demo-agent-logo{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7C6FFF,#5A4DDD);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;margin-bottom:4px;}
+.demo-agent-name{font-size:14px;font-weight:700;}
+.demo-agent-url{font-size:10px;color:var(--accent);font-family:monospace;margin-top:2px;}
+.demo-sep{height:1px;background:var(--border);margin:8px 0;}
+.demo-product-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px;}
+.demo-product{aspect-ratio:3/4;border-radius:8px;background:var(--surface-3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;transition:border-color .2s;}
+.demo-product:hover{border-color:var(--accent);}
+.demo-product.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(var(--accent-rgb),.25);}
+.demo-chat{display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:20px;}
+.demo-msg{max-width:75%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;}
+.demo-msg-bot{background:var(--surface-3);color:var(--text-2);align-self:flex-start;border-bottom-left-radius:4px;}
+.demo-msg-user{background:rgba(var(--accent-rgb),.2);color:var(--accent);align-self:flex-end;border-bottom-right-radius:4px;}
+.demo-tryon-img{width:180px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg,#2a1f5a 0%,#1a1040 100%);aspect-ratio:3/4;display:flex;align-items:center;justify-content:center;font-size:48px;border:1px solid rgba(var(--accent-rgb),.2);position:relative;}
+.demo-tryon-badge{position:absolute;bottom:8px;left:8px;right:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--green);font-weight:600;text-align:center;}
+.demo-input-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--border);background:var(--surface-2);}
+.demo-input{flex:1;padding:8px 12px;background:var(--surface-3);border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text-2);}
+.demo-send{width:32px;height:32px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--border);}
+.step-card{background:var(--surface);padding:36px 32px;position:relative;}
+.step-num{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.step-num::after{content:'';flex:1;height:1px;background:rgba(var(--accent-rgb),.2);}
+.step-icon{font-size:36px;margin-bottom:16px;}
+.step-title{font-size:18px;font-weight:800;margin-bottom:10px;letter-spacing:-.02em;}
+.step-desc{font-size:14px;color:var(--text-2);line-height:1.75;}
+.step-time{display:inline-flex;align-items:center;gap:5px;margin-top:14px;padding:4px 10px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-bdr);font-size:11px;font-weight:700;color:var(--green);}
+.who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.who-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:26px 24px;transition:all .2s;}
+.who-card:hover{border-color:rgba(var(--accent-rgb),.3);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.3);}
+.who-emoji{font-size:32px;margin-bottom:14px;}
+.who-title{font-size:15px;font-weight:700;margin-bottom:8px;}
+.who-desc{font-size:13.5px;color:var(--text-2);line-height:1.7;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;transition:all .2s;}
+.feat-card:hover{border-color:rgba(var(--accent-rgb),.3);transform:translateY(-2px);}
+.feat-icon{width:44px;height:44px;border-radius:12px;background:rgba(var(--accent-rgb),.1);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+.feat-title{font-size:14.5px;font-weight:700;margin-bottom:7px;}
+.feat-desc{font-size:13.5px;color:var(--text-2);line-height:1.65;}
+.billing-toggle{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:36px;}
+.toggle-label{font-size:13.5px;font-weight:600;color:var(--text-3);cursor:pointer;transition:color .18s;}
+.toggle-label.active{color:var(--text);}
+.toggle-pill{width:48px;height:26px;border-radius:13px;background:var(--border-md);position:relative;cursor:pointer;transition:background .2s;border:none;outline:none;flex-shrink:0;}
+.toggle-pill.yearly{background:var(--accent);}
+.toggle-pill::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3);}
+.toggle-pill.yearly::after{left:25px;}
+.save-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:var(--green-dim);border:1px solid var(--green-bdr);font-size:10.5px;font-weight:700;color:var(--green);}
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start;}
+.plan-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-xl);padding:28px 26px;position:relative;transition:all .2s;display:flex;flex-direction:column;}
+.plan-card:hover{box-shadow:0 16px 48px rgba(0,0,0,.3);transform:translateY(-2px);}
+.plan-card.popular{border-color:rgba(var(--accent-rgb),.45);background:linear-gradient(180deg,rgba(var(--accent-rgb),.07) 0%,var(--surface) 60%);box-shadow:0 8px 32px rgba(var(--accent-rgb),.12);}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10.5px;font-weight:700;padding:3px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:.07em;white-space:nowrap;box-shadow:0 4px 12px var(--accent-glow);}
+.plan-name{font-size:15px;font-weight:800;margin-bottom:6px;}
+.plan-tagline{font-size:12.5px;color:var(--text-3);margin-bottom:18px;line-height:1.5;}
+.plan-amount{font-size:42px;font-weight:800;letter-spacing:-.05em;line-height:1;}
+.plan-period{font-size:13px;color:var(--text-2);}
+.plan-billed{font-size:12px;color:var(--text-3);margin-bottom:22px;min-height:16px;}
+.plan-divider{height:1px;background:var(--border);margin-bottom:20px;}
+.plan-feats{display:flex;flex-direction:column;gap:10px;flex:1;}
+.plan-feat{display:flex;align-items:flex-start;gap:9px;font-size:13px;}
+.plan-feat .check{color:var(--green);font-size:13px;margin-top:1px;flex-shrink:0;}
+.plan-feat .cross{color:var(--text-3);font-size:13px;margin-top:1px;flex-shrink:0;}
+.plan-feat .feat-text{color:var(--text-2);line-height:1.45;}
+.plan-feat .feat-text.off{color:var(--text-3);text-decoration:line-through;}
+.plan-credits-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;margin-bottom:18px;font-size:11.5px;font-weight:700;}
+.chip-free{background:var(--green-dim);border:1px solid var(--green-bdr);color:var(--green);}
+.chip-paid{background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.25);color:var(--accent);}
+.chip-custom{background:var(--surface-3);border:1px solid var(--border);color:var(--text-3);}
+.plan-cta{display:flex;align-items:center;justify-content:center;width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:var(--font);transition:all .2s;margin-top:20px;text-decoration:none;}
+.plan-cta.primary{background:var(--accent);color:#fff;}
+.plan-cta.primary:hover{background:var(--accent-2);box-shadow:0 6px 20px var(--accent-glow);}
+.plan-cta.outline{background:transparent;color:var(--text-2);border:1.5px solid var(--border-md);}
+.plan-cta.outline:hover{border-color:var(--accent);color:var(--accent);}
+.plan-cta.sales{background:var(--surface-3);color:var(--text);border:1.5px solid var(--border-md);}
+.plan-cta.sales:hover{background:var(--surface-2);}
+.plans-skeleton{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.plan-skel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);padding:28px 26px;}
+@keyframes skelShimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+.skel-line{border-radius:6px;margin-bottom:12px;background:linear-gradient(90deg,rgba(255,255,255,.03) 0%,rgba(255,255,255,.07) 40%,rgba(255,255,255,.03) 80%);background-size:600px 100%;animation:skelShimmer 1.6s ease-in-out infinite;}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;}
+.faq-item{background:var(--surface);padding:28px 32px;}
+.faq-q{font-size:14.5px;font-weight:700;margin-bottom:10px;display:flex;align-items:flex-start;gap:10px;}
+.faq-q .faq-icon{font-size:18px;flex-shrink:0;}
+.faq-a{font-size:13.5px;color:var(--text-2);line-height:1.75;padding-left:28px;}
+.cta-section{position:relative;z-index:1;padding:80px 40px;max-width:760px;margin:0 auto;text-align:center;}
+.cta-card{background:linear-gradient(135deg,rgba(var(--accent-rgb),.10) 0%,rgba(45,212,160,.06) 100%);border:1px solid rgba(var(--accent-rgb),.2);border-radius:32px;padding:60px 40px;box-shadow:0 0 80px rgba(var(--accent-rgb),.08);}
+.cta-card h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.03em;margin-bottom:14px;}
+.cta-card p{font-size:15px;color:var(--text-2);line-height:1.75;margin-bottom:32px;}
+footer{position:relative;z-index:1;padding:28px 40px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--text-3);}
 footer a{color:var(--accent);}
-/* Sign-in modal */
-.gsi-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .22s ease;pointer-events:none;}
-.gsi-overlay.open{opacity:1;pointer-events:all;}
-.gsi-box{background:#0F111A;border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:40px 36px;width:100%;max-width:400px;text-align:center;transform:translateY(16px) scale(.97);transition:transform .22s ease;box-shadow:0 24px 80px rgba(0,0,0,.6);position:relative;}
-.gsi-overlay.open .gsi-box{transform:none;}
-.gsi-logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#5A4DDD);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin:0 auto 18px;box-shadow:0 8px 24px rgba(var(--accent-rgb),.4);}
-.gsi-title{font-size:20px;font-weight:800;letter-spacing:-.03em;margin-bottom:8px;}
-.gsi-sub{font-size:13.5px;color:var(--text2);line-height:1.6;margin-bottom:28px;}
-.btn-google{width:100%;padding:13px 20px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:11px;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif;text-decoration:none;}
-.btn-google:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);}
-.gsi-terms{font-size:11px;color:var(--text3);margin-top:16px;line-height:1.6;}
-.gsi-terms a{color:var(--text2);}
-.gsi-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:4px;transition:color .15s;}
-.gsi-close:hover{color:var(--text);}
-@media(max-width:768px){nav{padding:0 20px;}.hero{padding:110px 20px 60px;}.stats-strip{gap:30px;padding:28px 20px;}.section{padding:60px 20px;}.features-grid,.pricing-grid,.steps-grid{grid-template-columns:1fr;}}
-@media(max-width:600px){h1{font-size:36px;}.hero-ctas{flex-direction:column;align-items:center;}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(12px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;transition:opacity .22s;pointer-events:none;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal-box{background:#0F111A;border:1px solid rgba(255,255,255,.13);border-radius:24px;padding:42px 38px;width:100%;max-width:400px;text-align:center;transform:translateY(16px) scale(.97);transition:transform .22s;box-shadow:0 24px 80px rgba(0,0,0,.6);position:relative;}
+.modal-overlay.open .modal-box{transform:none;}
+.modal-logo{width:54px;height:54px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;margin:0 auto 18px;box-shadow:0 8px 24px var(--accent-glow);}
+.modal-title{font-size:21px;font-weight:800;letter-spacing:-.03em;margin-bottom:8px;}
+.modal-sub{font-size:13.5px;color:var(--text-2);line-height:1.65;margin-bottom:28px;}
+.btn-google{width:100%;padding:13px 20px;border:1px solid rgba(255,255,255,.13);border-radius:12px;background:rgba(255,255,255,.07);color:var(--text);font-size:14.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:11px;transition:all .2s;font-family:var(--font);text-decoration:none;}
+.btn-google:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.22);}
+.modal-terms{font-size:11px;color:var(--text-3);margin-top:16px;line-height:1.6;}
+.modal-terms a{color:var(--text-2);}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-3);cursor:pointer;font-size:18px;line-height:1;padding:4px;transition:color .15s;}
+.modal-close:hover{color:var(--text);}
+.err-banner{position:fixed;top:76px;left:50%;transform:translateX(-50%);padding:11px 22px;background:#0F111A;border:1px solid rgba(242,107,107,.3);border-radius:10px;font-size:13.5px;color:#F26B6B;z-index:9999;white-space:nowrap;font-family:var(--font);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:none;}}
+@media(max-width:900px){
+  nav{padding:0 20px;}.nav-link{display:none;}
+  .hero{padding:120px 20px 60px;}
+  .demo-wrap{padding:0 20px 60px;}
+  .demo-body{grid-template-columns:1fr;}.demo-sidebar{display:none;}
+  .section{padding:60px 20px;}
+  .steps-grid,.who-grid,.features-grid{grid-template-columns:1fr;}
+  .plans-grid,.plans-skeleton{grid-template-columns:1fr;}
+  .faq-grid{grid-template-columns:1fr;}
+  .trust-strip{gap:24px;padding:22px 20px;}
+  .stats-row{flex-direction:column;border-radius:var(--r-lg);}
+  .stat-item{border-right:none;border-bottom:1px solid var(--border);}
+  .stat-item:last-child{border-bottom:none;}
+  .cta-section{padding:60px 20px;}.cta-card{padding:40px 24px;}
+  footer{padding:20px;flex-direction:column;text-align:center;gap:6px;}
+}
+@media(max-width:600px){
+  .hero h1{font-size:34px;}.hero-ctas{flex-direction:column;align-items:center;}
+  .demo-url{display:none;}
+}
 </style>
 </head>
 <body>
+
 <nav>
   <a class="logo" href="#">
-    <div class="logo-mark">B</div>Boutique<span class="logo-ai">AI</span>
+    <div class="logo-mark">B</div>
+    Boutique<span class="logo-ai">AI</span>
   </a>
-  <button class="btn-login" onclick="openSignIn()">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff" opacity=".9"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff" opacity=".8"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff" opacity=".7"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff" opacity=".6"/></svg>
-    Sign in with Google
-  </button>
+  <div class="nav-right">
+    <a class="nav-link" href="#how-it-works">How it works</a>
+    <a class="nav-link" href="#pricing">Pricing</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+    <button class="btn-signin" onclick="openSignIn()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff" opacity=".9"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff" opacity=".8"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff" opacity=".7"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff" opacity=".6"/></svg>
+      Sign in free
+    </button>
+  </div>
 </nav>
 
 <section class="hero">
-  <div class="hero-badge">✨ AI-Powered Virtual Try-On for Boutiques</div>
-  <h1>Let customers <span>try before<br>they buy</span></h1>
-  <p class="hero-sub">Create your own AI try-on agent in minutes. Upload your boutique items — sarees, dresses, jewellery, shoes — and let customers see how they look. No coding. No app needed.</p>
+  <div class="hero-badge">✨ Virtual Try-On — Built for Indian Boutiques</div>
+  <h1>Your boutique's<br><span class="grad">AI dressing room</span><br>live in 2 minutes</h1>
+  <p class="hero-sub">Your customers upload a selfie, pick an outfit from your catalog, and instantly see how it looks on <em>them</em>. No app download. No code. Just a link you share on WhatsApp or Instagram.</p>
   <div class="hero-ctas">
     <button class="btn-cta" onclick="openSignIn()">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
-      Start Free Trial
+      Start Free — No Card Needed
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
-    <a class="btn-outline" href="#features">See Features →</a>
+    <a class="btn-outline" href="#how-it-works">See how it works →</a>
   </div>
-  <div class="note">14-day free trial · No credit card needed · Your own branded URL</div>
+  <p class="hero-note"><span>50 free credits</span> on signup &nbsp;·&nbsp; Setup in under 2 minutes &nbsp;·&nbsp; Share on WhatsApp instantly</p>
 </section>
 
-<div class="stats-strip">
-  <div class="stat"><div class="stat-n" id="stat-agents">—</div><div class="stat-l">Boutiques live</div></div>
-  <div class="stat"><div class="stat-n" id="stat-tryons">—</div><div class="stat-l">Try-ons generated</div></div>
-  <div class="stat"><div class="stat-n">3x</div><div class="stat-l">Avg. conversion boost</div></div>
-  <div class="stat"><div class="stat-n">99.9%</div><div class="stat-l">Uptime</div></div>
+<div class="trust-strip">
+  <div class="trust-item"><span class="trust-icon">🚀</span><span class="trust-text"><strong>2 min</strong> average setup time</span></div>
+  <div class="trust-item"><span class="trust-icon">📱</span><span class="trust-text"><strong>No app</strong> for your customers</span></div>
+  <div class="trust-item"><span class="trust-icon">🇮🇳</span><span class="trust-text">Built for <strong>Indian boutiques</strong></span></div>
+  <div class="trust-item"><span class="trust-icon">🔗</span><span class="trust-text">Share on <strong>WhatsApp &amp; Instagram</strong></span></div>
+  <div class="trust-item"><span class="trust-icon">💳</span><span class="trust-text"><strong>No credit card</strong> to start</span></div>
 </div>
 
-<section class="section" id="features">
-  <div class="section-eyebrow">Features</div>
-  <div class="section-title">Everything your boutique needs<br>to sell smarter</div>
-  <p class="section-sub">From upload to live agent in minutes. Your customers shop with confidence.</p>
-  <div class="features-grid">
-    <div class="feature-card"><div class="feature-icon">👗</div><div class="feature-title">Virtual Try-On</div><div class="feature-desc">Customers upload their photo. Your AI agent generates realistic images of how your items look on them — sarees, dresses, jewellery, shoes and more.</div></div>
-    <div class="feature-card"><div class="feature-icon">🤖</div><div class="feature-title">Branded AI Agent</div><div class="feature-desc">Create a custom chat agent with your boutique name, logo, and brand colors. Your customers interact with your brand, not a generic bot.</div></div>
-    <div class="feature-card"><div class="feature-icon">🌐</div><div class="feature-title">Your Own URL</div><div class="feature-desc">Every agent gets a shareable link: <strong>your-store.boutiquesaas.aasaitech.in</strong> — or connect your own custom domain.</div></div>
-    <div class="feature-card"><div class="feature-icon">📦</div><div class="feature-title">Product Catalog</div><div class="feature-desc">Upload unlimited product images — sarees, western wear, jewellery, footwear. Organize by category and let the AI showcase them beautifully.</div></div>
-    <div class="feature-card"><div class="feature-icon">💬</div><div class="feature-title">Chat Interface</div><div class="feature-desc">Customers chat naturally with your agent — asking about sizes, colors, availability — while getting real-time try-on previews.</div></div>
-    <div class="feature-card"><div class="feature-icon">📊</div><div class="feature-title">Analytics</div><div class="feature-desc">Track which products customers try most, how many sessions are happening, and which items drive the most interest.</div></div>
+<div style="position:relative;z-index:1;padding:50px 40px;max-width:800px;margin:0 auto;">
+  <div class="stats-row">
+    <div class="stat-item"><div class="stat-num" id="stat-boutiques">—</div><div class="stat-lbl">Boutiques live</div></div>
+    <div class="stat-item"><div class="stat-num" id="stat-tryons">—</div><div class="stat-lbl">Try-ons generated</div></div>
+    <div class="stat-item"><div class="stat-num">3×</div><div class="stat-lbl">Avg. conversion boost</div></div>
+    <div class="stat-item"><div class="stat-num">99.9%</div><div class="stat-lbl">Uptime</div></div>
+  </div>
+</div>
+
+<div class="demo-wrap">
+  <div class="demo-screen">
+    <div class="demo-topbar">
+      <span class="demo-dot demo-dot-r"></span><span class="demo-dot demo-dot-y"></span><span class="demo-dot demo-dot-g"></span>
+      <div class="demo-url">✦ &nbsp; your-store.boutiquesaas.aasaitech.in</div>
+    </div>
+    <div class="demo-body">
+      <div class="demo-sidebar">
+        <div class="demo-agent-logo">S</div>
+        <div class="demo-agent-name">Silk &amp; Style</div>
+        <div class="demo-agent-url">silk-style.boutiquesaas.aasaitech.in</div>
+        <div class="demo-sep"></div>
+        <div style="font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Your Catalog</div>
+        <div class="demo-product-grid">
+          <div class="demo-product selected">👗</div>
+          <div class="demo-product">🧣</div>
+          <div class="demo-product">💎</div>
+          <div class="demo-product">👠</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;">
+        <div class="demo-chat">
+          <div class="demo-msg demo-msg-bot">👋 Hi! I'm Priya from Silk &amp; Style. Upload your photo and I'll show you how our sarees look on you!</div>
+          <div class="demo-msg demo-msg-user">I uploaded my photo! Show me the red Kanjivaram 😍</div>
+          <div class="demo-msg demo-msg-bot" style="padding:0;background:none;">
+            <div class="demo-tryon-img">🪭<div class="demo-tryon-badge">✨ Try-on generated in 8s</div></div>
+          </div>
+          <div class="demo-msg demo-msg-bot">Stunning! 😍 The Kanjivaram looks incredible on you. Want to try the blue one or add a necklace?</div>
+        </div>
+        <div class="demo-input-bar">
+          <div class="demo-input">Try the gold necklace with it...</div>
+          <div class="demo-send">➤</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section" id="how-it-works">
+  <div class="section-center">
+    <div class="eyebrow">How it works</div>
+    <h2 class="section-title">From zero to live<br>in three steps</h2>
+    <p class="section-sub">No developers. No app store. No waiting. Just you, a link, and happy customers.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">Step 01</div>
+      <div class="step-icon">🛍️</div>
+      <div class="step-title">Create your agent</div>
+      <p class="step-desc">Sign in with Google. Enter your boutique name, pick your brand color, and write a welcome message. Your AI stylist is born — with your name, your look.</p>
+      <div class="step-time">⚡ ~45 seconds</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 02</div>
+      <div class="step-icon">📸</div>
+      <div class="step-title">Upload your catalog</div>
+      <p class="step-desc">Drop in photos of your sarees, dresses, jewellery, or footwear. The AI instantly knows your inventory. Add products anytime — changes go live immediately.</p>
+      <div class="step-time">⚡ ~1 minute</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">Step 03</div>
+      <div class="step-icon">🔗</div>
+      <div class="step-title">Share your link</div>
+      <p class="step-desc">Copy your unique link and paste it into your WhatsApp broadcast, Instagram bio, or website. Customers tap, upload a selfie, and try on your collection instantly.</p>
+      <div class="step-time">⚡ Done. You're live.</div>
+    </div>
   </div>
 </section>
 
 <section class="section">
-  <div class="section-eyebrow">How it works</div>
-  <div class="section-title">Live in 3 steps</div>
-  <div class="steps-grid">
-    <div class="step"><div class="step-num">1</div><div class="step-title">Create your agent</div><div class="step-desc">Sign in, name your boutique agent, pick your brand colors, and add a welcome message. Takes under 2 minutes.</div></div>
-    <div class="step"><div class="step-num">2</div><div class="step-title">Upload your catalog</div><div class="step-desc">Add your product photos — dresses, sarees, ornaments, shoes. The AI learns your inventory instantly.</div></div>
-    <div class="step"><div class="step-num">3</div><div class="step-title">Share your link</div><div class="step-desc">Your agent is live at your unique URL. Share it on WhatsApp, Instagram, or embed it on your website.</div></div>
+  <div class="section-center">
+    <div class="eyebrow">Who it's for</div>
+    <h2 class="section-title">Built for every kind<br>of boutique owner</h2>
+  </div>
+  <div class="who-grid">
+    <div class="who-card"><div class="who-emoji">🥻</div><div class="who-title">Saree &amp; Silk Stores</div><p class="who-desc">Let customers see how your Kanjivarams, Banarasis, and designer blouses look on them before they visit. Close more sales over WhatsApp.</p></div>
+    <div class="who-card"><div class="who-emoji">👗</div><div class="who-title">Western &amp; Fusion Wear</div><p class="who-desc">Dresses, co-ords, tops — let shoppers try on your full western collection virtually. Great for Instagram boutiques that sell nationwide.</p></div>
+    <div class="who-card"><div class="who-emoji">💍</div><div class="who-title">Jewellery &amp; Accessories</div><p class="who-desc">Show how necklaces, earrings, and bangles look with an outfit. Our AI renders jewellery detail so customers can buy with confidence.</p></div>
+    <div class="who-card"><div class="who-emoji">👶</div><div class="who-title">Kids Clothing</div><p class="who-desc">Parents love seeing how frocks and ethnic wear look before they order. Reduce return rates and increase repeat purchases.</p></div>
+    <div class="who-card"><div class="who-emoji">👠</div><div class="who-title">Footwear Shops</div><p class="who-desc">Customers pick an outfit in your catalog and immediately see matching footwear on themselves. Cross-sell without even trying.</p></div>
+    <div class="who-card"><div class="who-emoji">🏪</div><div class="who-title">Multi-Brand Boutiques</div><p class="who-desc">Mix sarees, western, and jewellery in one catalog. Customers can try combo outfits — three products, one generated look, one sale.</p></div>
   </div>
 </section>
 
-<section class="section" id="pricing">
-  <div class="section-eyebrow">Pricing</div>
-  <div class="section-title">Simple, honest pricing</div>
-  <p class="section-sub">All plans include a 14-day free trial. No credit card needed to start.</p>
-  <div class="pricing-grid">
-    <div class="price-card">
-      <div class="price-name">Starter</div>
-      <div class="price-amt">₹299<span class="price-mo">/mo</span></div>
-      <p style="font-size:13px;color:var(--text2);margin:4px 0 0;">Billed ₹3,588/year</p>
-      <div class="price-feats">
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>1 Agent</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>50 try-ons/month</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Subdomain URL</div>
-        <div class="pf" style="color:var(--text3);"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>No custom domain</div>
-      </div>
-      <button class="btn-cta" onclick="openSignIn()" style="width:100%;justify-content:center;font-size:14px;padding:11px;">Start Free Trial</button>
+<section class="section">
+  <div class="section-center">
+    <div class="eyebrow">Features</div>
+    <h2 class="section-title">Everything you need,<br>nothing you don't</h2>
+    <p class="section-sub">Every feature is designed for boutique owners who want results, not complexity.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card"><div class="feat-icon">🤖</div><div class="feat-title">Your own branded AI agent</div><p class="feat-desc">Custom name, logo, and colors. Customers talk to <em>your</em> boutique's stylist — not a generic bot. Feels like your own app.</p></div>
+    <div class="feat-card"><div class="feat-icon">🪭</div><div class="feat-title">Photorealistic try-ons</div><p class="feat-desc">Powered by Google Gemini's latest image AI. Fabric drapes naturally. Colors are accurate. Faces stay the same. No weird AI distortions.</p></div>
+    <div class="feat-card"><div class="feat-icon">🌐</div><div class="feat-title">Your own URL instantly</div><p class="feat-desc"><strong>your-store.boutiquesaas.aasaitech.in</strong> — ready the moment you create your agent. No DNS setup needed on Starter.</p></div>
+    <div class="feat-card"><div class="feat-icon">👗</div><div class="feat-title">Combo try-ons</div><p class="feat-desc">Customers can try on 3 products together — saree + blouse + jewellery — in one shot. Best for upselling and bundling.</p></div>
+    <div class="feat-card"><div class="feat-icon">💬</div><div class="feat-title">AI chat stylist built in</div><p class="feat-desc">Between try-ons, the AI answers questions about size, availability, color matching — acting as your always-on customer support.</p></div>
+    <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Real-time analytics</div><p class="feat-desc">See which products get tried most, how many sessions happen per day, and which items convert — right in your dashboard.</p></div>
+    <div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-title">Per-customer rate limits</div><p class="feat-desc">Set how many try-ons each customer gets per day or week. Prevents credit abuse and keeps your catalog exclusive.</p></div>
+    <div class="feat-card"><div class="feat-icon">🏷️</div><div class="feat-title">Watermarked downloads</div><p class="feat-desc">When customers download their try-on photo, your logo and boutique name are added automatically. Free marketing every time they share it.</p></div>
+    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title">Credit-based, pay as you grow</div><p class="feat-desc">Low quality = 1 credit. Medium = 2. High detail = 3. Start free, top up when you need more. No monthly caps on Grower.</p></div>
+  </div>
+</section>
+
+<section class="section section-center" id="pricing">
+  <div class="eyebrow">Pricing</div>
+  <h2 class="section-title">Start free. Scale when you're ready.</h2>
+  <p class="section-sub">No credit card needed. No hidden fees. Cancel anytime.</p>
+  <div class="billing-toggle">
+    <span class="toggle-label active" id="lbl-monthly">Monthly</span>
+    <button class="toggle-pill" id="billing-toggle" onclick="toggleBilling()" aria-label="Toggle billing period"></button>
+    <span class="toggle-label" id="lbl-yearly">Yearly</span>
+    <span class="save-badge" id="save-badge" style="display:none">🎉 Save up to ₹9,989</span>
+  </div>
+  <div id="plans-container">
+    <div class="plans-skeleton" id="plans-skeleton">
+      <div class="plan-skel"><div class="skel-line" style="height:16px;width:60%;"></div><div class="skel-line" style="height:42px;width:80%;margin:16px 0 8px;"></div><div class="skel-line" style="height:12px;width:50%;margin-bottom:24px;"></div><div class="skel-line" style="height:12px;width:90%;"></div><div class="skel-line" style="height:12px;width:85%;"></div><div class="skel-line" style="height:12px;width:75%;"></div><div class="skel-line" style="height:40px;width:100%;margin-top:24px;border-radius:10px;"></div></div>
+      <div class="plan-skel"><div class="skel-line" style="height:16px;width:60%;"></div><div class="skel-line" style="height:42px;width:80%;margin:16px 0 8px;"></div><div class="skel-line" style="height:12px;width:50%;margin-bottom:24px;"></div><div class="skel-line" style="height:12px;width:90%;"></div><div class="skel-line" style="height:12px;width:85%;"></div><div class="skel-line" style="height:12px;width:75%;"></div><div class="skel-line" style="height:40px;width:100%;margin-top:24px;border-radius:10px;"></div></div>
+      <div class="plan-skel"><div class="skel-line" style="height:16px;width:60%;"></div><div class="skel-line" style="height:42px;width:80%;margin:16px 0 8px;"></div><div class="skel-line" style="height:12px;width:50%;margin-bottom:24px;"></div><div class="skel-line" style="height:12px;width:90%;"></div><div class="skel-line" style="height:12px;width:85%;"></div><div class="skel-line" style="height:12px;width:75%;"></div><div class="skel-line" style="height:40px;width:100%;margin-top:24px;border-radius:10px;"></div></div>
     </div>
-    <div class="price-card pop">
-      <div class="pop-badge">Most Popular</div>
-      <div class="price-name">Grower</div>
-      <div class="price-amt">₹799<span class="price-mo">/mo</span></div>
-      <p style="font-size:13px;color:var(--text2);margin:4px 0 0;">Billed ₹9,588/year</p>
-      <div class="price-feats">
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>5 Agents</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>500 try-ons/month</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Custom domain</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Analytics dashboard</div>
-      </div>
-      <button class="btn-cta" onclick="openSignIn()" style="width:100%;justify-content:center;font-size:14px;padding:11px;">Start Free Trial</button>
-    </div>
-    <div class="price-card">
-      <div class="price-name">Enterprise</div>
-      <div class="price-amt">₹1,999<span class="price-mo">/mo</span></div>
-      <p style="font-size:13px;color:var(--text2);margin:4px 0 0;">Billed ₹23,988/year</p>
-      <div class="price-feats">
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Unlimited agents</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Unlimited try-ons</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Everything in Grower</div>
-        <div class="pf"><svg width="13" height="13" fill="none" stroke="#19a37a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Dedicated support</div>
-      </div>
-      <button class="btn-cta" onclick="openSignIn()" style="width:100%;justify-content:center;font-size:14px;padding:11px;">Contact Sales</button>
-    </div>
+    <div class="plans-grid" id="plans-grid" style="display:none;"></div>
+  </div>
+  <p style="font-size:13px;color:var(--text-3);margin-top:20px;">Credits never expire &nbsp;·&nbsp; Top up from ₹500 anytime &nbsp;·&nbsp; Low=1cr · Medium=2cr · High=3cr</p>
+</section>
+
+<section class="section" id="faq">
+  <div class="section-center">
+    <div class="eyebrow">FAQ</div>
+    <h2 class="section-title" style="margin-bottom:40px;">Straight answers</h2>
+  </div>
+  <div class="faq-grid">
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">📱</span>Do my customers need to download an app?</div><p class="faq-a">No. They just tap your link — it opens in any browser on their phone or laptop. No download, no login required for them. They enter their mobile number and start trying on.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">⚡</span>How fast are the try-on images?</div><p class="faq-a">Typically 6–12 seconds depending on the quality tier. Low quality is fastest. High quality takes slightly longer but shows stunning fabric detail and a two-panel full-body result.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">💳</span>What happens when I run out of credits?</div><p class="faq-a">Your customers will see a friendly message that try-ons are temporarily unavailable. You can top up from ₹500 anytime from your dashboard — credits are added instantly after payment.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🛍️</span>Can I manage multiple boutiques?</div><p class="faq-a">Yes. Each agent is a separate boutique with its own catalog, URL, and chat history. Grower plan supports 3 agents. Enterprise supports unlimited — perfect for multi-branch or franchise owners.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔗</span>Can I use my own domain name?</div><p class="faq-a">Yes, on Grower and Enterprise plans you can connect a custom domain like <em>tryon.yourstore.com</em>. We'll walk you through the one-step DNS setup — takes about 2 minutes.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🖼️</span>How good are the try-on images really?</div><p class="faq-a">Very good. We use Google Gemini's multimodal image AI. On High quality, you get a full-body + close-up two-panel shot with accurate fabric, color, and embroidery detail.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔒</span>Are customer photos stored safely?</div><p class="faq-a">Yes. All images are stored in encrypted AWS S3 buckets. Customers can delete their base photo anytime. We never share or use images for training.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🆙</span>Can I upgrade or cancel anytime?</div><p class="faq-a">Absolutely. Upgrade from Starter to Grower any time from your dashboard. There's no lock-in — you keep your credits regardless of plan changes.</p></div>
   </div>
 </section>
 
 <section class="cta-section">
   <div class="cta-card">
-    <div style="font-size:42px;margin-bottom:14px;">👗</div>
-    <h2 style="font-size:28px;font-weight:800;letter-spacing:-.03em;margin-bottom:12px;">Launch your boutique's AI agent today</h2>
-    <p style="color:var(--text2);font-size:15px;line-height:1.75;margin-bottom:28px;">Join boutiques and textile stores using BoutiqueAI to let customers try before they buy — and sell more with less effort.</p>
-    <button class="btn-cta" onclick="openSignIn()" style="margin:0 auto;justify-content:center;width:fit-content;">Get Started Free →</button>
+    <div style="font-size:48px;margin-bottom:16px;">🚀</div>
+    <h2>Your boutique's AI dressing room is two minutes away</h2>
+    <p>Join boutique owners across India who are closing more sales, reducing returns, and delighting customers with virtual try-ons — all without a single line of code.</p>
+    <button class="btn-cta" onclick="openSignIn()" style="margin:0 auto;">Get Started Free — 50 Credits Included <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+    <p style="font-size:12px;color:var(--text-3);margin-top:14px;">No credit card. Takes 2 minutes. Cancel anytime.</p>
   </div>
 </section>
 
-<footer>© 2025 BoutiqueAI · Built with ❤️ by <a href="https://aasaitech.in">Aasai Tech</a></footer>
+<footer>
+  <div style="display:flex;align-items:center;gap:8px;font-weight:600;color:var(--text-2);">
+    <div style="width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent),var(--accent-3));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;">B</div>
+    BoutiqueAI
+  </div>
+  <span>© 2025 BoutiqueAI · Built by <a href="https://aasaitech.in" target="_blank">Aasai Tech</a>, Chennai</span>
+  <div style="display:flex;gap:16px;"><a href="#" style="color:var(--text-3);">Privacy</a><a href="#" style="color:var(--text-3);">Terms</a><a href="mailto:support@boutiquesaas.aasaitech.in" style="color:var(--text-3);">Support</a></div>
+</footer>
 
-<!-- Sign In Modal -->
-<div class="gsi-overlay" id="gsi-overlay" onclick="if(event.target===this)closeSignIn()">
-  <div class="gsi-box">
-    <button class="gsi-close" onclick="closeSignIn()">✕</button>
-    <div class="gsi-logo">B</div>
-    <div class="gsi-title">Welcome to BoutiqueAI</div>
-    <div class="gsi-sub">Sign in to create your virtual try-on agent and start showcasing your boutique collection.</div>
+<div class="modal-overlay" id="gsi-overlay" onclick="if(event.target===this)closeSignIn()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeSignIn()">✕</button>
+    <div class="modal-logo">B</div>
+    <div class="modal-title">Welcome to BoutiqueAI</div>
+    <p class="modal-sub">Sign in to create your AI try-on agent and start showcasing your boutique collection — free, in under 2 minutes.</p>
     <a class="btn-google" id="google-auth-btn" href="#">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
       Continue with Google
     </a>
-    <div class="gsi-terms">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
+    <p class="modal-terms">By continuing you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></p>
   </div>
 </div>
 
@@ -208,33 +415,100 @@ footer a{color:var(--accent);}
 const API = 'https://ekbg3nf6b6vr6i3ssxxni3g6ia0jwcwm.lambda-url.ap-southeast-2.on.aws'
 const GOOGLE_AUTH_URL = API + '/auth/google?redirect_origin=' + encodeURIComponent(location.origin)
 
-// If already logged in, skip to dashboard
-const token = localStorage.getItem('ba_token')
-if (token) { const p = new URLSearchParams(location.search); if (!p.get('error')) location.replace('/home.html') }
+const _t = localStorage.getItem('ba_token')
+if (_t) { const _p = new URLSearchParams(location.search); if (!_p.get('error')) location.replace('/home.html') }
 
 document.getElementById('google-auth-btn').href = GOOGLE_AUTH_URL
 
-// Show error banner
-const params = new URLSearchParams(location.search)
-if (params.get('error')) {
-  const el = document.createElement('div')
-  el.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:12px 22px;background:#0F111A;border:1px solid rgba(242,107,107,.3);border-radius:10px;font-size:13.5px;color:#F26B6B;z-index:999;font-family:Plus Jakarta Sans,sans-serif;white-space:nowrap;'
-  el.textContent = 'Authentication failed. Please try again.'
-  document.body.appendChild(el); setTimeout(() => el.remove(), 4000)
+const _params = new URLSearchParams(location.search)
+if (_params.get('error')) {
+  const b = document.createElement('div'); b.className = 'err-banner'
+  b.textContent = 'Authentication failed. Please try again.'
+  document.body.appendChild(b); setTimeout(() => b.remove(), 4000)
 }
-
-// Load live stats
-fetch(API + '/public/stats')
-  .then(r => r.json())
-  .then(d => {
-    const fmt = n => n >= 1000 ? (n/1000).toFixed(0)+'K' : String(n)
-    const s = d.data || d
-    document.getElementById('stat-agents').textContent = fmt(s.total_agents || 0)
-    document.getElementById('stat-tryons').textContent = fmt(s.total_tryons || 0)
-  }).catch(() => {})
 
 function openSignIn() { document.getElementById('gsi-overlay').classList.add('open') }
 function closeSignIn() { document.getElementById('gsi-overlay').classList.remove('open') }
+
+// Live stats
+fetch(API + '/public/stats').then(r => r.json()).then(d => {
+  const s = d.data || d
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + 'K+' : String(n)
+  document.getElementById('stat-boutiques').textContent = fmt(s.total_agents || 0)
+  document.getElementById('stat-tryons').textContent    = fmt(s.total_tryons || 0)
+}).catch(() => {
+  document.getElementById('stat-boutiques').textContent = '—'
+  document.getElementById('stat-tryons').textContent    = '—'
+})
+
+// Pricing
+let _plans = [], _yearly = false
+
+function toggleBilling() {
+  _yearly = !_yearly
+  document.getElementById('billing-toggle').classList.toggle('yearly', _yearly)
+  document.getElementById('lbl-monthly').classList.toggle('active', !_yearly)
+  document.getElementById('lbl-yearly').classList.toggle('active', _yearly)
+  document.getElementById('save-badge').style.display = _yearly ? 'inline-flex' : 'none'
+  if (_plans.length) renderPlans(_plans)
+}
+
+function fmtInr(n) { return '₹' + n.toLocaleString('en-IN') }
+
+const taglines = { starter: 'Perfect to explore &amp; get started', grower: 'For boutiques ready to sell more', enterprise: 'For chains, franchises &amp; brands' }
+
+function renderPlans(plans) {
+  const billing = _yearly ? 'yearly' : 'monthly'
+  document.getElementById('plans-grid').innerHTML = plans.map(p => {
+    const priceInr = (p.price_inr || {})[billing] || 0
+    const isFree   = priceInr === 0 && !p.contact
+    const credits  = p.limits?.credits_included || 0
+    const savings  = _yearly && p.savings_inr?.yearly ? p.savings_inr.yearly : null
+
+    const priceBlock = p.contact
+      ? `<div style="font-size:22px;font-weight:800;color:var(--text-2);margin-bottom:4px;">Custom</div><div class="plan-billed">Pricing based on volume</div>`
+      : isFree
+        ? `<div style="font-size:36px;font-weight:800;color:var(--green);line-height:1;margin-bottom:4px;">Free</div><div class="plan-billed">Forever free to start</div>`
+        : `<div style="margin-bottom:4px;"><span class="plan-amount">${fmtInr(priceInr)}</span><span class="plan-period">/${_yearly ? 'yr' : 'mo'}</span></div><div class="plan-billed">${savings ? `Save ${fmtInr(savings)} vs monthly` : `Billed ${_yearly ? 'annually' : 'monthly'}`}</div>`
+
+    const chip = credits > 0
+      ? `<div class="plan-credits-chip ${isFree ? 'chip-free' : 'chip-paid'}">⚡ ${credits} credits ${isFree ? 'on signup' : 'included'}</div>`
+      : `<div class="plan-credits-chip chip-custom">⚡ Volume-based credits</div>`
+
+    const feats = (p.features || []).map(f =>
+      `<div class="plan-feat"><span class="${f.included ? 'check' : 'cross'}">${f.included ? '✓' : '✕'}</span><span class="feat-text ${f.included ? '' : 'off'}">${f.text}</span></div>`
+    ).join('')
+
+    const cta = p.contact
+      ? `<a class="plan-cta sales" href="mailto:support@boutiquesaas.aasaitech.in">Contact Sales →</a>`
+      : `<button class="plan-cta ${p.popular ? 'primary' : 'outline'}" onclick="openSignIn()">${p.cta}</button>`
+
+    return `<div class="plan-card ${p.popular ? 'popular' : ''}">
+      ${p.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
+      <div class="plan-name">${p.name}</div>
+      <div class="plan-tagline">${taglines[p.id] || ''}</div>
+      ${priceBlock}${chip}
+      <div class="plan-divider"></div>
+      <div class="plan-feats">${feats}</div>
+      ${cta}
+    </div>`
+  }).join('')
+
+  document.getElementById('plans-skeleton').style.display = 'none'
+  document.getElementById('plans-grid').style.display = 'grid'
+}
+
+fetch(API + '/payment/plans').then(r => r.json()).then(d => {
+  const plans = (d.data || d)?.plans || []
+  if (!plans.length) throw new Error('empty')
+  _plans = plans
+  renderPlans(plans)
+}).catch(err => {
+  console.warn('[Pricing] failed:', err.message)
+  document.getElementById('plans-skeleton').style.display = 'none'
+  document.getElementById('plans-grid').style.display = 'grid'
+  document.getElementById('plans-grid').innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-3);"><div style="font-size:32px;margin-bottom:12px;">😕</div><div style="font-size:14px;margin-bottom:8px;">Couldn't load pricing right now.</div><button onclick="location.reload()" style="padding:8px 18px;border-radius:8px;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:var(--font);font-weight:600;font-size:13px;">Retry</button></div>`
+})
 </script>
 </body>
 </html>
