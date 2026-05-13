@@ -21,9 +21,17 @@ async function renderNav(activeId) {
     if (json && (json.email || json.name)) {
       user = json
     } else if (json && !json.success) {
-      // 401 already cleared token inside apiFetch; redirect
-      location.replace('/index.html')
-      return null
+      // Only redirect to login if the token was actually cleared (real 401 auth failure).
+      // apiFetch clears the token on HTTP 401 but NOT on network errors.
+      // Without this check, a network timeout causes an infinite redirect loop:
+      // protected page → /auth/me fails → redirect to index.html → token still
+      // in localStorage → redirect back to protected page → repeat forever.
+      if (!getToken()) {
+        location.replace('/index.html')
+        return null
+      }
+      // Network error: token is still valid, continue rendering nav without user info
+      console.warn('nav: /auth/me failed but token intact — likely a network error, continuing')
     }
   } catch (e) { console.warn('nav fetch failed', e) }
 
