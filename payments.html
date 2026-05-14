@@ -1143,8 +1143,11 @@ async function buyCredits(packId, credits, priceInr, label) {
     // ── Account / usage ───────────────────────────────────────────────────────
     currentUser = accountData.user || accountData
     const user  = currentUser
-    const plan  = user.plan || 'free'
-    currentPlan = plan
+    // Normalize legacy plan names so display always uses the new labels
+    const rawPlan   = user.plan || 'free'
+    const PLAN_NORM = { starter: 'free', grower: 'small' }
+    const plan      = PLAN_NORM[rawPlan] || rawPlan
+    currentPlan     = rawPlan   // keep raw for API calls (upgrade rank check uses plansData index)
 
     // Credits expiry banner in usage card
     if (user.credits_expire_at) {
@@ -1162,12 +1165,17 @@ async function buyCredits(packId, credits, priceInr, label) {
     document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase() + plan.slice(1)
 
     // Usage stats — PLAN_LIMITS is now correctly populated from the API above
-    const usage   = user.usage || {}
-    const limits  = PLAN_LIMITS[plan] || { agents: 1 }
+    // Guard: if user.plan is a legacy name (starter/grower) that isn't in plansData,
+    // fall back to the nearest match or unlimited so we never show NaN.
+    const planKeyFallback = PLAN_LIMITS[plan] ? plan
+      : PLAN_LIMITS['free'] ? 'free' : Object.keys(PLAN_LIMITS)[0]
+    const limits  = PLAN_LIMITS[planKeyFallback] || { agents: 99999, tryons: 99999 }
     const credits = user.credits || 0
     const usedAg  = user.agents_count || 0
-    const capAg   = limits.agents === 99999 ? '∞' : limits.agents
-    const pctAg   = limits.agents !== 99999 ? Math.min(100, Math.round((usedAg / limits.agents) * 100)) : 0
+    const capAg   = (limits.agents == null || limits.agents >= 99999) ? '∞' : limits.agents
+    const pctAg   = (limits.agents == null || limits.agents >= 99999)
+      ? 0
+      : Math.min(100, Math.round((usedAg / limits.agents) * 100))
 
     // Credit balance in usage card (top section)
     const credEl = document.getElementById('u-credits')
@@ -1189,7 +1197,7 @@ async function buyCredits(packId, credits, priceInr, label) {
     const agBar = document.getElementById('u-agents-bar')
     agBar.style.width = pctAg + '%'
     agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
-    document.getElementById('u-agents-pct').textContent = limits.agents !== 99999 ? pctAg + '% used' : 'Unlimited'
+    document.getElementById('u-agents-pct').textContent = (limits.agents == null || limits.agents >= 99999) ? 'Unlimited' : pctAg + '% used'
 
     // Render plan cards (data already in plansData from batch 1)
     renderPlans()
