@@ -36,8 +36,11 @@ async function renderNav(activeId) {
   } catch (e) { console.warn('nav fetch failed', e) }
 
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-  const planLabels = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
-  const plan = user?.plan || 'starter'
+  const planLabels = {
+    free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
+    starter: '🆓 Free', grower: '🌱 Small',   // backward compat for existing users
+  }
+  const plan = user?.plan || 'free'
   const avatarHtml = user?.picture
     ? `<img src="${user.picture}" alt="" loading="lazy"/>`
     : `<span>${(user?.name?.[0] || 'U').toUpperCase()}</span>`
