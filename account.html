@@ -237,7 +237,7 @@
         <div class="card">
           <div class="card-header">
             <div class="card-title"><span class="card-icon">🌐</span>Custom Domain</div>
-            <span class="badge badge-accent" style="font-size:10px">Grower & Enterprise</span>
+            <span class="badge badge-accent" style="font-size:10px">Small, Medium & Enterprise</span>
           </div>
           <div class="card-body">
             <div style="display:flex;align-items:flex-start;gap:14px;padding:4px 0">
@@ -737,7 +737,10 @@ function renderPaymentHistory(payments) {
     body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No payments yet. <a href="payments.html">Browse plans →</a></div>'
     return
   }
-  const icons = { starter: '🌱', grower: '🌿', enterprise: '🏢' }
+  const icons = {
+    free: '🆓', small: '🌱', medium: '🌿', enterprise: '🏢',
+    starter: '🆓', grower: '🌱',   // backward compat
+  }
   body.innerHTML = payments.map(p => `
     <div class="payment-row">
       <div style="flex:1;min-width:0">
@@ -768,11 +771,15 @@ async function loadAccount() {
     ])
     const user = data.user || data
     const planMeta = {
-      starter:    { icon: '🌱', label: '🌱 Starter',    price: 'Free — top up credits anytime' },
-      grower:     { icon: '🌿', label: '🌿 Grower',     price: '₹999 / month' },
-      enterprise: { icon: '🏢', label: '🏢 Enterprise', price: '₹4,999 / month' },
+      free:       { icon: '🆓', label: '🆓 Free',       price: 'Free — 50 credits first month' },
+      small:      { icon: '🌱', label: '🌱 Small',      price: '₹1,999 / month' },
+      medium:     { icon: '🌿', label: '🌿 Medium',     price: '₹3,499 / month' },
+      enterprise: { icon: '🏢', label: '🏢 Enterprise', price: '₹10,999 / month' },
+      // backward compat — old users still on these plan names
+      starter:    { icon: '🆓', label: '🆓 Free',       price: 'Free — 50 credits first month' },
+      grower:     { icon: '🌱', label: '🌱 Small',      price: '₹1,999 / month' },
     }
-    const pm = planMeta[user.plan] || planMeta.starter
+    const pm = planMeta[user.plan] || planMeta.free
 
     // Profile
     const av = document.getElementById('profile-avatar')
