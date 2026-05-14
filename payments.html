@@ -630,8 +630,8 @@ function renderPlans() {
     const tagline = plan.tagline || ''
 
     const featuresHtml = plan.features.map(f =>
-      `<div class="plan-feat${f.included ? '' : ' disabled'}">
-        <span class="plan-feat-icon${f.included ? '' : ' no'}">${f.included ? '✅' : '✕'}</span>
+      `<div class="plan-feat">
+        <span class="plan-feat-icon">✅</span>
         <span>${f.text}</span>
       </div>`
     ).join('')
