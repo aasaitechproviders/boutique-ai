@@ -391,6 +391,9 @@
             <div style="font-size:12px;color:var(--text-3);margin-bottom:6px">
               credits available
             </div>
+            <div id="u-credits-expiry" style="font-size:11.5px;color:var(--text-3);margin-bottom:6px;display:none">
+              ⏰ Expires <strong id="u-credits-expiry-date"></strong>
+            </div>
             <div class="usage-detail" style="display:flex;flex-direction:column;gap:3px">
               <span style="font-size:11.5px">🟢 Low = 1 &nbsp;🟡 Med = 2 &nbsp;🔴 High = 3</span>
               <a href="#credits-section" style="font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:600">Top up ↓</a>
@@ -430,7 +433,7 @@
         <div class="toggle-thumb"></div>
       </label>
       <span class="billing-toggle-label" id="label-yearly">
-        Yearly <span class="yearly-badge">Save up to 17%</span>
+        Yearly <span class="yearly-badge">Save 10%</span>
       </span>
     </div>
 
@@ -460,7 +463,14 @@
 
         <div>
           <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I run out of credits?</div>
-          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until you top up. Credits never expire — top up anytime with the packages below.</div>
+          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until you top up or renew your plan. Plan credits refresh when you renew. Top-up credit packs never expire and carry over indefinitely.</div>
+        </div>
+
+        <div class="divider" style="margin:0"></div>
+
+        <div>
+          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">When do plan credits expire?</div>
+          <div style="font-size:13px;color:var(--text-2)">Credits included in your plan (monthly or yearly) expire when your billing period ends — end of the month for monthly plans, end of the year for yearly plans. Credits bought separately as top-up packs never expire.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
@@ -474,7 +484,7 @@
 
         <div>
           <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I use my own domain?</div>
-          <div style="font-size:13px;color:var(--text-2)">Yes — Grower and Enterprise plans support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
+          <div style="font-size:13px;color:var(--text-2)">Yes — Small, Medium, and Enterprise plans support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
@@ -543,11 +553,14 @@ const WHATSAPP_NUM = '917890123456'   // Update to your actual WhatsApp number
 
 // Runtime state — populated from APIs in init(), not hardcoded
 let PLAN_LIMITS         = {}   // loaded from /payment/plans
-let PLAN_LABELS         = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+let PLAN_LABELS         = {
+  free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
+  starter: '🆓 Free', grower: '🌱 Small',   // backward compat
+}
 let CREDIT_PACKAGES_DATA = []  // loaded from /credits/packages
 let qualityCosts         = { low: 1, medium: 2, high: 3 }  // loaded from /credits/packages
 
-let currentPlan   = 'starter'
+let currentPlan   = 'free'
 let billingCycle  = 'monthly'
 let currentUser   = null
 let plansData     = []
@@ -568,7 +581,11 @@ function renderPlans() {
 
   plansData.forEach(plan => {
     const isCurrent  = plan.id === currentPlan
-    const isUpgrade  = ['starter','grower','enterprise'].indexOf(plan.id) > ['starter','grower','enterprise'].indexOf(currentPlan)
+    // Use API-returned plansData order for upgrade detection.
+    // Falls back gracefully for legacy plan names (starter/grower) not in plansData.
+    const planIdx    = plansData.findIndex(p => p.id === plan.id)
+    const currentIdx = plansData.findIndex(p => p.id === currentPlan)
+    const isUpgrade  = planIdx > currentIdx
     const price      = plan.price_inr[billingCycle]
     const savings    = billingCycle === 'yearly' ? (plan.savings_inr?.yearly || 0) : 0
 
@@ -597,12 +614,15 @@ function renderPlans() {
       </div>`
     ).join('')
 
+    // Icon map: new plan names + backward compat for old names
+    const planIcons = { free:'🆓', small:'🌱', medium:'🌿', enterprise:'🏢', starter:'🆓', grower:'🌱' }
+
     let btnHtml = ''
     if (isCurrent) {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>✓ Current Plan</button>`
     } else if (plan.contact) {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">💬 Contact Sales</button>`
-    } else if (plan.id === 'starter') {
+    } else if (plan.id === 'free' || plan.id === 'starter') {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>Free Plan</button>`
     } else if (isUpgrade) {
       btnHtml = `<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="startPayment('${plan.id}')">⬆️ ${plan.cta}</button>`
@@ -612,7 +632,7 @@ function renderPlans() {
 
     card.innerHTML = `
       ${badge}
-      <div class="plan-name">${({starter:'🌱',grower:'🌿',enterprise:'🏢'})[plan.id] || ''} ${plan.name}</div>
+      <div class="plan-name">${planIcons[plan.id] || ''} ${plan.name}</div>
       ${priceHtml}
       ${savingsHtml}
       <div class="plan-divider"></div>
@@ -734,7 +754,7 @@ function renderPaymentHistory(payments) {
     <div class="payment-row">
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span class="payment-plan-badge">${({starter:'🌱',grower:'🌿',enterprise:'🏢'})[p.plan] || ''} ${p.plan}</span>
+          <span class="payment-plan-badge">${({free:'🆓',small:'🌱',medium:'🌿',enterprise:'🏢',starter:'🆓',grower:'🌱'})[p.plan] || ''} ${p.plan}</span>
           <span style="font-size:11.5px;color:var(--text-3);text-transform:capitalize">${p.billing}</span>
         </div>
         <div class="payment-meta">
@@ -1123,10 +1143,22 @@ async function buyCredits(packId, credits, priceInr, label) {
     // ── Account / usage ───────────────────────────────────────────────────────
     currentUser = accountData.user || accountData
     const user  = currentUser
-    const plan  = user.plan || 'starter'
+    const plan  = user.plan || 'free'
     currentPlan = plan
 
-    // Current plan badge
+    // Credits expiry banner in usage card
+    if (user.credits_expire_at) {
+      const expEl     = document.getElementById('u-credits-expiry')
+      const expDateEl = document.getElementById('u-credits-expiry-date')
+      if (expEl && expDateEl) {
+        expEl.style.display    = 'block'
+        expDateEl.textContent  = fmtDate(user.credits_expire_at)
+        const daysLeft = Math.ceil((new Date(user.credits_expire_at) - Date.now()) / 86400000)
+        if (daysLeft <= 7) expEl.style.color = 'var(--danger, #e53e3e)'
+        else if (daysLeft <= 14) expEl.style.color = '#d97706'
+      }
+    }
+
     document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase() + plan.slice(1)
 
     // Usage stats — PLAN_LIMITS is now correctly populated from the API above
