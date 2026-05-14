@@ -392,7 +392,10 @@ function setQuality(qb, totalUsed) {
     (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') +
     ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
 
-  const planLabels = { starter: '🌱 Starter', grower: '🌿 Grower', enterprise: '🏢 Enterprise' }
+  const planLabels = {
+    free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
+    starter: '🆓 Free', grower: '🌱 Small',
+  }
   document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
 
   try {
