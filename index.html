@@ -501,7 +501,7 @@ function renderPlans(plans) {
       : `<div class="plan-credits-chip chip-custom">⚡ Volume-based credits</div>`
 
     const feats = (p.features || []).map(f =>
-      `<div class="plan-feat"><span class="${f.included ? 'check' : 'cross'}">${f.included ? '✓' : '✕'}</span><span class="feat-text ${f.included ? '' : 'off'}">${f.text}</span></div>`
+      `<div class="plan-feat"><span class="check">✓</span><span class="feat-text">${f.text}</span></div>`
     ).join('')
 
     const cta = p.contact
