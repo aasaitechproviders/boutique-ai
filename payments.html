@@ -1190,6 +1190,7 @@ async function buyCredits(packId, credits, priceInr, label) {
     // Usage stats — PLAN_LIMITS is now correctly populated from the API above
     // Guard: if user.plan is a legacy name (starter/grower) that isn't in plansData,
     // fall back to the nearest match or unlimited so we never show NaN.
+    const usage          = user.usage || {}
     const planKeyFallback = PLAN_LIMITS[plan] ? plan
       : PLAN_LIMITS['free'] ? 'free' : Object.keys(PLAN_LIMITS)[0]
     const limits  = PLAN_LIMITS[planKeyFallback] || { agents: 99999, tryons: 99999 }
