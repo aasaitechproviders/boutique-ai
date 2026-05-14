@@ -358,7 +358,7 @@ footer a{color:var(--accent);}
     </div>
     <div class="plans-grid" id="plans-grid" style="display:none;"></div>
   </div>
-  <p style="font-size:13px;color:var(--text-3);margin-top:20px;">Credits never expire &nbsp;·&nbsp; Top up from ₹500 anytime &nbsp;·&nbsp; Low=1cr · Medium=2cr · High=3cr</p>
+  <p style="font-size:13px;color:var(--text-3);margin-top:20px;">Plan credits refresh every billing period &nbsp;·&nbsp; Top-up packs from ₹500 never expire &nbsp;·&nbsp; Low = 1 cr &nbsp;·&nbsp; Medium = 2 cr &nbsp;·&nbsp; High = 3 cr</p>
 </section>
 
 <section class="section" id="faq">
@@ -370,11 +370,11 @@ footer a{color:var(--accent);}
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">📱</span>Do my customers need to download an app?</div><p class="faq-a">No. They just tap your link — it opens in any browser on their phone or laptop. No download, no login required for them. They enter their mobile number and start trying on.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">⚡</span>How fast are the try-on images?</div><p class="faq-a">Typically 6–12 seconds depending on the quality tier. Low quality is fastest. High quality takes slightly longer but shows stunning fabric detail and a two-panel full-body result.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">💳</span>What happens when I run out of credits?</div><p class="faq-a">Your customers will see a friendly message that try-ons are temporarily unavailable. You can top up from ₹500 anytime from your dashboard — credits are added instantly after payment.</p></div>
-    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🛍️</span>Can I manage multiple boutiques?</div><p class="faq-a">Yes. Each agent is a separate boutique with its own catalog, URL, and chat history. Grower plan supports 3 agents. Enterprise supports unlimited — perfect for multi-branch or franchise owners.</p></div>
-    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔗</span>Can I use my own domain name?</div><p class="faq-a">Yes, on Grower and Enterprise plans you can connect a custom domain like <em>tryon.yourstore.com</em>. We'll walk you through the one-step DNS setup — takes about 2 minutes.</p></div>
-    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🖼️</span>How good are the try-on images really?</div><p class="faq-a">Very good. We use Google Gemini's multimodal image AI. On High quality, you get a full-body + close-up two-panel shot with accurate fabric, color, and embroidery detail.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🛍️</span>Can I manage multiple boutiques?</div><p class="faq-a">Yes. Every plan — including Free — supports unlimited AI agents. Each agent is a separate boutique with its own catalog, URL, and chat history. Perfect for multi-branch stores or selling different categories separately.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔗</span>Can I use my own domain name?</div><p class="faq-a">Yes, on Small, Medium, and Enterprise plans you can connect a custom domain like <em>tryon.yourstore.com</em>. We will walk you through the one-step DNS setup — takes about 2 minutes.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">⏰</span>When do my credits expire?</div><p class="faq-a">Plan credits refresh every billing period — monthly or yearly depending on your plan. Credits bought separately as top-up packs from your dashboard never expire and carry over indefinitely.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔒</span>Are customer photos stored safely?</div><p class="faq-a">Yes. All images are stored in encrypted AWS S3 buckets. Customers can delete their base photo anytime. We never share or use images for training.</p></div>
-    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🆙</span>Can I upgrade or cancel anytime?</div><p class="faq-a">Absolutely. Upgrade from Starter to Grower any time from your dashboard. There's no lock-in — you keep your credits regardless of plan changes.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🆙</span>Can I upgrade or cancel anytime?</div><p class="faq-a">Absolutely. Upgrade from Free to any paid plan directly from your Billing page. For downgrades or cancellations, contact us and we will sort it out right away. No lock-in, no penalties.</p></div>
   </div>
 </section>
 
@@ -449,30 +449,55 @@ function toggleBilling() {
   document.getElementById('billing-toggle').classList.toggle('yearly', _yearly)
   document.getElementById('lbl-monthly').classList.toggle('active', !_yearly)
   document.getElementById('lbl-yearly').classList.toggle('active', _yearly)
-  document.getElementById('save-badge').style.display = _yearly ? 'inline-flex' : 'none'
+  // Show max saving across all paid plans
+  if (_yearly && _plans.length) {
+    const maxSaving = Math.max(..._plans.map(p => p.savings_inr?.yearly || 0))
+    const saveBadge = document.getElementById('save-badge')
+    saveBadge.textContent = maxSaving > 0 ? `🎉 Save up to ${fmtInr(maxSaving)}/yr` : '🎉 Save 10%'
+    saveBadge.style.display = 'inline-flex'
+  } else {
+    document.getElementById('save-badge').style.display = 'none'
+  }
   if (_plans.length) renderPlans(_plans)
 }
 
 function fmtInr(n) { return '₹' + n.toLocaleString('en-IN') }
 
-const taglines = { starter: 'Perfect to explore &amp; get started', grower: 'For boutiques ready to sell more', enterprise: 'For chains, franchises &amp; brands' }
+const taglines = {
+  free:       'Explore BoutiqueAI with no commitment',
+  small:      'For boutiques starting to sell online',
+  medium:     'For boutiques growing their online sales',
+  enterprise: 'For established boutiques &amp; multi-branch stores',
+  // backward compat
+  starter:    'Explore BoutiqueAI with no commitment',
+  grower:     'For boutiques starting to sell online',
+}
 
 function renderPlans(plans) {
   const billing = _yearly ? 'yearly' : 'monthly'
   document.getElementById('plans-grid').innerHTML = plans.map(p => {
-    const priceInr = (p.price_inr || {})[billing] || 0
-    const isFree   = priceInr === 0 && !p.contact
-    const credits  = p.limits?.credits_included || 0
-    const savings  = _yearly && p.savings_inr?.yearly ? p.savings_inr.yearly : null
+    const priceInr  = (p.price_inr || {})[billing] || 0
+    const isFree    = priceInr === 0 && !p.contact
+    const creditsMonthly = p.limits?.credits_included         || 0
+    const creditsYearly  = p.limits?.credits_included_yearly  || 0
+    const credits   = _yearly ? creditsYearly : creditsMonthly
+    const savings   = _yearly && p.savings_inr?.yearly ? p.savings_inr.yearly : null
+    const tagline   = taglines[p.id] || p.tagline || ''
 
     const priceBlock = p.contact
       ? `<div style="font-size:22px;font-weight:800;color:var(--text-2);margin-bottom:4px;">Custom</div><div class="plan-billed">Pricing based on volume</div>`
       : isFree
-        ? `<div style="font-size:36px;font-weight:800;color:var(--green);line-height:1;margin-bottom:4px;">Free</div><div class="plan-billed">Forever free to start</div>`
+        ? `<div style="font-size:36px;font-weight:800;color:var(--green);line-height:1;margin-bottom:4px;">Free</div><div class="plan-billed">50 credits, first month only</div>`
         : `<div style="margin-bottom:4px;"><span class="plan-amount">${fmtInr(priceInr)}</span><span class="plan-period">/${_yearly ? 'yr' : 'mo'}</span></div><div class="plan-billed">${savings ? `Save ${fmtInr(savings)} vs monthly` : `Billed ${_yearly ? 'annually' : 'monthly'}`}</div>`
 
+    const chipLabel = isFree
+      ? `${credits} credits on signup`
+      : _yearly
+        ? `${credits.toLocaleString('en-IN')} credits upfront (12 months)`
+        : `${credits.toLocaleString('en-IN')} credits / month`
+
     const chip = credits > 0
-      ? `<div class="plan-credits-chip ${isFree ? 'chip-free' : 'chip-paid'}">⚡ ${credits} credits ${isFree ? 'on signup' : 'included'}</div>`
+      ? `<div class="plan-credits-chip ${isFree ? 'chip-free' : 'chip-paid'}">⚡ ${chipLabel}</div>`
       : `<div class="plan-credits-chip chip-custom">⚡ Volume-based credits</div>`
 
     const feats = (p.features || []).map(f =>
@@ -486,7 +511,7 @@ function renderPlans(plans) {
     return `<div class="plan-card ${p.popular ? 'popular' : ''}">
       ${p.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
       <div class="plan-name">${p.name}</div>
-      <div class="plan-tagline">${taglines[p.id] || ''}</div>
+      <div class="plan-tagline">${tagline}</div>
       ${priceBlock}${chip}
       <div class="plan-divider"></div>
       <div class="plan-feats">${feats}</div>
