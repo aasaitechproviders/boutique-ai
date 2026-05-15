@@ -59,6 +59,45 @@
 .danger-zone{margin-top:8px;padding:12px 16px;background:var(--red-dim,rgba(239,68,68,.06));border:1px solid var(--red-border,rgba(239,68,68,.18));border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between}
 .section-divider{height:1px;background:var(--border);margin:4px 0 16px}
 .section-label{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+/* ── Try-on Gallery Sheet ─────────────────────────────────── */
+.tryon-sheet{position:fixed;inset:0;z-index:600;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none;opacity:0;transition:opacity .25s var(--ease)}
+.tryon-sheet.open{opacity:1;pointer-events:all}
+.tryon-sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.tryon-sheet-panel{position:relative;background:#13151E;border-radius:22px 22px 0 0;max-height:88vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .34s cubic-bezier(.32,0,.34,1);box-shadow:0 -8px 48px rgba(0,0,0,.55)}
+.tryon-sheet.open .tryon-sheet-panel{transform:translateY(0)}
+.tryon-drag-handle{width:40px;height:4px;background:rgba(255,255,255,.15);border-radius:4px;margin:14px auto 0;flex-shrink:0}
+.tryon-sheet-header{display:flex;align-items:center;gap:12px;padding:14px 20px 12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.06)}
+.tryon-sheet-avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;border:2px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:#fff;overflow:hidden;background:#7C6FFF}
+.tryon-sheet-info{flex:1;min-width:0}
+.tryon-sheet-title{font-size:16px;font-weight:800;color:#ECEEF8;letter-spacing:-.02em;line-height:1.2}
+.tryon-sheet-sub{font-size:12px;color:rgba(255,255,255,.38);margin-top:2px}
+.tryon-sheet-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.09);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);font-size:13px;transition:background .15s;flex-shrink:0}
+.tryon-sheet-close:hover{background:rgba(255,255,255,.16);color:#fff}
+.tryon-grid-wrap{overflow-y:auto;flex:1;padding:14px 14px 24px}
+.tryon-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.tryon-card{background:#0D0F18;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.06);transition:transform .18s,border-color .18s}
+.tryon-card:hover{transform:translateY(-2px);border-color:rgba(124,111,255,.35)}
+.tryon-img-pair{display:grid;grid-template-columns:1fr 72px;position:relative}
+.tryon-main-wrap{aspect-ratio:3/4;overflow:hidden}
+.tryon-main-img{width:100%;height:100%;object-fit:cover;display:block}
+.tryon-thumb-col{display:flex;flex-direction:column;background:#080910}
+.tryon-thumb{width:100%;flex:1;object-fit:cover;display:block;min-height:0}
+.tryon-look-badge{position:absolute;top:8px;left:8px;background:var(--accent,#7C6FFF);color:#fff;font-size:9.5px;font-weight:700;padding:4px 10px 4px 8px;border-radius:20px;display:flex;align-items:center;gap:4px;cursor:pointer;transition:opacity .15s;letter-spacing:.02em;box-shadow:0 2px 8px rgba(124,111,255,.45)}
+.tryon-look-badge:hover{opacity:.85}
+.tryon-card-footer{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#09090F;border-top:1px solid rgba(255,255,255,.05)}
+.tryon-date{font-size:10px;color:rgba(255,255,255,.35);display:flex;align-items:center;gap:4px}
+.tryon-actions{display:flex;gap:5px}
+.tryon-btn{width:28px;height:28px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .15s,transform .15s}
+.tryon-btn:hover{opacity:.8;transform:scale(1.08)}
+.tryon-btn-dl{background:#5B4FE8}
+.tryon-btn-del{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.22)}
+.tryon-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:70px 20px;color:rgba(255,255,255,.28);gap:12px;text-align:center}
+.tryon-empty-icon{font-size:44px;opacity:.5}
+.tryon-empty-title{font-size:15px;font-weight:700;color:rgba(255,255,255,.4)}
+.tryon-empty-desc{font-size:12.5px;color:rgba(255,255,255,.25);max-width:240px;line-height:1.5}
+.tryon-skel-card{background:rgba(255,255,255,.04);border-radius:14px;aspect-ratio:3/4;animation:skelShimmer 1.6s ease-in-out infinite;background-size:600px 100%}
+@media(max-width:900px){.tryon-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:600px){.tryon-grid{grid-template-columns:repeat(2,1fr)}.tryon-img-pair{grid-template-columns:1fr 56px}}
 </style>
 <link rel="stylesheet" href="shared.css">
 <script>
@@ -395,6 +434,7 @@
           <div class="field-hint">Limits how many try-ons each customer can do. Set to <strong>0</strong> for unlimited.</div>
           <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <button class="btn btn-secondary btn-sm" onclick="openUserStatsModal()">📊 View Usage by Customer</button>
+            <button class="btn btn-secondary btn-sm" onclick="openTryonGalleryFromEdit()">🖼 View Try-ons</button>
           </div>
         </div>
 
@@ -485,8 +525,35 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════════════════
+     Try-on Gallery Sheet
+═══════════════════════════════════════════════════════════════ -->
+<div class="tryon-sheet" id="tryon-sheet">
+  <div class="tryon-sheet-backdrop" onclick="closeTryonGallery()"></div>
+  <div class="tryon-sheet-panel">
+    <div class="tryon-drag-handle"></div>
+    <div class="tryon-sheet-header">
+      <div class="tryon-sheet-avatar" id="tryon-avatar"></div>
+      <div class="tryon-sheet-info">
+        <div class="tryon-sheet-title" id="tryon-sheet-title">My Try-ons</div>
+        <div class="tryon-sheet-sub" id="tryon-sheet-sub">Loading…</div>
+      </div>
+      <button class="tryon-sheet-close" onclick="closeTryonGallery()">✕</button>
+    </div>
+    <div class="tryon-grid-wrap">
+      <div class="tryon-grid" id="tryon-grid">
+        <!-- skeleton -->
+        <div class="tryon-skel-card"></div>
+        <div class="tryon-skel-card" style="opacity:.7"></div>
+        <div class="tryon-skel-card" style="opacity:.5"></div>
+        <div class="tryon-skel-card" style="opacity:.35"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── Helpers ──────────────────────────────────────────────────
+
 function toSlug(s=''){return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,40).replace(/^-+|-+$/g,'')}
 function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':String(n)}
 function fmtRelative(d){
@@ -966,6 +1033,146 @@ function showEditDomainStatus(status) {
   icon.textContent = s.icon; msg.textContent = s.text
 }
 
+// ── Try-on Gallery ────────────────────────────────────────────
+let tryonAgentId = null
+
+async function openTryonGallery(agentId) {
+  tryonAgentId = agentId
+  const sheet   = document.getElementById('tryon-sheet')
+  const avatarEl = document.getElementById('tryon-avatar')
+  const titleEl  = document.getElementById('tryon-sheet-title')
+  const subEl    = document.getElementById('tryon-sheet-sub')
+  const grid     = document.getElementById('tryon-grid')
+
+  // skeleton
+  titleEl.textContent = 'My Try-ons'
+  subEl.textContent   = 'Loading…'
+  grid.innerHTML = [0,1,2,3].map((i)=>`<div class="tryon-skel-card" style="opacity:${1-i*.2}"></div>`).join('')
+  sheet.classList.add('open')
+  document.body.style.overflow = 'hidden'
+
+  // Fetch agent info for avatar
+  try {
+    const a = await apiFetch('/agents/' + agentId)
+    const logoSrc = a.logo_url || a.logo_base64
+    if (logoSrc) {
+      avatarEl.innerHTML = `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      avatarEl.style.background = 'transparent'
+    } else {
+      avatarEl.style.background = a.brand_color || '#7C6FFF'
+      avatarEl.textContent = (a.agent_name || 'A')[0].toUpperCase()
+    }
+    titleEl.textContent = a.agent_name || 'My Try-ons'
+  } catch(e) {
+    avatarEl.style.background = '#7C6FFF'
+    avatarEl.textContent = 'A'
+  }
+
+  await loadTryonImages(agentId)
+}
+
+function closeTryonGallery() {
+  document.getElementById('tryon-sheet').classList.remove('open')
+  document.body.style.overflow = ''
+  tryonAgentId = null
+}
+
+async function loadTryonImages(agentId) {
+  const grid = document.getElementById('tryon-grid')
+  const subEl = document.getElementById('tryon-sheet-sub')
+  try {
+    const data   = await apiFetch(`/agents/${agentId}/tryons?limit=60`)
+    const tryons = data.tryons || []
+    subEl.textContent = `${tryons.length} look${tryons.length === 1 ? '' : 's'} generated`
+
+    if (!tryons.length) {
+      grid.innerHTML = `<div class="tryon-empty">
+        <div class="tryon-empty-icon">🖼</div>
+        <div class="tryon-empty-title">No try-ons yet</div>
+        <div class="tryon-empty-desc">Virtual try-ons by your customers will appear here</div>
+      </div>`
+      return
+    }
+
+    grid.innerHTML = tryons.map(t => {
+      const dateStr    = new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
+      const mainSrc    = t.result_url   || t.output_url   || ''
+      const garmentSrc = t.garment_url  || t.product_image|| ''
+      const modelSrc   = t.model_url    || t.user_photo   || ''
+      const blankSvg   = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='96' fill='%230a0b12'/>`
+
+      return `<div class="tryon-card">
+        <div class="tryon-img-pair">
+          <div class="tryon-main-wrap">
+            <img class="tryon-main-img" src="${mainSrc}" alt="Try-on result"
+              onerror="this.src='${blankSvg}'">
+          </div>
+          <div class="tryon-thumb-col">
+            <img class="tryon-thumb" src="${modelSrc||blankSvg}" alt="User photo"
+              onerror="this.src='${blankSvg}'">
+            <img class="tryon-thumb" src="${garmentSrc||blankSvg}" alt="Garment"
+              onerror="this.src='${blankSvg}'">
+          </div>
+          <div class="tryon-look-badge" onclick="addToLook('${t._id}', event)">
+            <svg width="8" height="8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            LOOK
+          </div>
+        </div>
+        <div class="tryon-card-footer">
+          <div class="tryon-date">
+            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            ${dateStr}
+          </div>
+          <div class="tryon-actions">
+            <button class="tryon-btn tryon-btn-dl" onclick="downloadTryon('${mainSrc}','tryon-${t._id}.jpg')" title="Download">
+              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="tryon-btn tryon-btn-del" onclick="deleteTryon('${t._id}', event)" title="Delete">
+              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="rgba(239,68,68,.9)" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`
+    }).join('')
+  } catch(e) {
+    subEl.textContent = 'Failed to load'
+    grid.innerHTML = `<div class="tryon-empty">
+      <div class="tryon-empty-icon">❌</div>
+      <div class="tryon-empty-title">Could not load try-ons</div>
+      <div class="tryon-empty-desc">${e.message}</div>
+    </div>`
+  }
+}
+
+function downloadTryon(url, filename) {
+  if (!url || url.startsWith('data:')) return
+  const a = document.createElement('a')
+  a.href = url; a.download = filename || 'tryon.jpg'; a.target = '_blank'
+  document.body.appendChild(a); a.click(); document.body.removeChild(a)
+}
+
+async function deleteTryon(tryonId, evt) {
+  evt && evt.stopPropagation()
+  if (!tryonAgentId) return
+  if (!confirm('Delete this try-on? This cannot be undone.')) return
+  try {
+    await apiFetch(`/agents/${tryonAgentId}/tryons/${tryonId}`, { method: 'DELETE' })
+    toast('Try-on deleted', 'info')
+    await loadTryonImages(tryonAgentId)
+  } catch(e) { toast(e.message, 'error') }
+}
+
+function addToLook(tryonId, evt) {
+  evt && evt.stopPropagation()
+  toast('💜 Saved to Looks  (coming soon)', 'info')
+}
+
+function openTryonGalleryFromEdit() {
+  const aid = editingAgentId
+  closeEditModal()
+  setTimeout(() => openTryonGallery(aid), 160)
+}
+
 // ── Load agents grid ──────────────────────────────────────────
 async function loadAgents(){
   try{
@@ -1014,6 +1221,7 @@ async function loadAgents(){
           <span style="font-size:12px;color:var(--text-3)">${fmtNum(a.tryon_count||0)} try-ons · ${fmtRelative(a.updated_at||a.created_at)}</span>
           <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
             <button class="btn btn-secondary btn-sm" onclick="openEditModal('${aid}')">✏️ Edit</button>
+            <button class="btn btn-secondary btn-sm" onclick="openTryonGallery('${aid}')">🖼 Try-ons</button>
             ${url?`<button class="btn btn-secondary btn-sm" onclick="shareUrl('${url}','${(a.agent_name||a.name||'').replace(/'/g,"\\'")}')">🔗 Share</button>`:''}
           </div>
         </div>
