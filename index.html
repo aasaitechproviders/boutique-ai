@@ -336,7 +336,7 @@ footer a{color:var(--accent);}
     <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Real-time analytics</div><p class="feat-desc">See which products get tried most, how many sessions happen per day, and which items convert — right in your dashboard.</p></div>
     <div class="feat-card"><div class="feat-icon">🔒</div><div class="feat-title">Per-customer rate limits</div><p class="feat-desc">Set how many try-ons each customer gets per day or week. Prevents credit abuse and keeps your catalog exclusive.</p></div>
     <div class="feat-card"><div class="feat-icon">🏷️</div><div class="feat-title">Watermarked downloads</div><p class="feat-desc">When customers download their try-on photo, your logo and boutique name are added automatically. Free marketing every time they share it.</p></div>
-    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title">Credit-based, pay as you grow</div><p class="feat-desc">Low quality = 1 credit. Medium = 2. High detail = 3. Start free, top up when you need more. No monthly caps on Grower.</p></div>
+    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-title">Credit-based, pay as you grow</div><p class="feat-desc">Standard quality = 1 credit. Balanced = 2. Premium studio = 3. Start free, top up from ₹1,999 when you need more. No monthly caps on paid plans.</p></div>
   </div>
 </section>
 
@@ -348,7 +348,7 @@ footer a{color:var(--accent);}
     <span class="toggle-label active" id="lbl-monthly">Monthly</span>
     <button class="toggle-pill" id="billing-toggle" onclick="toggleBilling()" aria-label="Toggle billing period"></button>
     <span class="toggle-label" id="lbl-yearly">Yearly</span>
-    <span class="save-badge" id="save-badge" style="display:none">🎉 Save up to ₹9,989</span>
+    <span class="save-badge" id="save-badge" style="display:none">🎉 Save up to ₹29,999</span>
   </div>
   <div id="plans-container">
     <div class="plans-skeleton" id="plans-skeleton">
@@ -358,7 +358,7 @@ footer a{color:var(--accent);}
     </div>
     <div class="plans-grid" id="plans-grid" style="display:none;"></div>
   </div>
-  <p style="font-size:13px;color:var(--text-3);margin-top:20px;">Plan credits refresh every billing period &nbsp;·&nbsp; Top-up packs from ₹500 never expire &nbsp;·&nbsp; Low = 1 cr &nbsp;·&nbsp; Medium = 2 cr &nbsp;·&nbsp; High = 3 cr</p>
+  <p style="font-size:13px;color:var(--text-3);margin-top:20px;">Plan credits refresh every billing period &nbsp;·&nbsp; Top-up packs from ₹1,999 never expire &nbsp;·&nbsp; Standard = 1 cr &nbsp;·&nbsp; Balanced = 2 cr &nbsp;·&nbsp; Premium = 3 cr</p>
 </section>
 
 <section class="section" id="faq">
@@ -371,7 +371,7 @@ footer a{color:var(--accent);}
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">⚡</span>How fast are the try-on images?</div><p class="faq-a">Typically 6–12 seconds depending on the quality tier. Low quality is fastest. High quality takes slightly longer but shows stunning fabric detail and a two-panel full-body result.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">💳</span>What happens when I run out of credits?</div><p class="faq-a">Your customers will see a friendly message that try-ons are temporarily unavailable. You can top up from ₹500 anytime from your dashboard — credits are added instantly after payment.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">🛍️</span>Can I manage multiple boutiques?</div><p class="faq-a">Yes. Every plan — including Free — supports unlimited AI agents. Each agent is a separate boutique with its own catalog, URL, and chat history. Perfect for multi-branch stores or selling different categories separately.</p></div>
-    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔗</span>Can I use my own domain name?</div><p class="faq-a">Yes, on Small, Medium, and Enterprise plans you can connect a custom domain like <em>tryon.yourstore.com</em>. We will walk you through the one-step DNS setup — takes about 2 minutes.</p></div>
+    <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔗</span>Can I use my own domain name?</div><p class="faq-a">Yes, on Standard, Pro Store, and Studio Premium plans you can connect a custom domain like <em>tryon.yourstore.com</em>. We will walk you through the one-step DNS setup — takes about 2 minutes.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">⏰</span>When do my credits expire?</div><p class="faq-a">Plan credits refresh every billing period — monthly or yearly depending on your plan. Credits bought separately as top-up packs from your dashboard never expire and carry over indefinitely.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">🔒</span>Are customer photos stored safely?</div><p class="faq-a">Yes. All images are stored in encrypted AWS S3 buckets. Customers can delete their base photo anytime. We never share or use images for training.</p></div>
     <div class="faq-item"><div class="faq-q"><span class="faq-icon">🆙</span>Can I upgrade or cancel anytime?</div><p class="faq-a">Absolutely. Upgrade from Free to any paid plan directly from your Billing page. For downgrades or cancellations, contact us and we will sort it out right away. No lock-in, no penalties.</p></div>
@@ -464,13 +464,16 @@ function toggleBilling() {
 function fmtInr(n) { return '₹' + n.toLocaleString('en-IN') }
 
 const taglines = {
-  free:       'Explore BoutiqueAI with no commitment',
-  small:      'For boutiques starting to sell online',
-  medium:     'For boutiques growing their online sales',
-  enterprise: 'For established boutiques &amp; multi-branch stores',
+  free:     'Explore BoutiqueAI with no commitment',
+  standard: 'Perfect for small boutiques &amp; local shops',
+  pro:      'Built for active textile &amp; jewelry stores',
+  studio:   'Designed for premium brands &amp; high-volume stores',
   // backward compat
-  starter:    'Explore BoutiqueAI with no commitment',
-  grower:     'For boutiques starting to sell online',
+  starter:  'Explore BoutiqueAI with no commitment',
+  grower:   'For boutiques starting to sell online',
+  small:    'For boutiques starting to sell online',
+  medium:   'For boutiques growing their online sales',
+  enterprise:'For established boutiques &amp; multi-branch stores',
 }
 
 function renderPlans(plans) {
