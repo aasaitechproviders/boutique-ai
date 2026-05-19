@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>Credits & Usage — BoutiqueAI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+/* ── How Credits Work grid ────────────────────────────────────────── */
+.credit-tiers-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:0;
+}
+.credit-tier-card {
+  border-radius:var(--r-lg); padding:20px 18px;
+  display:flex; flex-direction:column; gap:8px;
+  border:1.5px solid var(--border);
+}
+.credit-tier-card.tier-standard { background:rgba(74,222,128,.06); border-color:rgba(74,222,128,.2); }
+.credit-tier-card.tier-balanced { background:rgba(250,204,21,.06); border-color:rgba(250,204,21,.2); }
+.credit-tier-card.tier-premium  { background:rgba(248,113,113,.06); border-color:rgba(248,113,113,.2); }
+.tier-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.tier-header { display:flex; align-items:center; gap:8px; }
+.tier-name { font-size:13.5px; font-weight:800; }
+.tier-credit-badge {
+  margin-left:auto; font-family:var(--mono); font-size:12px; font-weight:700;
+  padding:2px 8px; border-radius:20px; white-space:nowrap;
+}
+.tier-desc { font-size:12px; color:var(--text-2); line-height:1.55; }
+.tier-time { font-size:11.5px; font-weight:600; margin-top:2px; }
+
+/* ── Processing times ─────────────────────────────────────────────── */
+.proc-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+}
+.proc-card {
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--r-sm); padding:16px 14px; text-align:center;
+}
+.proc-plan { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-3); margin-bottom:6px; }
+.proc-time { font-family:var(--mono); font-size:22px; font-weight:800; color:var(--accent); margin-bottom:2px; line-height:1; }
+.proc-unit { font-size:11px; color:var(--text-3); }
+.proc-badge { font-size:10.5px; font-weight:600; margin-top:6px; padding:2px 8px; border-radius:20px; display:inline-block; }
+
+/* ── AI Disclaimer ─────────────────────────────────────────────────── */
+.ai-disclaimer {
+  display:flex; align-items:flex-start; gap:12px;
+  background:rgba(245,165,35,.07); border:1px solid rgba(245,165,35,.22);
+  border-radius:var(--r-sm); padding:14px 16px; font-size:12.5px;
+  color:var(--text-2); line-height:1.65;
+}
+.ai-disclaimer .disc-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.ai-disclaimer strong { color:var(--text); }
+
+/* ── Overview stat row ────────────────────────────────────────────── */
+.overview-stats {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
+}
+.ov-stat {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r-lg); padding:16px 18px;
+}
+.ov-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--text-3); margin-bottom:6px; }
+.ov-value { font-family:var(--mono); font-size:26px; font-weight:800; letter-spacing:-.04em; line-height:1; }
+.ov-sub { font-size:11.5px; color:var(--text-3); margin-top:3px; }
+
+/* ── Filter bar ────────────────────────────────────────────────────── */
+.filter-bar { display:flex; align-items:center; gap:10px; margin-bottom:18px; flex-wrap:wrap; }
+.filter-bar select,
+.filter-bar input  { height:36px; font-size:13px; }
+.filter-bar .search-wrap { position:relative; flex:1; min-width:180px; }
+.filter-bar .search-wrap input { padding-left:32px; width:100%; box-sizing:border-box; }
+.filter-bar .search-icon { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; opacity:.5; pointer-events:none; }
+
+/* ── Customer usage table ─────────────────────────────────────────── */
+.usage-table { width:100%; border-collapse:collapse; }
+.usage-table th {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-3); padding:10px 14px; border-bottom:1.5px solid var(--border-md);
+  text-align:left; background:var(--surface-2);
+}
+.usage-table td {
+  padding:12px 14px; font-size:13px; color:var(--text);
+  border-bottom:1px solid var(--border); vertical-align:middle;
+}
+.usage-table tr:last-child td { border-bottom:none; }
+.usage-table tr:hover td { background:var(--surface-2); }
+.mobile-cell { font-family:var(--mono); font-size:12.5px; font-weight:600; }
+.agent-chip-sm {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600;
+  white-space:nowrap; max-width:150px; overflow:hidden; text-overflow:ellipsis;
+  border:1px solid var(--border); background:var(--surface-2);
+}
+.q-pill {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:10.5px; font-weight:700; padding:2px 7px;
+  border-radius:20px; white-space:nowrap;
+}
+.q-pill.standard { background:rgba(74,222,128,.1);  color:#16a34a; border:1px solid rgba(74,222,128,.25); }
+.q-pill.balanced  { background:rgba(250,204,21,.1);  color:#ca8a04; border:1px solid rgba(250,204,21,.25); }
+.q-pill.premium   { background:rgba(248,113,113,.1); color:#dc2626; border:1px solid rgba(248,113,113,.25); }
+.credit-val { font-family:var(--mono); font-weight:800; font-size:14px; color:var(--accent); }
+.date-cell { font-size:11.5px; color:var(--text-3); }
+
+/* ── Burn history timeline ─────────────────────────────────────────── */
+.burn-row {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:12px 0; border-bottom:1px solid var(--border);
+}
+.burn-row:last-child { border-bottom:none; }
+.burn-dot {
+  width:32px; height:32px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:13px;
+  flex-shrink:0; margin-top:2px;
+}
+.burn-dot.standard { background:rgba(74,222,128,.15);  }
+.burn-dot.balanced  { background:rgba(250,204,21,.15);  }
+.burn-dot.premium   { background:rgba(248,113,113,.15); }
+.burn-main { flex:1; min-width:0; }
+.burn-title { font-size:13px; font-weight:700; margin-bottom:2px; }
+.burn-meta  { font-size:11.5px; color:var(--text-3); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.burn-credits {
+  font-family:var(--mono); font-size:18px; font-weight:800;
+  color:var(--danger, #e53e3e); flex-shrink:0;
+}
+.burn-balance { font-size:11px; color:var(--text-3); }
+.combo-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  background:var(--accent-dim); color:var(--accent);
+  border:1px solid rgba(var(--accent-rgb,124,111,255),.25);
+  font-size:10px; font-weight:700; padding:1px 6px; border-radius:20px;
+}
+
+/* ── Pagination ─────────────────────────────────────────────────────── */
+.pagination { display:flex; align-items:center; justify-content:space-between; padding:16px 0 0; flex-wrap:wrap; gap:10px; }
+.page-info  { font-size:12.5px; color:var(--text-3); }
+.page-btns  { display:flex; gap:6px; }
+
+/* ── Empty state ───────────────────────────────────────────────────── */
+.empty-state {
+  text-align:center; padding:48px 24px; color:var(--text-3);
+}
+.empty-icon  { font-size:40px; margin-bottom:12px; opacity:.5; }
+.empty-title { font-size:14.5px; font-weight:700; color:var(--text-2); margin-bottom:6px; }
+.empty-desc  { font-size:13px; line-height:1.6; }
+
+/* ── Tab switcher ──────────────────────────────────────────────────── */
+.tab-bar { display:flex; gap:4px; margin-bottom:20px; }
+.tab-btn {
+  padding:7px 16px; border-radius:var(--r-sm); border:1.5px solid var(--border);
+  background:var(--surface-2); font-size:13px; font-weight:600; cursor:pointer;
+  font-family:var(--font); color:var(--text-2); transition:var(--t);
+}
+.tab-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
+.tab-btn:hover:not(.active) { border-color:var(--border-md); color:var(--text); }
+
+@media(max-width:900px) {
+  .credit-tiers-grid { grid-template-columns:1fr; }
+  .proc-grid { grid-template-columns:1fr; }
+  .overview-stats { grid-template-columns:repeat(2,1fr); }
+  .usage-table th:nth-child(4),
+  .usage-table td:nth-child(4) { display:none; }
+}
+@media(max-width:600px) {
+  .overview-stats { grid-template-columns:1fr 1fr; }
+  .filter-bar { flex-direction:column; align-items:stretch; }
+}
+</style>
+<link rel="stylesheet" href="shared.css">
+<script>
+;(function(){
+  var d=localStorage.getItem('ba_theme')==='dark';
+  document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');
+  document.documentElement.style.background=d?'#07080D':'#F2F3F9';
+})();
+</script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<div class="mobile-topbar">
+  <div class="mob-left">
+    <button class="hamburger" onclick="openMobileSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
+    <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
+  </div>
+  <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
+</div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+<div class="sidebar" id="sidebar"></div>
+
+<!-- Skeleton -->
+<div id="page-skeleton">
+  <div class="skel-topbar">
+    <div class="skel" style="height:13px;width:200px;border-radius:4px"></div>
+  </div>
+  <div class="skel-body">
+    <div class="skel" style="height:120px;border-radius:var(--r-lg);margin-bottom:16px"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
+      <div class="skel" style="height:80px;border-radius:var(--r-lg)"></div>
+      <div class="skel" style="height:80px;border-radius:var(--r-lg);opacity:.8"></div>
+      <div class="skel" style="height:80px;border-radius:var(--r-lg);opacity:.6"></div>
+      <div class="skel" style="height:80px;border-radius:var(--r-lg);opacity:.4"></div>
+    </div>
+    <div class="skel" style="height:360px;border-radius:var(--r-lg)"></div>
+  </div>
+</div>
+
+<div class="main-wrap">
+  <div class="topbar">
+    <div class="topbar-left"><span class="topbar-title">Credits & Usage</span></div>
+    <div class="topbar-right">
+      <button class="theme-toggle" style="font-size:15px;"></button>
+      <a href="payments.html" class="btn btn-secondary btn-sm">⚡ Top Up Credits</a>
+    </div>
+  </div>
+
+  <div class="content" id="page-content" style="display:none">
+
+    <!-- ── How Credits Work ──────────────────────────────────────────── -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">💡</span>How Credits Work</div>
+      </div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:18px">
+
+        <!-- Quality tiers -->
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px">Quality Tiers — Credits Per Try-On</div>
+          <div class="credit-tiers-grid">
+
+            <div class="credit-tier-card tier-standard">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#4ade80"></span>
+                <span class="tier-name" style="color:#16a34a">Standard Quality</span>
+                <span class="tier-credit-badge" style="background:rgba(74,222,128,.15);color:#16a34a">1 credit</span>
+              </div>
+              <div class="tier-desc">Fast, lightweight try-on. Great for quick previews and high-volume customers. Approximate generation time: ~1 minute.</div>
+              <div class="tier-time" style="color:#16a34a">⏱ ~1 minute</div>
+            </div>
+
+            <div class="credit-tier-card tier-balanced">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#facc15"></span>
+                <span class="tier-name" style="color:#ca8a04">Balanced Quality</span>
+                <span class="tier-credit-badge" style="background:rgba(250,204,21,.15);color:#ca8a04">2 credits</span>
+              </div>
+              <div class="tier-desc">Best of both worlds. Sharper fabric detail and skin tone accuracy. Ideal for most boutique use cases. Approximate generation time: ~45 seconds.</div>
+              <div class="tier-time" style="color:#ca8a04">⏱ ~45 seconds</div>
+            </div>
+
+            <div class="credit-tier-card tier-premium">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#f87171"></span>
+                <span class="tier-name" style="color:#dc2626">Premium Studio Quality</span>
+                <span class="tier-credit-badge" style="background:rgba(248,113,113,.15);color:#dc2626">3 credits</span>
+              </div>
+              <div class="tier-desc">Studio-grade output. Maximum face fidelity, fabric micro-detail, and colour accuracy for premium catalogs. Approximate generation time: ~35 seconds.</div>
+              <div class="tier-time" style="color:#dc2626">⏱ ~35 seconds</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Processing times by plan -->
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px">Processing Speed by Plan</div>
+          <div class="proc-grid">
+            <div class="proc-card">
+              <div class="proc-plan">⚡ Standard Plan</div>
+              <div class="proc-time">~1</div>
+              <div class="proc-unit">minute</div>
+              <div class="proc-badge" style="background:rgba(74,222,128,.1);color:#16a34a">Queue-based processing</div>
+            </div>
+            <div class="proc-card">
+              <div class="proc-plan">🚀 Pro Store Plan</div>
+              <div class="proc-time">~45</div>
+              <div class="proc-unit">seconds</div>
+              <div class="proc-badge" style="background:rgba(var(--accent-rgb,124,111,255),.1);color:var(--accent)">Faster queue priority</div>
+            </div>
+            <div class="proc-card">
+              <div class="proc-plan">🎬 Studio Premium Plan</div>
+              <div class="proc-time">~35</div>
+              <div class="proc-unit">seconds</div>
+              <div class="proc-badge" style="background:rgba(250,204,21,.1);color:#ca8a04">Dedicated infrastructure</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Disclaimer -->
+        <div class="ai-disclaimer">
+          <span class="disc-icon">⚠️</span>
+          <div>
+            <strong>AI-generated try-ons are approximate previews.</strong> Results are powered by generative AI and may not perfectly reproduce every fabric texture, colour shade, or outfit detail. Skin tone, face shape, and clothing drape are rendered to a high standard, but <strong>minor variations from the original product are possible.</strong> We recommend customers view actual product photos before purchasing. BoutiqueAI continuously improves output quality — results may vary by image quality and lighting.
+          </div>
+        </div>
+
+        <!-- Credit value note -->
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2)">
+          <span style="font-size:16px">💳</span>
+          <span>Top-up credit packs start from <strong style="color:var(--text)">₹1,999 for 500 credits</strong> and <strong style="color:var(--text)">never expire</strong>. Plan credits refresh every billing period. <a href="payments.html#credits-section" style="color:var(--accent);font-weight:600">Buy credits →</a></span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Overview Stats ─────────────────────────────────────────────── -->
+    <div class="overview-stats">
+      <div class="ov-stat">
+        <div class="ov-label">⚡ Total Burned</div>
+        <div class="ov-value" id="ov-total-burned" style="color:var(--danger,#e53e3e)">—</div>
+        <div class="ov-sub">credits used all time</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">🖼 Total Try-Ons</div>
+        <div class="ov-value" id="ov-total-tryons">—</div>
+        <div class="ov-sub">including deleted ones</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">💰 Current Balance</div>
+        <div class="ov-value" id="ov-balance" style="color:var(--accent)">—</div>
+        <div class="ov-sub" id="ov-balance-expiry">credits available</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">👥 Unique Customers</div>
+        <div class="ov-value" id="ov-customers">—</div>
+        <div class="ov-sub">who used try-on</div>
+      </div>
+    </div>
+
+    <!-- ── Quality breakdown mini row ──────────────────────────────────── -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📊</span>Credits by Quality Tier</div>
+        <span class="badge badge-accent" id="breakdown-total-badge">All time</span>
+      </div>
+      <div class="card-body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">🟢 Standard</div>
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:#16a34a" id="bd-low-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3)" id="bd-low-count">— try-ons · 1 cr each</div>
+        </div>
+        <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:#ca8a04;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">🟡 Balanced</div>
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:#ca8a04" id="bd-med-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3)" id="bd-med-count">— try-ons · 2 cr each</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">🔴 Premium Studio</div>
+          <div style="font-family:var(--mono);font-size:28px;font-weight:800;color:#dc2626" id="bd-hi-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3)" id="bd-hi-count">— try-ons · 3 cr each</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Tabs: By Customer / Full History ──────────────────────────── -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-customer" onclick="switchTab('customer')">👥 By Customer</button>
+      <button class="tab-btn" id="tab-history" onclick="switchTab('history')">🕒 Full Burn History</button>
+    </div>
+
+    <!-- ── BY CUSTOMER VIEW ──────────────────────────────────────────── -->
+    <div id="view-customer">
+
+      <!-- Agent filter -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="input" placeholder="Filter by mobile number…" id="cust-search" oninput="filterCustomers()">
+        </div>
+        <select class="input" id="cust-agent-filter" onchange="loadUsage()" style="min-width:160px">
+          <option value="">All Agents</option>
+        </select>
+        <span style="font-size:12.5px;color:var(--text-3)" id="cust-count-label"></span>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <div id="customer-table-wrap">
+            <div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── FULL HISTORY VIEW ─────────────────────────────────────────── -->
+    <div id="view-history" style="display:none">
+
+      <div class="filter-bar">
+        <select class="input" id="hist-agent-filter" onchange="loadHistory()" style="min-width:160px">
+          <option value="">All Agents</option>
+        </select>
+        <select class="input" id="hist-quality-filter" onchange="loadHistory()">
+          <option value="">All Qualities</option>
+          <option value="low">🟢 Standard</option>
+          <option value="medium">🟡 Balanced</option>
+          <option value="high">🔴 Premium Studio</option>
+        </select>
+        <div class="search-wrap">
+          <span class="search-icon">📱</span>
+          <input type="text" class="input" placeholder="Filter by mobile…" id="hist-mobile-filter" oninput="debounceHistory()">
+        </div>
+        <span style="font-size:12.5px;color:var(--text-3)" id="hist-count-label"></span>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span class="card-icon">🕒</span>Credit Burn Log</div>
+          <span class="badge badge-accent" style="font-size:10.5px">Permanent record — survives image deletion</span>
+        </div>
+        <div class="card-body" id="history-body">
+          <div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>
+        </div>
+        <div id="hist-pagination" style="padding:0 20px 16px;display:none">
+          <div class="pagination">
+            <span class="page-info" id="hist-page-info"></span>
+            <div class="page-btns">
+              <button class="btn btn-secondary btn-sm" id="hist-prev" onclick="histPage(-1)">← Prev</button>
+              <button class="btn btn-secondary btn-sm" id="hist-next" onclick="histPage(1)">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+let usageData     = []   // full by_customer list
+let agentsList    = []   // agents for filter dropdowns
+let histSkip      = 0
+let histTotal     = 0
+const HIST_LIMIT  = 50
+let histDebounce  = null
+
+// Quality helpers
+const Q_LABEL  = { low: '🟢 Standard', medium: '🟡 Balanced', high: '🔴 Premium Studio' }
+const Q_CLASS  = { low: 'standard', medium: 'balanced', high: 'premium' }
+const Q_ICON   = { low: '🟢', medium: '🟡', high: '🔴' }
+const Q_CR     = { low: 1, medium: 2, high: 3 }
+
+// ── Tab switcher ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('view-customer').style.display = tab === 'customer' ? '' : 'none'
+  document.getElementById('view-history').style.display  = tab === 'history'  ? '' : 'none'
+  document.getElementById('tab-customer').classList.toggle('active', tab === 'customer')
+  document.getElementById('tab-history').classList.toggle('active',  tab === 'history')
+  if (tab === 'history' && histTotal === 0) loadHistory()
+}
+
+// ── Populate agent filter dropdowns ──────────────────────────────────────
+function populateAgentFilters(agents) {
+  agentsList = agents
+  const opts = agents.map(a => `<option value="${a._id}">${a.agent_name}</option>`).join('')
+  document.getElementById('cust-agent-filter').innerHTML = '<option value="">All Agents</option>' + opts
+  document.getElementById('hist-agent-filter').innerHTML  = '<option value="">All Agents</option>' + opts
+}
+
+// ── Load per-customer usage ───────────────────────────────────────────────
+async function loadUsage() {
+  const agentId = document.getElementById('cust-agent-filter').value
+  document.getElementById('customer-table-wrap').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>'
+  try {
+    const url  = '/credits/usage' + (agentId ? `?agent_id=${agentId}` : '')
+    const data = await apiFetch(url)
+    if (data.error) throw new Error(data.error)
+    usageData = data.by_customer || []
+    renderCustomerTable(usageData)
+    document.getElementById('ov-customers').textContent = usageData.length.toLocaleString('en-IN')
+  } catch(e) {
+    document.getElementById('customer-table-wrap').innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
+  }
+}
+
+// ── Render customer table ─────────────────────────────────────────────────
+function renderCustomerTable(rows) {
+  const wrap = document.getElementById('customer-table-wrap')
+  document.getElementById('cust-count-label').textContent = `${rows.length} customer${rows.length !== 1 ? 's' : ''}`
+  if (!rows.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No usage data yet</div><div class="empty-desc">Credit burns will appear here once customers start generating try-ons.</div></div>`
+    return
+  }
+  wrap.innerHTML = `
+    <div style="overflow-x:auto">
+    <table class="usage-table">
+      <thead>
+        <tr>
+          <th>Customer (Mobile)</th>
+          <th>Agent</th>
+          <th>Total Credits</th>
+          <th>Try-Ons</th>
+          <th>Quality Breakdown</th>
+          <th>Last Active</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows.map(r => {
+          const qb = r.quality_breakdown || {}
+          const agentColor = r.agent?.brand_color || '#7C6FFF'
+          return `<tr>
+            <td><span class="mobile-cell">📱 ${r.mobile || '—'}</span></td>
+            <td>${r.agent ? `<span class="agent-chip-sm"><span style="width:8px;height:8px;border-radius:50%;background:${agentColor};flex-shrink:0"></span>${r.agent.agent_name}</span>` : '<span style="color:var(--text-3)">—</span>'}</td>
+            <td><span class="credit-val">−${(r.total_credits||0).toLocaleString('en-IN')}</span></td>
+            <td style="font-family:var(--mono);font-weight:700">${(r.tryon_count||0).toLocaleString('en-IN')}</td>
+            <td>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                ${qb.low    ? `<span class="q-pill standard">🟢 ${qb.low} · ${qb.low} cr</span>` : ''}
+                ${qb.medium ? `<span class="q-pill balanced">🟡 ${qb.medium} · ${qb.medium*2} cr</span>` : ''}
+                ${qb.high   ? `<span class="q-pill premium">🔴 ${qb.high} · ${qb.high*3} cr</span>` : ''}
+                ${!qb.low && !qb.medium && !qb.high ? '<span style="color:var(--text-3);font-size:12px">—</span>' : ''}
+              </div>
+            </td>
+            <td class="date-cell">${fmtRelative(r.last_at)}</td>
+          </tr>`
+        }).join('')}
+      </tbody>
+    </table>
+    </div>`
+}
+
+// ── Filter customers by mobile search ────────────────────────────────────
+function filterCustomers() {
+  const q = document.getElementById('cust-search').value.trim()
+  const filtered = q ? usageData.filter(r => (r.mobile||'').includes(q)) : usageData
+  renderCustomerTable(filtered)
+}
+
+// ── Load full burn history ────────────────────────────────────────────────
+async function loadHistory() {
+  histSkip = 0
+  await fetchHistory()
+}
+
+function debounceHistory() {
+  clearTimeout(histDebounce)
+  histDebounce = setTimeout(loadHistory, 400)
+}
+
+function histPage(dir) {
+  histSkip = Math.max(0, histSkip + dir * HIST_LIMIT)
+  fetchHistory()
+}
+
+async function fetchHistory() {
+  const agentId  = document.getElementById('hist-agent-filter').value
+  const quality  = document.getElementById('hist-quality-filter').value
+  const mobile   = document.getElementById('hist-mobile-filter').value.trim()
+  const body     = document.getElementById('history-body')
+  body.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>'
+
+  try {
+    const params = new URLSearchParams({ limit: HIST_LIMIT, skip: histSkip })
+    if (agentId) params.set('agent_id', agentId)
+    if (quality) params.set('quality', quality)
+    if (mobile)  params.set('mobile', mobile)
+
+    const data = await apiFetch('/credits/burns-history?' + params.toString())
+    if (data.error) throw new Error(data.error)
+
+    histTotal = data.total || 0
+    const burns = data.burns || []
+
+    document.getElementById('hist-count-label').textContent = `${histTotal.toLocaleString('en-IN')} record${histTotal !== 1 ? 's' : ''}`
+
+    if (!burns.length) {
+      body.innerHTML = `<div class="empty-state"><div class="empty-icon">🕒</div><div class="empty-title">No burn records yet</div><div class="empty-desc">Every credit deduction will be logged here permanently — even if the try-on image is later deleted.</div></div>`
+      document.getElementById('hist-pagination').style.display = 'none'
+      return
+    }
+
+    body.innerHTML = burns.map(b => {
+      const qc     = Q_CLASS[b.quality] || 'balanced'
+      const qlabel = Q_LABEL[b.quality] || b.quality
+      const qicon  = Q_ICON[b.quality]  || '🟡'
+      const combo  = b.is_combo ? `<span class="combo-badge">🎨 Combo ×${b.product_count}</span>` : ''
+      return `<div class="burn-row">
+        <div class="burn-dot ${qc}">${qicon}</div>
+        <div class="burn-main">
+          <div class="burn-title">
+            ${b.mobile ? `📱 ${b.mobile}` : '<span style="color:var(--text-3)">Unknown customer</span>'}
+            ${combo}
+          </div>
+          <div class="burn-meta">
+            <span>${qlabel}</span>
+            <span>·</span>
+            <span style="font-weight:600;color:var(--text)">${b.agent_name}</span>
+            <span>·</span>
+            <span>${fmtDate(b.created_at)}</span>
+            ${b.balance_after != null ? `<span>· Balance after: <strong style="font-family:var(--mono)">${b.balance_after}</strong></span>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="burn-credits">−${b.credits_burned} cr</div>
+          <div class="burn-balance">${b.tryon_id ? `<a href="conversations.html" style="color:var(--text-3);font-size:10.5px;text-decoration:none">view try-on →</a>` : '<span style="font-size:10.5px;color:var(--text-3)">deleted</span>'}</div>
+        </div>
+      </div>`
+    }).join('')
+
+    // Pagination
+    const pag     = document.getElementById('hist-pagination')
+    const hasPrev = histSkip > 0
+    const hasNext = histSkip + HIST_LIMIT < histTotal
+    pag.style.display = (hasPrev || hasNext) ? 'block' : 'none'
+    document.getElementById('hist-page-info').textContent =
+      `Showing ${histSkip + 1}–${Math.min(histSkip + burns.length, histTotal)} of ${histTotal.toLocaleString('en-IN')}`
+    document.getElementById('hist-prev').disabled = !hasPrev
+    document.getElementById('hist-next').disabled = !hasNext
+
+  } catch(e) {
+    body.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+;(async () => {
+  const nav = await renderNav('credits')
+  if (!nav) return
+
+  try {
+    // Parallel: usage summary + credit balance + agents list
+    const [usageRes, balRes, agentsRes] = await Promise.all([
+      apiFetch('/credits/usage').catch(() => null),
+      apiFetch('/credits/balance').catch(() => null),
+      apiFetch('/agents').catch(() => null),
+    ])
+
+    // Agents for filter dropdowns
+    if (agentsRes?.agents?.length) populateAgentFilters(agentsRes.agents)
+
+    // Overview stats from usage
+    if (usageRes && !usageRes.error) {
+      const t = usageRes.totals || {}
+      document.getElementById('ov-total-burned').textContent = (t.total_burned  || 0).toLocaleString('en-IN')
+      document.getElementById('ov-total-tryons').textContent = (t.total_tryons  || 0).toLocaleString('en-IN')
+      document.getElementById('ov-customers').textContent    = (usageRes.by_customer?.length || 0).toLocaleString('en-IN')
+
+      // Quality breakdown
+      document.getElementById('bd-low-credits').textContent = (t.low_total    || 0).toLocaleString('en-IN')
+      document.getElementById('bd-med-credits').textContent = (t.medium_total || 0).toLocaleString('en-IN')
+      document.getElementById('bd-hi-credits').textContent  = (t.high_total   || 0).toLocaleString('en-IN')
+
+      // Derive counts from credits (low=1cr, med=2cr, hi=3cr)
+      const lowCt  = t.low_total    || 0
+      const medCt  = Math.round((t.medium_total || 0) / 2)
+      const hiCt   = Math.round((t.high_total   || 0) / 3)
+      document.getElementById('bd-low-count').textContent = `${lowCt} try-on${lowCt !== 1 ? 's' : ''} · 1 cr each`
+      document.getElementById('bd-med-count').textContent = `${medCt} try-on${medCt !== 1 ? 's' : ''} · 2 cr each`
+      document.getElementById('bd-hi-count').textContent  = `${hiCt}  try-on${hiCt  !== 1 ? 's' : ''} · 3 cr each`
+
+      document.getElementById('breakdown-total-badge').textContent =
+        `${(t.total_burned || 0).toLocaleString('en-IN')} cr total`
+
+      // Customer table
+      usageData = usageRes.by_customer || []
+      renderCustomerTable(usageData)
+    }
+
+    // Credit balance
+    if (balRes && !balRes.error) {
+      const bal = Math.max(0, Number(balRes.credits) || 0)
+      document.getElementById('ov-balance').textContent = bal.toLocaleString('en-IN')
+      document.getElementById('ov-balance').style.color = bal === 0
+        ? 'var(--danger,#e53e3e)' : bal < 10 ? '#d97706' : 'var(--accent)'
+    }
+
+  } catch(e) {
+    console.error('[credits] init error:', e)
+  } finally {
+    document.getElementById('page-skeleton').style.display = 'none'
+    document.getElementById('page-content').style.display  = 'block'
+  }
+})()
+</script>
+</body>
+</html>
