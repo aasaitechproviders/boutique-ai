@@ -486,7 +486,7 @@
 
         <div>
           <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I use my own domain?</div>
-          <div style="font-size:13px;color:var(--text-2)">Yes — Small, Medium, and Enterprise plans support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
+          <div style="font-size:13px;color:var(--text-2)">Yes — all plans including Standard, Pro Store, and Studio Premium support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
         </div>
 
         <div class="divider" style="margin:0"></div>
@@ -556,8 +556,16 @@ const WHATSAPP_NUM = '917890123456'   // Update to your actual WhatsApp number
 // Runtime state — populated from APIs in init(), not hardcoded
 let PLAN_LIMITS         = {}   // loaded from /payment/plans
 let PLAN_LABELS         = {
-  free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
-  starter: '🆓 Free', grower: '🌱 Small',   // backward compat
+  free:     '🆓 Free',
+  standard: '⚡ Standard',
+  pro:      '🚀 Pro Store',
+  studio:   '🎬 Studio Premium',
+  // backward compat — old plan names
+  small:      '🌱 Small',
+  medium:     '🌿 Medium',
+  enterprise: '🏢 Enterprise',
+  starter:    '🆓 Free',
+  grower:     '🌱 Small',
 }
 let CREDIT_PACKAGES_DATA = []  // loaded from /credits/packages
 let qualityCosts         = { low: 1, medium: 2, high: 3 }  // loaded from /credits/packages
@@ -636,7 +644,11 @@ function renderPlans() {
       </div>`
     ).join('')
 
-    const planIcons = { free:'🆓', small:'🌱', medium:'🌿', enterprise:'🏢', starter:'🆓', grower:'🌱' }
+    const planIcons = {
+      free: '🆓', standard: '⚡', pro: '🚀', studio: '🎬',
+      // backward compat
+      small: '🌱', medium: '🌿', enterprise: '🏢', starter: '🆓', grower: '🌱',
+    }
 
     let btnHtml = ''
     if (isCurrent) {
@@ -777,7 +789,7 @@ function renderPaymentHistory(payments) {
     <div class="payment-row">
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span class="payment-plan-badge">${({free:'🆓',small:'🌱',medium:'🌿',enterprise:'🏢',starter:'🆓',grower:'🌱'})[p.plan] || ''} ${p.plan}</span>
+          <span class="payment-plan-badge">${({free:'🆓',standard:'⚡',pro:'🚀',studio:'🎬',small:'🌱',medium:'🌿',enterprise:'🏢',starter:'🆓',grower:'🌱'})[p.plan] || ''} ${p.plan}</span>
           <span style="font-size:11.5px;color:var(--text-3);text-transform:capitalize">${p.billing}</span>
         </div>
         <div class="payment-meta">
