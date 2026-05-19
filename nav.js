@@ -37,8 +37,16 @@ async function renderNav(activeId) {
 
   const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
   const planLabels = {
-    free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
-    starter: '🆓 Free', grower: '🌱 Small',   // backward compat for existing users
+    free:     '🆓 Free',
+    standard: '⚡ Standard',
+    pro:      '🚀 Pro Store',
+    studio:   '🎬 Studio Premium',
+    // backward compat — users who signed up before v3 migration
+    small:      '🌱 Small',
+    medium:     '🌿 Medium',
+    enterprise: '🏢 Enterprise',
+    starter:    '🆓 Free',
+    grower:     '🌱 Small',
   }
   const plan = user?.plan || 'free'
   const avatarHtml = user?.picture
