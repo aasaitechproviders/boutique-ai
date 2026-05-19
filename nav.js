@@ -1,9 +1,10 @@
 /* nav.js — BoutiqueAI Sidebar & Navigation */
 
 const NAV_ITEMS = [
-  { id: 'dashboard',     label: 'Dashboard',     icon: '🏠', href: 'home.html' },
-  { id: 'agents',        label: 'My Agents',      icon: '🤖', href: 'agents.html' },
-  { id: 'conversations', label: 'Conversations',  icon: '💬', href: 'conversations.html' },
+  { id: 'dashboard',     label: 'Dashboard',        icon: '🏠', href: 'home.html' },
+  { id: 'agents',        label: 'My Agents',         icon: '🤖', href: 'agents.html' },
+  { id: 'conversations', label: 'Conversations',     icon: '💬', href: 'conversations.html' },
+  { id: 'credits',       label: 'Credits & Usage',   icon: '⚡', href: 'credits.html' },
 ]
 const NAV_BOTTOM = [
   { id: 'billing', label: 'Billing & Plans',  icon: '⚡', href: 'payments.html' },
