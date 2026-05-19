@@ -134,25 +134,25 @@
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
               <div id="chip-low"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(74,222,128,.1);color:#16a34a;border:1px solid rgba(74,222,128,.25)">
                 <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block"></span>
-                Low &mdash; <span id="chip-low-val">0 try-ons</span>
+                Standard &mdash; <span id="chip-low-val">0 try-ons</span>
               </div>
               <div id="chip-med"   style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(250,204,21,.1);color:#ca8a04;border:1px solid rgba(250,204,21,.25)">
                 <span style="width:7px;height:7px;border-radius:50%;background:#facc15;display:inline-block"></span>
-                Medium &mdash; <span id="chip-med-val">0 try-ons</span>
+                Balanced &mdash; <span id="chip-med-val">0 try-ons</span>
               </div>
               <div id="chip-hi"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(248,113,113,.1);color:#dc2626;border:1px solid rgba(248,113,113,.25)">
                 <span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>
-                High &mdash; <span id="chip-hi-val">0 try-ons</span>
+                Premium Studio &mdash; <span id="chip-hi-val">0 try-ons</span>
               </div>
             </div>
 
             <!-- Per-quality rows with individual bars -->
             <div>
-              <!-- Low -->
+              <!-- Standard Quality -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#4ade80"></span>
                 <div style="min-width:52px">
-                  <div class="quality-label" style="color:#16a34a">Low</div>
+                  <div class="quality-label" style="color:#16a34a">Standard</div>
                   <div class="quality-cost">1 cr / try-on</div>
                 </div>
                 <div class="quality-bar-track">
@@ -163,11 +163,11 @@
                   <div class="quality-stat-cr" id="stat-low-cr">0 cr used</div>
                 </div>
               </div>
-              <!-- Medium -->
+              <!-- Balanced Quality -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#facc15"></span>
                 <div style="min-width:52px">
-                  <div class="quality-label" style="color:#ca8a04">Medium</div>
+                  <div class="quality-label" style="color:#ca8a04">Balanced</div>
                   <div class="quality-cost">2 cr / try-on</div>
                 </div>
                 <div class="quality-bar-track">
@@ -178,11 +178,11 @@
                   <div class="quality-stat-cr" id="stat-med-cr">0 cr used</div>
                 </div>
               </div>
-              <!-- High -->
+              <!-- Premium Studio Quality -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#f87171"></span>
                 <div style="min-width:52px">
-                  <div class="quality-label" style="color:#dc2626">High</div>
+                  <div class="quality-label" style="color:#dc2626">Premium Studio</div>
                   <div class="quality-cost">3 cr / try-on</div>
                 </div>
                 <div class="quality-bar-track">
@@ -393,8 +393,16 @@ function setQuality(qb, totalUsed) {
     ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
 
   const planLabels = {
-    free: '🆓 Free', small: '🌱 Small', medium: '🌿 Medium', enterprise: '🏢 Enterprise',
-    starter: '🆓 Free', grower: '🌱 Small',
+    free:     '🆓 Free',
+    standard: '⚡ Standard',
+    pro:      '🚀 Pro Store',
+    studio:   '🎬 Studio Premium',
+    // backward compat
+    small:      '🌱 Small',
+    medium:     '🌿 Medium',
+    enterprise: '🏢 Enterprise',
+    starter:    '🆓 Free',
+    grower:     '🌱 Small',
   }
   document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
 
