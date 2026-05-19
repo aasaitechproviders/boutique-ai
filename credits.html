@@ -436,9 +436,15 @@
 </div><!-- /main-wrap -->
 
 <script>
+// ── Null-safe helper ──────────────────────────────────────────────────────
+// Prevents "Cannot read properties of null (reading 'style')" and similar
+function el(id) { return document.getElementById(id); }
+function setText(id, val) { const e = el(id); if (e) e.textContent = val; }
+function setStyle(id, prop, val) { const e = el(id); if (e) e.style[prop] = val; }
+
 // ── State ─────────────────────────────────────────────────────────────────
-let usageData     = []   // full by_customer list
-let agentsList    = []   // agents for filter dropdowns
+let usageData     = []
+let agentsList    = []
 let histSkip      = 0
 let histTotal     = 0
 const HIST_LIMIT  = 50
@@ -452,10 +458,12 @@ const Q_CR     = { low: 1, medium: 2, high: 3 }
 
 // ── Tab switcher ──────────────────────────────────────────────────────────
 function switchTab(tab) {
-  document.getElementById('view-customer').style.display = tab === 'customer' ? '' : 'none'
-  document.getElementById('view-history').style.display  = tab === 'history'  ? '' : 'none'
-  document.getElementById('tab-customer').classList.toggle('active', tab === 'customer')
-  document.getElementById('tab-history').classList.toggle('active',  tab === 'history')
+  setStyle('view-customer', 'display', tab === 'customer' ? '' : 'none')
+  setStyle('view-history',  'display', tab === 'history'  ? '' : 'none')
+  const tc = el('tab-customer')
+  const th = el('tab-history')
+  if (tc) tc.classList.toggle('active', tab === 'customer')
+  if (th) th.classList.toggle('active', tab === 'history')
   if (tab === 'history' && histTotal === 0) loadHistory()
 }
 
@@ -463,30 +471,36 @@ function switchTab(tab) {
 function populateAgentFilters(agents) {
   agentsList = agents
   const opts = agents.map(a => `<option value="${a._id}">${a.agent_name}</option>`).join('')
-  document.getElementById('cust-agent-filter').innerHTML = '<option value="">All Agents</option>' + opts
-  document.getElementById('hist-agent-filter').innerHTML  = '<option value="">All Agents</option>' + opts
+  const caf = el('cust-agent-filter')
+  const haf = el('hist-agent-filter')
+  if (caf) caf.innerHTML = '<option value="">All Agents</option>' + opts
+  if (haf) haf.innerHTML = '<option value="">All Agents</option>' + opts
 }
 
 // ── Load per-customer usage ───────────────────────────────────────────────
 async function loadUsage() {
-  const agentId = document.getElementById('cust-agent-filter').value
-  document.getElementById('customer-table-wrap').innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>'
+  const agentEl = el('cust-agent-filter')
+  const agentId = agentEl ? agentEl.value : ''
+  const wrap = el('customer-table-wrap')
+  if (wrap) wrap.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>'
   try {
     const url  = '/credits/usage' + (agentId ? `?agent_id=${agentId}` : '')
     const data = await apiFetch(url)
     if (data.error) throw new Error(data.error)
     usageData = data.by_customer || []
     renderCustomerTable(usageData)
-    document.getElementById('ov-customers').textContent = usageData.length.toLocaleString('en-IN')
+    setText('ov-customers', usageData.length.toLocaleString('en-IN'))
   } catch(e) {
-    document.getElementById('customer-table-wrap').innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
+    if (wrap) wrap.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
   }
 }
 
 // ── Render customer table ─────────────────────────────────────────────────
 function renderCustomerTable(rows) {
-  const wrap = document.getElementById('customer-table-wrap')
-  document.getElementById('cust-count-label').textContent = `${rows.length} customer${rows.length !== 1 ? 's' : ''}`
+  const wrap = el('customer-table-wrap')
+  const countLabel = el('cust-count-label')
+  if (countLabel) countLabel.textContent = `${rows.length} customer${rows.length !== 1 ? 's' : ''}`
+  if (!wrap) return
   if (!rows.length) {
     wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No usage data yet</div><div class="empty-desc">Credit burns will appear here once customers start generating try-ons.</div></div>`
     return
@@ -531,7 +545,8 @@ function renderCustomerTable(rows) {
 
 // ── Filter customers by mobile search ────────────────────────────────────
 function filterCustomers() {
-  const q = document.getElementById('cust-search').value.trim()
+  const searchEl = el('cust-search')
+  const q = searchEl ? searchEl.value.trim() : ''
   const filtered = q ? usageData.filter(r => (r.mobile||'').includes(q)) : usageData
   renderCustomerTable(filtered)
 }
@@ -553,11 +568,14 @@ function histPage(dir) {
 }
 
 async function fetchHistory() {
-  const agentId  = document.getElementById('hist-agent-filter').value
-  const quality  = document.getElementById('hist-quality-filter').value
-  const mobile   = document.getElementById('hist-mobile-filter').value.trim()
-  const body     = document.getElementById('history-body')
-  body.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>'
+  const agentEl   = el('hist-agent-filter')
+  const qualEl    = el('hist-quality-filter')
+  const mobileEl  = el('hist-mobile-filter')
+  const agentId   = agentEl  ? agentEl.value         : ''
+  const quality   = qualEl   ? qualEl.value          : ''
+  const mobile    = mobileEl ? mobileEl.value.trim() : ''
+  const body      = el('history-body')
+  if (body) body.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>'
 
   try {
     const params = new URLSearchParams({ limit: HIST_LIMIT, skip: histSkip })
@@ -571,15 +589,18 @@ async function fetchHistory() {
     histTotal = data.total || 0
     const burns = data.burns || []
 
-    document.getElementById('hist-count-label').textContent = `${histTotal.toLocaleString('en-IN')} record${histTotal !== 1 ? 's' : ''}`
+    const countLabel = el('hist-count-label')
+    if (countLabel) countLabel.textContent = `${histTotal.toLocaleString('en-IN')} record${histTotal !== 1 ? 's' : ''}`
+
+    const pag = el('hist-pagination')
 
     if (!burns.length) {
-      body.innerHTML = `<div class="empty-state"><div class="empty-icon">🕒</div><div class="empty-title">No burn records yet</div><div class="empty-desc">Every credit deduction will be logged here permanently — even if the try-on image is later deleted.</div></div>`
-      document.getElementById('hist-pagination').style.display = 'none'
+      if (body) body.innerHTML = `<div class="empty-state"><div class="empty-icon">🕒</div><div class="empty-title">No burn records yet</div><div class="empty-desc">Every credit deduction will be logged here permanently — even if the try-on image is later deleted.</div></div>`
+      if (pag) pag.style.display = 'none'
       return
     }
 
-    body.innerHTML = burns.map(b => {
+    if (body) body.innerHTML = burns.map(b => {
       const qc     = Q_CLASS[b.quality] || 'balanced'
       const qlabel = Q_LABEL[b.quality] || b.quality
       const qicon  = Q_ICON[b.quality]  || '🟡'
@@ -608,23 +629,42 @@ async function fetchHistory() {
     }).join('')
 
     // Pagination
-    const pag     = document.getElementById('hist-pagination')
     const hasPrev = histSkip > 0
     const hasNext = histSkip + HIST_LIMIT < histTotal
-    pag.style.display = (hasPrev || hasNext) ? 'block' : 'none'
-    document.getElementById('hist-page-info').textContent =
+    if (pag) pag.style.display = (hasPrev || hasNext) ? 'block' : 'none'
+    const pageInfo = el('hist-page-info')
+    if (pageInfo) pageInfo.textContent =
       `Showing ${histSkip + 1}–${Math.min(histSkip + burns.length, histTotal)} of ${histTotal.toLocaleString('en-IN')}`
-    document.getElementById('hist-prev').disabled = !hasPrev
-    document.getElementById('hist-next').disabled = !hasNext
+    const prevBtn = el('hist-prev')
+    const nextBtn = el('hist-next')
+    if (prevBtn) prevBtn.disabled = !hasPrev
+    if (nextBtn) nextBtn.disabled = !hasNext
 
   } catch(e) {
-    body.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
+    if (body) body.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
   }
+}
+
+// ── Show/hide skeleton safely ─────────────────────────────────────────────
+function showPage() {
+  const skel    = el('page-skeleton')
+  const content = el('page-content')
+  if (skel)    skel.style.display    = 'none'
+  if (content) content.style.display = 'block'
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────
 ;(async () => {
-  const nav = await renderNav('credits')
+  let nav
+  try {
+    nav = await renderNav('credits')
+  } catch(e) {
+    console.error('[credits] renderNav error:', e)
+  }
+
+  // Always show page — even if nav fails
+  showPage()
+
   if (!nav) return
 
   try {
@@ -641,44 +681,42 @@ async function fetchHistory() {
     // Overview stats from usage
     if (usageRes && !usageRes.error) {
       const t = usageRes.totals || {}
-      document.getElementById('ov-total-burned').textContent = (t.total_burned  || 0).toLocaleString('en-IN')
-      document.getElementById('ov-total-tryons').textContent = (t.total_tryons  || 0).toLocaleString('en-IN')
-      document.getElementById('ov-customers').textContent    = (usageRes.by_customer?.length || 0).toLocaleString('en-IN')
+      setText('ov-total-burned', (t.total_burned  || 0).toLocaleString('en-IN'))
+      setText('ov-total-tryons', (t.total_tryons  || 0).toLocaleString('en-IN'))
+      setText('ov-customers',    (usageRes.by_customer?.length || 0).toLocaleString('en-IN'))
 
       // Quality breakdown
-      document.getElementById('bd-low-credits').textContent = (t.low_total    || 0).toLocaleString('en-IN')
-      document.getElementById('bd-med-credits').textContent = (t.medium_total || 0).toLocaleString('en-IN')
-      document.getElementById('bd-hi-credits').textContent  = (t.high_total   || 0).toLocaleString('en-IN')
+      setText('bd-low-credits', (t.low_total    || 0).toLocaleString('en-IN'))
+      setText('bd-med-credits', (t.medium_total || 0).toLocaleString('en-IN'))
+      setText('bd-hi-credits',  (t.high_total   || 0).toLocaleString('en-IN'))
 
-      // Derive counts from credits (low=1cr, med=2cr, hi=3cr)
-      const lowCt  = t.low_total    || 0
-      const medCt  = Math.round((t.medium_total || 0) / 2)
-      const hiCt   = Math.round((t.high_total   || 0) / 3)
-      document.getElementById('bd-low-count').textContent = `${lowCt} try-on${lowCt !== 1 ? 's' : ''} · 1 cr each`
-      document.getElementById('bd-med-count').textContent = `${medCt} try-on${medCt !== 1 ? 's' : ''} · 2 cr each`
-      document.getElementById('bd-hi-count').textContent  = `${hiCt}  try-on${hiCt  !== 1 ? 's' : ''} · 3 cr each`
-
-      document.getElementById('breakdown-total-badge').textContent =
-        `${(t.total_burned || 0).toLocaleString('en-IN')} cr total`
+      const lowCt = t.low_total    || 0
+      const medCt = Math.round((t.medium_total || 0) / 2)
+      const hiCt  = Math.round((t.high_total   || 0) / 3)
+      setText('bd-low-count', `${lowCt} try-on${lowCt !== 1 ? 's' : ''} · 1 cr each`)
+      setText('bd-med-count', `${medCt} try-on${medCt !== 1 ? 's' : ''} · 2 cr each`)
+      setText('bd-hi-count',  `${hiCt} try-on${hiCt  !== 1 ? 's' : ''} · 3 cr each`)
+      setText('breakdown-total-badge', `${(t.total_burned || 0).toLocaleString('en-IN')} cr total`)
 
       // Customer table
       usageData = usageRes.by_customer || []
       renderCustomerTable(usageData)
     }
 
-    // Credit balance
+    // Credit balance — fully null-safe
     if (balRes && !balRes.error) {
-      const bal = Math.max(0, Number(balRes.credits) || 0)
-      document.getElementById('ov-balance').textContent = bal.toLocaleString('en-IN')
-      document.getElementById('ov-balance').style.color = bal === 0
-        ? 'var(--danger,#e53e3e)' : bal < 10 ? '#d97706' : 'var(--accent)'
+      const bal    = Math.max(0, Number(balRes.credits) || 0)
+      const balEl  = el('ov-balance')
+      if (balEl) {
+        balEl.textContent  = bal.toLocaleString('en-IN')
+        balEl.style.color  = bal === 0
+          ? 'var(--danger,#e53e3e)'
+          : bal < 10 ? '#d97706' : 'var(--accent)'
+      }
     }
 
   } catch(e) {
     console.error('[credits] init error:', e)
-  } finally {
-    document.getElementById('page-skeleton').style.display = 'none'
-    document.getElementById('page-content').style.display  = 'block'
   }
 })()
 </script>
