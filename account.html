@@ -738,8 +738,9 @@ function renderPaymentHistory(payments) {
     return
   }
   const icons = {
-    free: '🆓', small: '🌱', medium: '🌿', enterprise: '🏢',
-    starter: '🆓', grower: '🌱',   // backward compat
+    free: '🆓', standard: '⚡', pro: '🚀', studio: '🎬',
+    // backward compat
+    small: '🌱', medium: '🌿', enterprise: '🏢', starter: '🆓', grower: '🌱',
   }
   body.innerHTML = payments.map(p => `
     <div class="payment-row">
@@ -771,13 +772,16 @@ async function loadAccount() {
     ])
     const user = data.user || data
     const planMeta = {
-      free:       { icon: '🆓', label: '🆓 Free',       price: 'Free — 50 credits first month' },
-      small:      { icon: '🌱', label: '🌱 Small',      price: '₹1,999 / month' },
-      medium:     { icon: '🌿', label: '🌿 Medium',     price: '₹3,499 / month' },
-      enterprise: { icon: '🏢', label: '🏢 Enterprise', price: '₹10,999 / month' },
+      free:     { icon: '🆓', label: '🆓 Free',           price: 'Free — 50 credits first month' },
+      standard: { icon: '⚡', label: '⚡ Standard',       price: '₹2,499 / month' },
+      pro:      { icon: '🚀', label: '🚀 Pro Store',      price: '₹7,499 / month' },
+      studio:   { icon: '🎬', label: '🎬 Studio Premium', price: '₹24,999 / month' },
       // backward compat — old users still on these plan names
-      starter:    { icon: '🆓', label: '🆓 Free',       price: 'Free — 50 credits first month' },
-      grower:     { icon: '🌱', label: '🌱 Small',      price: '₹1,999 / month' },
+      starter:    { icon: '🆓', label: '🆓 Free',         price: 'Free — 50 credits first month' },
+      grower:     { icon: '🌱', label: '🌱 Small',        price: '₹1,999 / month' },
+      small:      { icon: '🌱', label: '🌱 Small',        price: '₹1,999 / month' },
+      medium:     { icon: '🌿', label: '🌿 Medium',       price: '₹3,499 / month' },
+      enterprise: { icon: '🏢', label: '🏢 Enterprise',   price: '₹10,999 / month' },
     }
     const pm = planMeta[user.plan] || planMeta.free
 
