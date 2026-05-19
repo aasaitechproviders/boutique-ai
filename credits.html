@@ -656,16 +656,22 @@ function showPage() {
 // ── Init ──────────────────────────────────────────────────────────────────
 ;(async () => {
   let nav
-  try {
-    nav = await renderNav('credits')
-  } catch(e) {
-    console.error('[credits] renderNav error:', e)
+  if (typeof renderNav === 'function') {
+    try {
+      nav = await renderNav('credits')
+    } catch(e) {
+      console.error('[credits] renderNav error:', e)
+    }
+  } else {
+    console.warn('[credits] renderNav not available — nav.js may not have loaded')
   }
 
-  // Always show page — even if nav fails
+  // Always show page — even if nav fails or is missing
   showPage()
 
-  if (!nav) return
+  // Only bail if nav.js explicitly loaded but returned a falsy auth signal
+  // (i.e. renderNav was defined but returned null/false — e.g. not logged in)
+  if (typeof renderNav === 'function' && !nav) return
 
   try {
     // Parallel: usage summary + credit balance + agents list
