@@ -8,150 +8,405 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
 <style>
-.dash-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
-.chart-wrap{height:200px;position:relative}
-.quickstart-banner{background:linear-gradient(135deg,var(--accent-soft),var(--accent-dim));border:1px solid rgba(124,111,255,.15);border-radius:var(--r-lg);padding:20px 22px;margin-bottom:22px;display:flex;align-items:center;gap:18px}
-.qsb-icon{width:50px;height:50px;border-radius:14px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 14px var(--accent-glow)}
+/* ── DASHBOARD LAYOUT ──────────────────────────────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  align-items: start;
+}
 
-/* ── Credit ring ── */
-.credit-ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 14px;flex-shrink:0}
-.credit-ring-wrap svg{transform:rotate(-90deg)}
-.credit-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.credit-ring-num{font-size:21px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;line-height:1}
-.credit-ring-label{font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;font-weight:600;margin-top:2px}
+/* ── CHART ─────────────────────────────────────────────────────── */
+.chart-wrap { height: 200px; position: relative; }
 
-/* ── Quality rows ── */
-.quality-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-.quality-row:last-child{border-bottom:none;padding-bottom:0}
-.quality-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.quality-label{font-size:12.5px;font-weight:700;min-width:52px}
-.quality-cost{font-size:10px;color:var(--text-3);font-weight:500;white-space:nowrap}
-.quality-bar-track{flex:1;height:7px;background:var(--surface-3);border-radius:99px;overflow:hidden}
-.quality-bar-fill{height:100%;border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.quality-stat{text-align:right;min-width:72px;flex-shrink:0}
-.quality-stat-count{font-size:12px;font-weight:700;font-family:var(--mono)}
-.quality-stat-cr{font-size:10px;color:var(--text-3);margin-top:1px}
+/* ── QUICKSTART BANNER ─────────────────────────────────────────── */
+.quickstart-banner {
+  background: linear-gradient(135deg, var(--accent-soft), var(--accent-dim));
+  border: 1px solid rgba(124,111,255,.15);
+  border-radius: var(--r-lg);
+  padding: 20px 22px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.qsb-icon {
+  width: 50px; height: 50px;
+  border-radius: 14px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
 
-@media(max-width:1100px){.dash-grid{grid-template-columns:1fr}}
-@media(max-width:648px){
-  .dash-grid{gap:14px}
-  .quickstart-banner{flex-direction:column;text-align:center;gap:12px;padding:16px}
-  .qsb-icon{width:40px;height:40px;font-size:18px}
-  .agent-row{padding:10px 14px;gap:10px}
-  .agent-share-btn{display:none}
-  .agent-url-chip{max-width:130px;font-size:9.5px}
-  .chart-wrap{height:160px}
-  .quality-cost{display:none}
+/* ── CREDIT RING ───────────────────────────────────────────────── */
+.credit-ring-wrap {
+  position: relative;
+  width: 130px; height: 130px;
+  margin: 0 auto 18px;
+  flex-shrink: 0;
+}
+.credit-ring-wrap svg { transform: rotate(-90deg); }
+.credit-ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.credit-ring-num {
+  font-size: 24px; font-weight: 800;
+  font-family: var(--mono);
+  letter-spacing: -.04em; line-height: 1;
+}
+.credit-ring-label {
+  font-size: 9px; color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .08em; font-weight: 600;
+  margin-top: 3px;
+}
+
+/* ── CREDIT STATS GRID ─────────────────────────────────────────── */
+.credit-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.credit-stat-cell {
+  text-align: center;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+}
+.credit-stat-val {
+  font-size: 16px; font-weight: 800;
+  font-family: var(--mono);
+  line-height: 1;
+}
+.credit-stat-lbl {
+  font-size: 10px; color: var(--text-3);
+  margin-top: 3px; font-weight: 500;
+}
+
+/* ── PLAN ROW ──────────────────────────────────────────────────── */
+.plan-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 2px;
+  font-size: 13px;
+}
+.plan-row-label { color: var(--text-3); font-weight: 500; }
+.plan-row-val   { font-weight: 700; color: var(--text); }
+
+/* ── QUICK LINKS LIST ──────────────────────────────────────────── */
+.quick-links-list {
+  padding: 8px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.quick-link-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--t);
+  cursor: pointer;
+}
+.quick-link-item:hover {
+  background: var(--accent-dim);
+  border-color: rgba(var(--accent-rgb),.2);
+  color: var(--accent);
+}
+.quick-link-icon {
+  font-size: 15px;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── QUALITY ROWS ──────────────────────────────────────────────── */
+.quality-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.quality-row:last-child { border-bottom: none; padding-bottom: 0; }
+.quality-dot {
+  width: 9px; height: 9px;
+  border-radius: 50%; flex-shrink: 0;
+}
+.quality-name-block { min-width: 56px; }
+.quality-label {
+  font-size: 12.5px; font-weight: 700;
+}
+.quality-cost {
+  font-size: 10px; color: var(--text-3);
+  font-weight: 500; white-space: nowrap;
+  margin-top: 1px;
+}
+.quality-bar-track {
+  flex: 1; height: 7px;
+  background: var(--surface-3);
+  border-radius: 99px; overflow: hidden;
+}
+.quality-bar-fill {
+  height: 100%; border-radius: 99px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+}
+.quality-stat {
+  text-align: right;
+  min-width: 80px; flex-shrink: 0;
+}
+.quality-stat-count {
+  font-size: 12px; font-weight: 700;
+  font-family: var(--mono);
+}
+.quality-stat-cr {
+  font-size: 10px; color: var(--text-3);
+  margin-top: 1px;
+}
+
+/* ── QUALITY CHIPS ─────────────────────────────────────────────── */
+.quality-chips {
+  display: flex; gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; font-weight: 700;
+}
+.chip-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%; display: inline-block; flex-shrink: 0;
+}
+.chip-low    { background: rgba(74,222,128,.1);  color: #16a34a; border: 1px solid rgba(74,222,128,.25); }
+.chip-medium { background: rgba(250,204,21,.1);  color: #ca8a04; border: 1px solid rgba(250,204,21,.25); }
+.chip-high   { background: rgba(248,113,113,.1); color: #dc2626; border: 1px solid rgba(248,113,113,.25); }
+
+/* ── REFRESH BTN ───────────────────────────────────────────────── */
+.refresh-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-3); font-size: 17px;
+  padding: 0 2px; line-height: 1;
+  transition: var(--t); display: flex;
+  align-items: center; border-radius: 6px;
+}
+.refresh-btn:hover { color: var(--accent); }
+
+/* ── RESPONSIVE ────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 648px) {
+  .dash-grid { gap: 14px; }
+  .quickstart-banner { flex-direction: column; text-align: center; gap: 12px; padding: 16px; }
+  .qsb-icon { width: 40px; height: 40px; font-size: 18px; }
+  .agent-row { padding: 10px 14px; gap: 10px; }
+  .agent-share-btn { display: none; }
+  .agent-url-chip { max-width: 130px; font-size: 9.5px; }
+  .chart-wrap { height: 160px; }
+  .quality-cost { display: none; }
 }
 </style>
+
 <link rel="stylesheet" href="shared.css">
+
+<!-- Instant theme + token bootstrap (runs before paint) -->
 <script>
 ;(function(){
-  var p=new URLSearchParams(location.search),t=p.get('token');
-  if(t){localStorage.setItem('ba_token',t);history.replaceState({},'',location.pathname);}
-  var d=localStorage.getItem('ba_theme')==='dark';
-  document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');
-  document.documentElement.style.background=d?'#07080D':'#F2F3F9';
+  var p = new URLSearchParams(location.search), t = p.get('token');
+  if (t) { localStorage.setItem('ba_token', t); history.replaceState({}, '', location.pathname); }
+  var d = localStorage.getItem('ba_theme') === 'dark';
+  document.documentElement[d ? 'setAttribute' : 'removeAttribute']('data-theme', 'dark');
+  document.documentElement.style.background = d ? '#07080D' : '#F2F3F9';
 })();
 </script>
 <script src="api.js"></script>
 <script src="nav.js"></script>
 </head>
 <body>
+
+<!-- Toast -->
 <div id="toast-container"></div>
+
+<!-- Mobile topbar -->
 <div class="mobile-topbar">
   <div class="mob-left">
-    <button class="hamburger" onclick="openMobileSidebar()"><svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
+    <button class="hamburger" onclick="openMobileSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
     <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
   </div>
-  <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
+  <div class="mob-right">
+    <button class="theme-toggle" style="font-size:15px;"></button>
+  </div>
 </div>
+
+<!-- Sidebar backdrop -->
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
+
+<!-- Sidebar (populated by nav.js) -->
 <div class="sidebar" id="sidebar"></div>
 
+<!-- Page skeleton (fades out after nav loads) -->
 <div id="page-skeleton">
-  <div class="skel-topbar"><div class="skel" style="height:13px;width:200px;border-radius:4px"></div><div class="skel" style="height:34px;width:120px;border-radius:var(--r-sm)"></div></div>
+  <div class="skel-topbar">
+    <div class="skel" style="height:13px;width:220px;border-radius:4px"></div>
+    <div class="skel" style="height:34px;width:120px;border-radius:var(--r-sm)"></div>
+  </div>
   <div class="skel-body">
     <div class="stats-row" style="margin-bottom:20px">
-      <div class="skel" style="height:78px;border-radius:var(--r-lg)"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.8"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.6"></div><div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.4"></div>
+      <div class="skel" style="height:78px;border-radius:var(--r-lg)"></div>
+      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.8"></div>
+      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.6"></div>
+      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.4"></div>
     </div>
     <div class="dash-grid">
-      <div class="skel" style="height:320px;border-radius:var(--r-lg)"></div>
-      <div style="display:flex;flex-direction:column;gap:14px"><div class="skel" style="height:200px;border-radius:var(--r-lg)"></div><div class="skel" style="height:160px;border-radius:var(--r-lg)"></div></div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="skel" style="height:280px;border-radius:var(--r-lg)"></div>
+        <div class="skel" style="height:240px;border-radius:var(--r-lg);opacity:.8"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="skel" style="height:340px;border-radius:var(--r-lg)"></div>
+        <div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.7"></div>
+      </div>
     </div>
   </div>
 </div>
 
+<!-- Main -->
 <div class="main-wrap">
+
+  <!-- Topbar -->
   <div class="topbar">
-    <div class="topbar-left"><span class="topbar-title" id="greeting">Dashboard</span></div>
+    <div class="topbar-left">
+      <span class="topbar-title" id="greeting">Dashboard</span>
+    </div>
     <div class="topbar-right">
       <button class="theme-toggle" style="font-size:15px;"></button>
       <a href="agents.html?create=1" class="btn btn-primary">+ New Agent</a>
     </div>
   </div>
+
+  <!-- Page content (hidden until data loads) -->
   <div class="content" id="page-content" style="display:none">
 
+    <!-- Quickstart banner (shown only when 0 agents) -->
     <div class="quickstart-banner" id="quickstart-banner" style="display:none">
       <div class="qsb-icon">👗</div>
       <div style="flex:1">
         <div style="font-size:15px;font-weight:800;margin-bottom:4px">Welcome to BoutiqueAI!</div>
-        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">You have <strong>200 free credits</strong> to get started — create your first agent and start trying on products!</div>
+        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">
+          You have <strong>200 free credits</strong> to get started — create your first agent and start trying on products!
+        </div>
         <a href="agents.html?create=1" class="btn btn-primary btn-sm">Create Your First Agent →</a>
       </div>
-      <button onclick="this.closest('.quickstart-banner').style.display='none'" style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">✕</button>
+      <button onclick="this.closest('.quickstart-banner').style.display='none'"
+        style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">✕</button>
     </div>
 
+    <!-- ── STAT CARDS ── -->
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-icon-wrap">🤖</div><div class="stat-info"><div class="stat-label">Total Agents</div><div class="stat-value loading" id="s-agents">—</div></div></div>
-      <div class="stat-card"><div class="stat-icon-wrap">👗</div><div class="stat-info"><div class="stat-label">Try-Ons Generated</div><div class="stat-value loading" id="s-tryons">—</div></div></div>
-      <div class="stat-card"><div class="stat-icon-wrap">💬</div><div class="stat-info"><div class="stat-label">Conversations</div><div class="stat-value loading" id="s-chats">—</div></div></div>
-      <div class="stat-card"><div class="stat-icon-wrap">📅</div><div class="stat-info"><div class="stat-label">Today</div><div class="stat-value loading" id="s-today">—</div></div></div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">🤖</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Agents</div>
+          <div class="stat-value loading" id="s-agents">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">👗</div>
+        <div class="stat-info">
+          <div class="stat-label">Try-Ons Generated</div>
+          <div class="stat-value loading" id="s-tryons">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">💬</div>
+        <div class="stat-info">
+          <div class="stat-label">Conversations</div>
+          <div class="stat-value loading" id="s-chats">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon-wrap">📅</div>
+        <div class="stat-info">
+          <div class="stat-label">Today</div>
+          <div class="stat-value loading" id="s-today">—</div>
+        </div>
+      </div>
     </div>
 
+    <!-- ── MAIN GRID ── -->
     <div class="dash-grid">
+
+      <!-- LEFT COLUMN -->
       <div style="display:flex;flex-direction:column;gap:20px">
 
         <!-- 14-day chart -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-icon">📈</span>Try-Ons (last 14 days)</div>
+            <div class="card-title">
+              <span class="card-icon">📈</span>Try-Ons (last 14 days)
+            </div>
             <span class="badge badge-accent" id="chart-total">0 total</span>
           </div>
-          <div style="padding:20px"><div class="chart-wrap"><canvas id="daily-chart"></canvas></div></div>
+          <div style="padding:20px 20px 16px">
+            <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
+          </div>
         </div>
 
-        <!-- Quality breakdown — redesigned -->
+        <!-- Quality breakdown -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-icon">⚡</span>Try-Ons by Quality</div>
+            <div class="card-title">
+              <span class="card-icon">⚡</span>Try-Ons by Quality
+            </div>
             <span class="badge badge-accent" id="credits-used-badge">0 credits used</span>
           </div>
-          <div class="card-body" style="padding-top:4px">
+          <div class="card-body" style="padding-top:14px">
 
             <!-- Summary chips -->
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
-              <div id="chip-low"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(74,222,128,.1);color:#16a34a;border:1px solid rgba(74,222,128,.25)">
-                <span style="width:7px;height:7px;border-radius:50%;background:#4ade80;display:inline-block"></span>
+            <div class="quality-chips">
+              <div class="chip chip-low">
+                <span class="chip-dot" style="background:#4ade80"></span>
                 Standard &mdash; <span id="chip-low-val">0 try-ons</span>
               </div>
-              <div id="chip-med"   style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(250,204,21,.1);color:#ca8a04;border:1px solid rgba(250,204,21,.25)">
-                <span style="width:7px;height:7px;border-radius:50%;background:#facc15;display:inline-block"></span>
+              <div class="chip chip-medium">
+                <span class="chip-dot" style="background:#facc15"></span>
                 Balanced &mdash; <span id="chip-med-val">0 try-ons</span>
               </div>
-              <div id="chip-hi"    style="display:flex;align-items:center;gap:5px;padding:4px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(248,113,113,.1);color:#dc2626;border:1px solid rgba(248,113,113,.25)">
-                <span style="width:7px;height:7px;border-radius:50%;background:#f87171;display:inline-block"></span>
+              <div class="chip chip-high">
+                <span class="chip-dot" style="background:#f87171"></span>
                 Premium Studio &mdash; <span id="chip-hi-val">0 try-ons</span>
               </div>
             </div>
 
-            <!-- Per-quality rows with individual bars -->
+            <!-- Per-quality rows -->
             <div>
-              <!-- Standard Quality -->
+              <!-- Standard -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#4ade80"></span>
-                <div style="min-width:52px">
+                <div class="quality-name-block">
                   <div class="quality-label" style="color:#16a34a">Standard</div>
                   <div class="quality-cost">1 cr / try-on</div>
                 </div>
@@ -159,14 +414,14 @@
                   <div class="quality-bar-fill" id="bar-low" style="background:#4ade80;width:0%"></div>
                 </div>
                 <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-low-count">0</div>
-                  <div class="quality-stat-cr" id="stat-low-cr">0 cr used</div>
+                  <div class="quality-stat-count" id="stat-low-count">0 try-ons</div>
+                  <div class="quality-stat-cr"    id="stat-low-cr">0 cr used</div>
                 </div>
               </div>
-              <!-- Balanced Quality -->
+              <!-- Balanced -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#facc15"></span>
-                <div style="min-width:52px">
+                <div class="quality-name-block">
                   <div class="quality-label" style="color:#ca8a04">Balanced</div>
                   <div class="quality-cost">2 cr / try-on</div>
                 </div>
@@ -174,14 +429,14 @@
                   <div class="quality-bar-fill" id="bar-medium" style="background:#facc15;width:0%"></div>
                 </div>
                 <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-med-count">0</div>
-                  <div class="quality-stat-cr" id="stat-med-cr">0 cr used</div>
+                  <div class="quality-stat-count" id="stat-med-count">0 try-ons</div>
+                  <div class="quality-stat-cr"    id="stat-med-cr">0 cr used</div>
                 </div>
               </div>
-              <!-- Premium Studio Quality -->
+              <!-- Premium Studio -->
               <div class="quality-row">
                 <span class="quality-dot" style="background:#f87171"></span>
-                <div style="min-width:52px">
+                <div class="quality-name-block">
                   <div class="quality-label" style="color:#dc2626">Premium Studio</div>
                   <div class="quality-cost">3 cr / try-on</div>
                 </div>
@@ -189,12 +444,11 @@
                   <div class="quality-bar-fill" id="bar-high" style="background:#f87171;width:0%"></div>
                 </div>
                 <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-hi-count">0</div>
-                  <div class="quality-stat-cr" id="stat-hi-cr">0 cr used</div>
+                  <div class="quality-stat-count" id="stat-hi-count">0 try-ons</div>
+                  <div class="quality-stat-cr"    id="stat-hi-cr">0 cr used</div>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -211,29 +465,32 @@
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Right sidebar -->
+      </div><!-- /LEFT COLUMN -->
+
+      <!-- RIGHT COLUMN (sticky) -->
       <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:68px">
 
-        <!-- Credits ring card — FIXED: ring shows used/total, % shows balance/(balance+used) -->
+        <!-- Credit Balance card -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <button id="refresh-credits-btn" onclick="refreshCredits()" title="Refresh balance"
-                style="background:none;border:none;cursor:pointer;color:var(--text-3);font-size:17px;padding:0 2px;line-height:1;transition:var(--t)"
-                onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-3)'">↻</button>
-              <a href="payments.html#credits-section" class="btn-ghost">Top Up →</a>
+            <div class="card-title">
+              <span class="card-icon">⚡</span>Credit Balance
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <button class="refresh-btn" id="refresh-credits-btn" onclick="refreshCredits()" title="Refresh balance">↻</button>
+              <a href="payments.html#credits-section" class="btn-ghost" style="font-size:13px;padding:5px 8px">Top Up →</a>
             </div>
           </div>
-          <div class="card-body">
+          <div class="card-body" style="padding-top:18px;padding-bottom:18px">
+
+            <!-- Ring -->
             <div class="credit-ring-wrap">
-              <svg width="110" height="110" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="55" cy="55" r="46" fill="none" stroke="var(--surface-3)" stroke-width="10"/>
-                <circle id="ring-arc" cx="55" cy="55" r="46" fill="none"
-                  stroke="#4ade80" stroke-width="10" stroke-linecap="round"
-                  stroke-dasharray="0 289"
+              <svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="65" cy="65" r="54" fill="none" stroke="var(--surface-3)" stroke-width="11"/>
+                <circle id="ring-arc" cx="65" cy="65" r="54" fill="none"
+                  stroke="#4ade80" stroke-width="11" stroke-linecap="round"
+                  stroke-dasharray="0 339"
                   style="transition:stroke-dasharray .7s ease,stroke .3s"/>
               </svg>
               <div class="credit-ring-center">
@@ -241,214 +498,234 @@
                 <div class="credit-ring-label">credits</div>
               </div>
             </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:8px 4px">
-                <div style="font-size:15px;font-weight:800;font-family:var(--mono)" id="stat-used">0</div>
-                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Used</div>
+
+            <!-- Used / Remaining -->
+            <div class="credit-stats-grid">
+              <div class="credit-stat-cell">
+                <div class="credit-stat-val" id="stat-used">0</div>
+                <div class="credit-stat-lbl">Used</div>
               </div>
-              <div style="text-align:center;background:var(--surface-3);border-radius:8px;padding:8px 4px">
-                <div style="font-size:15px;font-weight:800;font-family:var(--mono)" id="stat-pct">—%</div>
-                <div style="font-size:10px;color:var(--text-3);margin-top:2px">Remaining</div>
+              <div class="credit-stat-cell">
+                <div class="credit-stat-val" id="stat-pct">—%</div>
+                <div class="credit-stat-lbl">Remaining</div>
               </div>
             </div>
-            <div class="info-row" style="border:none;padding-bottom:0">
-              <span class="info-row-label">Plan</span>
-              <span class="info-row-val" id="tu-plan">—</span>
+
+            <!-- Plan -->
+            <div class="plan-row">
+              <span class="plan-row-label">Plan</span>
+              <span class="plan-row-val" id="tu-plan">—</span>
             </div>
-            <a href="payments.html#credits-section" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:14px">Top Up Credits</a>
+
+            <!-- CTA -->
+            <a href="payments.html#credits-section"
+               class="btn btn-primary"
+               style="width:100%;justify-content:center;margin-top:14px;border-radius:var(--r-sm)">
+              Top Up Credits
+            </a>
           </div>
         </div>
 
-        <!-- Quick links -->
+        <!-- Quick Links -->
         <div class="card">
-          <div class="card-header"><div class="card-title"><span class="card-icon">🔗</span>Quick Links</div></div>
-          <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px">
-            <a href="agents.html"        class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>🤖</span>My Agents</a>
-            <a href="conversations.html" class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💬</span>Conversations</a>
-            <a href="payments.html"      class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>💳</span>Billing & Plans</a>
-            <a href="account.html"       class="btn btn-secondary btn-sm" style="justify-content:flex-start;gap:8px"><span>⚙️</span>Account Settings</a>
+          <div class="card-header">
+            <div class="card-title">
+              <span class="card-icon">🔗</span>Quick Links
+            </div>
+          </div>
+          <div class="quick-links-list">
+            <a href="agents.html" class="quick-link-item">
+              <span class="quick-link-icon">🤖</span>My Agents
+            </a>
+            <a href="conversations.html" class="quick-link-item">
+              <span class="quick-link-icon">💬</span>Conversations
+            </a>
+            <a href="payments.html" class="quick-link-item">
+              <span class="quick-link-icon">💳</span>Billing &amp; Plans
+            </a>
+            <a href="account.html" class="quick-link-item">
+              <span class="quick-link-icon">⚙️</span>Account Settings
+            </a>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
+
+      </div><!-- /RIGHT COLUMN -->
+
+    </div><!-- /dash-grid -->
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
 
 <script>
-// ─── Credit ring ──────────────────────────────────────────────────────────
-// FIX: remaining% = balance / (balance + used)
-// This is always 0–100% regardless of how many credits were ever purchased.
-// The ring arc shows how much of your current pool has been consumed.
-// ── setRing(balance, used, totalAllotted) ────────────────────────────────
-//
-// balance       = user.credits right now  (source of truth)
-// used          = credits burned ever     (from credit_burns, deletion-safe)
-// totalAllotted = all credits ever given  (signup + all top-ups, never decreases)
-//
-// remaining% = balance / totalAllotted × 100   ← always 0–100%, deletion-safe
-//
-// Number() coercion on every input prevents the string-concatenation bug
-// where MongoDB returns credits as a string and "500" + 147 = "500147".
-//
+/* ═══════════════════════════════════════════════════════════
+   CREDIT RING
+   balance       = current credit balance (source of truth)
+   used          = total credits ever burned
+   totalAllotted = total credits ever granted (never decreases)
+   remainingPct  = balance / totalAllotted × 100 (always 0–100)
+═══════════════════════════════════════════════════════════ */
 function setRing(balance, used, totalAllotted) {
-  // Force to numbers — prevents string + number concatenation from MongoDB
   balance       = Math.max(0, Number(balance)       || 0)
   used          = Math.max(0, Number(used)          || 0)
   totalAllotted = Math.max(0, Number(totalAllotted) || 0)
 
-  // If totalAllotted wasn't sent yet (legacy), fall back to balance + used
   if (!totalAllotted) totalAllotted = balance + used
-  // Safety: allotted must be >= balance (can happen if credits were gifted directly in DB)
   if (totalAllotted < balance) totalAllotted = balance
 
-  const circ = 2 * Math.PI * 46                          // ≈ 289 px
+  const circ    = 2 * Math.PI * 54          // r=54 → ≈339.3 px
+  const remFrac = totalAllotted > 0 ? Math.min(1, balance / totalAllotted) : 1
+  const arc     = remFrac * circ
 
-  // Arc shows REMAINING portion — green arc from top going clockwise
-  const remFrac      = totalAllotted > 0 ? Math.min(1, balance / totalAllotted) : 1
-  const remainingArc = remFrac * circ
+  const el = document.getElementById('ring-arc')
+  el.setAttribute('stroke-dasharray', `${arc.toFixed(1)} ${(circ - arc).toFixed(1)}`)
+  el.setAttribute('stroke', balance > 100 ? '#4ade80' : balance > 30 ? '#facc15' : '#f87171')
 
-  const arc = document.getElementById('ring-arc')
-  arc.setAttribute('stroke-dasharray', `${remainingArc.toFixed(1)} ${(circ - remainingArc).toFixed(1)}`)
-
-  // Color: based on absolute balance (intuitive: green = plenty, red = top up soon)
-  const color = balance > 100 ? '#4ade80' : balance > 30 ? '#facc15' : '#f87171'
-  arc.setAttribute('stroke', color)
-
-  // Display values
   document.getElementById('ring-balance').textContent = balance.toLocaleString('en-IN')
   document.getElementById('stat-used').textContent    = used.toLocaleString('en-IN')
 
-  // Remaining % = balance / totalAllotted — always 0–100
   const remPct = totalAllotted > 0 ? Math.min(100, Math.round(remFrac * 100)) : 100
   document.getElementById('stat-pct').textContent = remPct + '%'
 }
 
-// ─── Refresh credit ring (callable standalone, no page reload) ───────────────
-// Called by the ↻ button and automatically every 60 s so the owner sees
-// their balance go down in near-real-time as customers generate try-ons.
-let _creditRefreshTimer = null;
-
-async function refreshCredits(showSpinner = true) {
-  const btn = document.getElementById("refresh-credits-btn");
-  if (btn && showSpinner) {
-    btn.style.transform = "rotate(360deg)";
-    btn.style.transition = "transform 0.5s ease";
-    setTimeout(() => { btn.style.transform = ""; btn.style.transition = ""; }, 500);
+/* ── Auto-refresh credit ring every 60 s ── */
+let _creditTimer = null
+async function refreshCredits(spinner = true) {
+  const btn = document.getElementById('refresh-credits-btn')
+  if (btn && spinner) {
+    btn.style.transform = 'rotate(360deg)'
+    btn.style.transition = 'transform .5s ease'
+    setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 520)
   }
   try {
-    const d = await apiFetch("/dashboard");
-    const cs = d.credits_stats || {};
-    setRing(cs.balance, cs.total_used, cs.total_allotted);
-    if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0);
-    document.getElementById("s-tryons").textContent = fmtNum(d.tryons_count || 0);
-    document.getElementById("s-today").textContent  = fmtNum(d.today_count  || 0);
-  } catch (e) {
-    console.warn("[credits refresh]", e.message);
-  }
+    const d  = await apiFetch('/dashboard')
+    const cs = d.credits_stats || {}
+    setRing(cs.balance, cs.total_used, cs.total_allotted)
+    if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0)
+    document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count || 0)
+    document.getElementById('s-today').textContent  = fmtNum(d.today_count  || 0)
+  } catch (e) { console.warn('[credits refresh]', e.message) }
 }
-
 function startCreditAutoRefresh() {
-  if (_creditRefreshTimer) clearInterval(_creditRefreshTimer);
-  // Refresh every 60 seconds silently (no spinner)
-  _creditRefreshTimer = setInterval(() => refreshCredits(false), 60_000);
+  if (_creditTimer) clearInterval(_creditTimer)
+  _creditTimer = setInterval(() => refreshCredits(false), 60_000)
 }
 
-// ─── Quality breakdown rows ───────────────────────────────────────────────
-// Each tier has an individual bar scaled to the tier that used the most credits.
-// This makes it obvious which tier consumed the most at a glance.
+/* ── Quality breakdown ── */
 function setQuality(qb, totalUsed) {
   const low = qb.low    || { count: 0, credits: 0 }
   const med = qb.medium || { count: 0, credits: 0 }
   const hi  = qb.high   || { count: 0, credits: 0 }
 
-  // Summary chips
-  document.getElementById('chip-low-val').textContent = low.count.toLocaleString('en-IN') + ' try-on' + (low.count !== 1 ? 's' : '')
-  document.getElementById('chip-med-val').textContent = med.count.toLocaleString('en-IN') + ' try-on' + (med.count !== 1 ? 's' : '')
-  document.getElementById('chip-hi-val').textContent  = hi.count.toLocaleString('en-IN')  + ' try-on' + (hi.count  !== 1 ? 's' : '')
+  const pl = n => n.toLocaleString('en-IN') + ' try-on' + (n !== 1 ? 's' : '')
 
-  // Per-row stats
-  document.getElementById('stat-low-count').textContent = low.count.toLocaleString('en-IN') + ' try-on' + (low.count !== 1 ? 's' : '')
+  // Chips
+  document.getElementById('chip-low-val').textContent = pl(low.count)
+  document.getElementById('chip-med-val').textContent = pl(med.count)
+  document.getElementById('chip-hi-val').textContent  = pl(hi.count)
+
+  // Per-row
+  document.getElementById('stat-low-count').textContent = pl(low.count)
   document.getElementById('stat-low-cr').textContent    = low.credits.toLocaleString('en-IN') + ' cr used'
-  document.getElementById('stat-med-count').textContent = med.count.toLocaleString('en-IN') + ' try-on' + (med.count !== 1 ? 's' : '')
+  document.getElementById('stat-med-count').textContent = pl(med.count)
   document.getElementById('stat-med-cr').textContent    = med.credits.toLocaleString('en-IN') + ' cr used'
-  document.getElementById('stat-hi-count').textContent  = hi.count.toLocaleString('en-IN')  + ' try-on' + (hi.count  !== 1 ? 's' : '')
-  document.getElementById('stat-hi-cr').textContent     = hi.credits.toLocaleString('en-IN')  + ' cr used'
+  document.getElementById('stat-hi-count').textContent  = pl(hi.count)
+  document.getElementById('stat-hi-cr').textContent     = hi.credits.toLocaleString('en-IN') + ' cr used'
 
-  // Bars: each scaled to the max credits across all tiers (not a stacked split)
+  // Bars scaled to highest-credits tier
   const maxCr = Math.max(low.credits, med.credits, hi.credits, 1)
   document.getElementById('bar-low').style.width    = (low.credits / maxCr * 100).toFixed(1) + '%'
   document.getElementById('bar-medium').style.width = (med.credits / maxCr * 100).toFixed(1) + '%'
   document.getElementById('bar-high').style.width   = (hi.credits  / maxCr * 100).toFixed(1) + '%'
 
-  document.getElementById('credits-used-badge').textContent = (totalUsed || 0).toLocaleString('en-IN') + ' credits used'
+  document.getElementById('credits-used-badge').textContent =
+    (totalUsed || 0).toLocaleString('en-IN') + ' credits used'
 }
 
+/* ═══════════════════════════════════════════════════════════
+   PAGE INIT
+═══════════════════════════════════════════════════════════ */
 ;(async () => {
   const nav = await renderNav('dashboard')
   if (!nav) return
   const { user } = nav
+
+  // Greeting
   const hr = new Date().getHours()
   document.getElementById('greeting').textContent =
     (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') +
     ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
 
+  // Plan label map (matches nav.js)
   const planLabels = {
-    free:     '🆓 Free',
-    standard: '⚡ Standard',
-    pro:      '🚀 Pro Store',
-    studio:   '🎬 Studio Premium',
-    // backward compat
-    small:      '🌱 Small',
-    medium:     '🌿 Medium',
-    enterprise: '🏢 Enterprise',
-    starter:    '🆓 Free',
-    grower:     '🌱 Small',
+    free: '🆓 Free', standard: '⚡ Standard',
+    pro: '🚀 Pro Store', studio: '🎬 Studio Premium',
+    small: '🌱 Small', medium: '🌿 Medium',
+    enterprise: '🏢 Enterprise', starter: '🆓 Free', grower: '🌱 Small',
   }
-  document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
 
   try {
     const d = await apiFetch('/dashboard')
+
+    // Stat cards
     document.getElementById('s-agents').textContent = fmtNum(d.agents_count || 0)
     document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count || 0)
     document.getElementById('s-chats').textContent  = fmtNum(d.chats_count  || 0)
     document.getElementById('s-today').textContent  = fmtNum(d.today_count  || 0)
     document.querySelectorAll('.stat-value.loading').forEach(e => e.classList.remove('loading'))
 
-    // Credits ring — balance / total_allotted = always 0-100%, deletion-safe
+    // Credit ring
     const cs = d.credits_stats || {}
     setRing(cs.balance, cs.total_used, cs.total_allotted)
+    document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
 
     // Quality breakdown
     if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0)
 
-    // Auto-refresh credit ring every 60 s — balance updates without page reload
+    // Auto-refresh
     startCreditAutoRefresh()
 
+    // Quickstart banner
     if (!d.agents_count) document.getElementById('quickstart-banner').style.display = 'flex'
 
-    // 14-day bar chart
-    const last14  = Array.from({ length: 14 }, (_, i) => {
+    // ── 14-day bar chart ──
+    const last14 = Array.from({ length: 14 }, (_, i) => {
       const dt = new Date(); dt.setDate(dt.getDate() - (13 - i))
       return dt.toISOString().slice(0, 10)
     })
     const statMap = {}
-    ;(d.daily_stats || []).forEach(s => statMap[s._id] = s.count || 0)
-    const labels = last14.map(day => { const [, m, dd] = day.split('-'); return dd + '/' + m })
+    ;(d.daily_stats || []).forEach(s => { statMap[s._id] = s.count || 0 })
+    const labels = last14.map(day => {
+      const [, m, dd] = day.split('-')
+      return dd + '/' + m
+    })
     const values = last14.map(day => statMap[day] || 0)
-    document.getElementById('chart-total').textContent = values.reduce((a, b) => a + b, 0).toLocaleString() + ' total'
+    document.getElementById('chart-total').textContent =
+      values.reduce((a, b) => a + b, 0).toLocaleString() + ' total'
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
     new Chart(document.getElementById('daily-chart').getContext('2d'), {
-      type: 'bar',
+      type: 'line',
       data: {
         labels,
         datasets: [{
           data: values,
-          backgroundColor:     'rgba(124,111,255,.2)',
-          borderColor:         'rgba(124,111,255,.7)',
-          borderWidth:         1.5,
-          borderRadius:        5,
-          hoverBackgroundColor:'rgba(124,111,255,.35)',
+          fill: true,
+          tension: 0.4,
+          backgroundColor: (ctx) => {
+            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height)
+            gradient.addColorStop(0,   'rgba(124,111,255,.22)')
+            gradient.addColorStop(1,   'rgba(124,111,255,.01)')
+            return gradient
+          },
+          borderColor:          'rgba(124,111,255,.85)',
+          borderWidth:          2,
+          pointBackgroundColor: '#7C6FFF',
+          pointBorderColor:     '#fff',
+          pointBorderWidth:     2,
+          pointRadius:          4,
+          pointHoverRadius:     6,
+          pointHoverBackgroundColor: '#7C6FFF',
+          pointHoverBorderColor:     '#fff',
+          pointHoverBorderWidth:     2,
         }],
       },
       options: {
@@ -462,44 +739,91 @@ function setQuality(qb, totalUsed) {
             bodyColor:       isDark ? '#ECEDF4' : '#0F1117',
             borderColor:     isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)',
             borderWidth: 1, padding: 10,
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.y} try-on${ctx.parsed.y !== 1 ? 's' : ''}`
+            }
           },
         },
         scales: {
-          x: { grid: { display: false }, ticks: { color: isDark ? '#474B65' : '#9EA3BB', font: { size: 10, family: 'Plus Jakarta Sans' } } },
-          y: { grid: { color: isDark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.04)' }, ticks: { color: isDark ? '#474B65' : '#9EA3BB', font: { size: 10, family: 'Plus Jakarta Sans' }, precision: 0 }, beginAtZero: true },
+          x: {
+            grid: { display: false },
+            ticks: {
+              color: isDark ? '#474B65' : '#9EA3BB',
+              font: { size: 10, family: 'Plus Jakarta Sans' }
+            }
+          },
+          y: {
+            grid: { color: isDark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.04)' },
+            ticks: {
+              color: isDark ? '#474B65' : '#9EA3BB',
+              font: { size: 10, family: 'Plus Jakarta Sans' },
+              precision: 0
+            },
+            beginAtZero: true
+          },
         },
       },
     })
 
-    // Recent agents
+    // ── Recent agents ──
     const wrap = document.getElementById('recent-agents-wrap')
-    const BASE  = 'boutiquesaas.aasaitech.in'
+    const BASE = 'boutiquesaas.aasaitech.in'
     if (!d.recent_agents?.length) {
-      wrap.innerHTML = '<div class="empty-state" style="padding:36px 20px"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to get started.</div><a href="agents.html?create=1" class="btn btn-primary">Create Agent</a></div>'
+      wrap.innerHTML = `
+        <div class="empty-state" style="padding:36px 20px">
+          <div class="empty-icon">🤖</div>
+          <div class="empty-title">No agents yet</div>
+          <div class="empty-desc">Create your first AI try-on agent to get started.</div>
+          <a href="agents.html?create=1" class="btn btn-primary" style="margin-top:8px">Create Agent</a>
+        </div>`
     } else {
       wrap.innerHTML = d.recent_agents.map(a => {
-        const url  = a.published && a.slug ? (a.custom_domain ? 'https://' + a.custom_domain : 'https://' + a.slug + '.' + BASE) : null
-        const disp = a.published && a.slug ? (a.custom_domain ? a.custom_domain : a.slug + '.' + BASE) : 'Not published yet'
-        return `<div class="agent-row" onclick="location.href='agents.html'">
-          <div class="agent-logo" style="background:${a.brand_color || '#7C6FFF'}">${(a.agent_name || a.name || 'A')[0].toUpperCase()}</div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.agent_name || a.name}</div>
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
-              <span class="badge badge-accent" style="font-size:9.5px;padding:1px 7px">${a.category || 'Boutique'}</span>
-              ${url ? `<a class="agent-url-chip" href="${url}" target="_blank" onclick="event.stopPropagation()">🔗 ${disp}</a>` : `<span class="agent-url-chip draft">⏸ ${disp}</span>`}
-              <span style="font-size:10px;color:var(--text-3)">${fmtNum(a.tryon_count || 0)} try-ons</span>
+        const url  = a.published && a.slug
+          ? (a.custom_domain ? 'https://' + a.custom_domain : 'https://' + a.slug + '.' + BASE)
+          : null
+        const disp = a.published && a.slug
+          ? (a.custom_domain ? a.custom_domain : a.slug + '.' + BASE)
+          : 'Not published yet'
+        const name = a.agent_name || a.name || 'Agent'
+        return `
+          <div class="agent-row" onclick="location.href='agents.html'">
+            <div class="agent-logo" style="background:${a.brand_color || '#7C6FFF'}">
+              ${name[0].toUpperCase()}
             </div>
-          </div>
-          <span class="badge ${a.published ? 'badge-green' : 'badge-gray'}">${a.published ? 'Live' : 'Draft'}</span>
-          ${url ? `<button class="agent-share-btn" onclick="event.stopPropagation();shareUrl('${url}','${(a.agent_name || a.name || '').replace(/'/g, "\\'")}')">🔗 Share</button>` : ''}
-          <svg width="12" height="12" fill="none" stroke="var(--text-3)" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-        </div>`
+            <div style="flex:1;min-width:0">
+              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                ${name}
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
+                <span class="badge badge-accent" style="font-size:9.5px;padding:1px 7px">
+                  ${a.category || 'Boutique'}
+                </span>
+                ${url
+                  ? `<a class="agent-url-chip" href="${url}" target="_blank" onclick="event.stopPropagation()">🔗 ${disp}</a>`
+                  : `<span class="agent-url-chip draft">⏸ ${disp}</span>`
+                }
+                <span style="font-size:10px;color:var(--text-3)">${fmtNum(a.tryon_count || 0)} try-ons</span>
+              </div>
+            </div>
+            <span class="badge ${a.published ? 'badge-green' : 'badge-gray'}">
+              ${a.published ? 'Live' : 'Draft'}
+            </span>
+            ${url ? `
+              <button class="agent-share-btn"
+                onclick="event.stopPropagation();shareUrl('${url}','${name.replace(/'/g,"\\'")}')">
+                🔗 Share
+              </button>` : ''}
+            <svg width="12" height="12" fill="none" stroke="var(--text-3)" stroke-width="2.5" viewBox="0 0 24 24">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>`
       }).join('')
     }
+
   } catch (e) { toast(e.message, 'error') }
 
   document.getElementById('page-content').style.display = 'block'
-})();
+})()
 </script>
 </body>
 </html>
