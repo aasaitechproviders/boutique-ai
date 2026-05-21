@@ -595,9 +595,10 @@ function setStyle(id,p,v) { const e=el(id); if(e) e.style[p]=v }
 
 // ── Helpers ─────────────────────────────────────────────────────────────
 function normMobile(m) {
-  // Show "—" for blank, "unknown", null, undefined
-  if(!m || m==='unknown' || m==='undefined' || m.trim()==='') return null
-  return m
+  // Backend now returns null when mobile is unknown/missing.
+  // Only treat as "not captured" when truly null/empty.
+  if (!m || m === 'null' || m.trim() === '') return null
+  return m  // return actual mobile as-is (e.g. "9876543210")
 }
 function fmtDate(d) {
   if(!d)return'—'
@@ -689,7 +690,7 @@ function renderCustomerTable(rows) {
         return `<tr>
           <td>${mobile
             ? `<span class="mobile-cell">📱 ${mobile}</span>`
-            : `<span class="mobile-anon">Anonymous customer</span>`}</td>
+            : `<span class="mobile-anon" title="This try-on was recorded before mobile tracking was added">— Not captured</span>`}</td>
           <td>${r.agent
             ? `<span class="agent-chip-sm"><span style="width:8px;height:8px;border-radius:50%;background:${agentColor};flex-shrink:0;display:inline-block"></span> ${agentName}</span>`
             : '<span style="color:var(--text-3)">—</span>'}</td>
