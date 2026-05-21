@@ -40,11 +40,45 @@
   position:relative;border-radius:20px;
   background:linear-gradient(125deg,#edeaff 0%,#e8e4ff 30%,#dde9ff 65%,#e4f0ff 100%);
   border:1px solid rgba(124,111,255,.18);
-  padding:30px 36px;display:flex;gap:0;
   margin-bottom:24px;overflow:hidden;
   box-shadow:0 4px 24px rgba(124,111,255,.1),0 1px 4px rgba(0,0,0,.05);
+  transition:all .3s ease;
 }
 [data-theme="dark"] .onboarding-banner{background:linear-gradient(125deg,rgba(124,111,255,.12) 0%,rgba(124,111,255,.07) 50%,rgba(59,130,246,.06) 100%);border-color:rgba(124,111,255,.2);}
+
+/* Collapsed header bar — always visible */
+.ob-header-bar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 20px;
+  cursor:pointer;user-select:none;
+  position:relative;z-index:5;
+}
+.ob-header-bar:hover{opacity:.9;}
+.ob-header-icon{width:32px;height:32px;border-radius:9px;background:rgba(124,111,255,.15);border:1px solid rgba(124,111,255,.25);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;}
+.ob-header-text{flex:1;min-width:0;}
+.ob-header-title{font-size:13.5px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.ob-header-sub{font-size:11.5px;color:var(--text-2);margin-top:1px;}
+.ob-toggle-btn{
+  width:30px;height:30px;border-radius:8px;border:1px solid rgba(124,111,255,.2);
+  background:rgba(255,255,255,.65);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text-2);transition:all .25s;z-index:5;backdrop-filter:blur(4px);flex-shrink:0;
+}
+.ob-toggle-btn:hover{background:white;color:var(--accent);}
+[data-theme="dark"] .ob-toggle-btn{background:rgba(255,255,255,.08);}
+.ob-toggle-btn svg{transition:transform .3s ease;}
+.onboarding-banner.ob-collapsed .ob-toggle-btn svg{transform:rotate(-90deg);}
+
+/* Expandable body */
+.ob-body{
+  display:flex;gap:0;overflow:hidden;
+  padding:0 36px 30px;
+  transition:max-height .35s ease, opacity .3s ease, padding .3s ease;
+  max-height:600px;opacity:1;
+}
+.onboarding-banner.ob-collapsed .ob-body{
+  max-height:0;opacity:0;padding-top:0;padding-bottom:0;
+}
+
 /* Decorative blobs */
 .onboarding-banner::before{content:'';position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(124,111,255,.15),transparent 70%);top:-80px;right:200px;pointer-events:none;}
 .onboarding-banner::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(99,179,255,.12),transparent 70%);bottom:-60px;right:100px;pointer-events:none;}
@@ -53,9 +87,9 @@
 .ob-new-label::before{content:'';width:16px;height:2px;background:var(--accent);border-radius:2px;display:inline-block;}
 .ob-title{font-size:20px;font-weight:800;letter-spacing:-.04em;color:var(--text);line-height:1.25;margin-bottom:8px;}
 .ob-sub{font-size:13px;color:var(--text-2);margin-bottom:24px;line-height:1.6;}
-.ob-steps{display:flex;align-items:stretch;gap:0;margin-bottom:26px;flex-wrap:nowrap;}
-.ob-step{display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0;position:relative;padding-right:20px;}
-.ob-step:not(:last-child)::after{content:'';position:absolute;right:6px;top:16px;width:8px;height:1px;background:rgba(124,111,255,.25);}
+.ob-steps{display:flex;flex-direction:row;align-items:stretch;gap:0;margin-bottom:26px;flex-wrap:nowrap;}
+.ob-step{display:flex;flex-direction:row;align-items:flex-start;gap:10px;flex:1 1 0;min-width:0;position:relative;padding-right:20px;}
+.ob-step:not(:last-child)::after{content:'›';position:absolute;right:4px;top:8px;font-size:14px;color:rgba(124,111,255,.35);font-weight:700;}
 .ob-step-icon{width:32px;height:32px;border-radius:9px;background:white;border:1px solid rgba(124,111,255,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);box-shadow:0 2px 8px rgba(124,111,255,.12);}
 [data-theme="dark"] .ob-step-icon{background:rgba(124,111,255,.15);}
 .ob-step-num{font-size:10px;font-weight:700;color:var(--accent);margin-bottom:1px;letter-spacing:.02em;}
@@ -65,9 +99,6 @@
 .btn-watch-guide:hover{background:white;border-color:var(--accent);box-shadow:0 4px 16px rgba(124,111,255,.22);transform:translateY(-1px);}
 [data-theme="dark"] .btn-watch-guide{background:rgba(124,111,255,.12);}
 .btn-watch-guide .play-dot{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.ob-close{position:absolute;top:16px;right:16px;width:28px;height:28px;border-radius:8px;border:1px solid rgba(124,111,255,.2);background:rgba(255,255,255,.65);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-2);transition:var(--t);z-index:5;backdrop-filter:blur(4px);}
-.ob-close:hover{background:white;color:var(--text);}
-[data-theme="dark"] .ob-close{background:rgba(255,255,255,.08);}
 
 /* Right preview */
 .ob-right{flex-shrink:0;width:360px;position:relative;display:flex;align-items:center;justify-content:flex-end;z-index:1;}
@@ -105,8 +136,11 @@
 .view-btn:hover:not(.active){background:var(--surface-2);color:var(--text);}
 
 /* ══ AGENT CARDS GRID ═════════════════════════════════════════════════ */
-.agents-grid-new{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;}
+.agents-grid-new{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
 .agents-grid-new.list-view{grid-template-columns:1fr;}
+
+@media(max-width:1400px){.agents-grid-new{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:960px){.agents-grid-new{grid-template-columns:repeat(2,1fr);}}
 
 @keyframes cardEntrance{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .agent-card-new{
@@ -290,10 +324,10 @@
 @media(max-width:600px){.tryon-grid{grid-template-columns:repeat(2,1fr)}.tryon-img-pair{grid-template-columns:1fr 56px}}
 
 /* ══ RESPONSIVE ═══════════════════════════════════════════════════════ */
-@media(max-width:1200px){.agents-grid-new{grid-template-columns:repeat(3,1fr);}.ob-right{width:280px;}}
-@media(max-width:960px){.agents-grid-new{grid-template-columns:repeat(2,1fr);}.ob-right{display:none;}.help-cards-row{grid-template-columns:1fr 1fr;}}
+@media(max-width:1200px){.ob-right{width:280px;}}
+@media(max-width:960px){.ob-right{display:none;}.help-cards-row{grid-template-columns:1fr 1fr;}}
 @media(max-width:760px){.topbar-search-wrap{width:200px;}.agents-toolbar .tb-right{gap:8px;}.sort-wrap span{display:none;}}
-@media(max-width:640px){.topbar-search-wrap{display:none;}.agents-grid-new{grid-template-columns:1fr;}.agents-page-header{flex-direction:column;gap:12px;}.btn-create-agent{align-self:flex-start;}.agents-toolbar{flex-wrap:wrap;}.agents-toolbar .tb-left{flex-wrap:wrap;}.help-cards-row{grid-template-columns:1fr;}.ob-steps{gap:12px;}.ob-step{min-width:120px;}}
+@media(max-width:640px){.topbar-search-wrap{display:none;}.agents-grid-new{grid-template-columns:1fr;}.agents-page-header{flex-direction:column;gap:12px;}.btn-create-agent{align-self:flex-start;}.agents-toolbar{flex-wrap:wrap;}.agents-toolbar .tb-left{flex-wrap:wrap;}.help-cards-row{grid-template-columns:1fr;}.ob-steps{flex-direction:column;gap:12px;}.ob-step{min-width:0;}}
 @media(max-width:520px){.ac-stats-row{grid-template-columns:repeat(3,1fr);}}
 </style>
 <script>
@@ -373,56 +407,70 @@
 
     <!-- Onboarding Banner -->
     <div class="onboarding-banner" id="onboarding-banner">
-      <button class="ob-close" onclick="dismissBanner()" title="Dismiss">✕</button>
-      <div class="ob-left">
-        <div class="ob-new-label">New here?</div>
-        <div class="ob-title">Create agents that understand<br>your products &amp; style</div>
-        <div class="ob-sub">Follow these simple steps to get your first agent live.</div>
-        <div class="ob-steps">
-          <div class="ob-step">
-            <div class="ob-step-icon">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-            </div>
-            <div>
-              <div class="ob-step-num">1. Add Agent Info</div>
-              <div class="ob-step-label">Name, style &amp; domain</div>
-            </div>
-          </div>
-          <div class="ob-step">
-            <div class="ob-step-icon">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            </div>
-            <div>
-              <div class="ob-step-num">2. Add Knowledge</div>
-              <div class="ob-step-label">Upload products &amp; guidelines</div>
-            </div>
-          </div>
-          <div class="ob-step">
-            <div class="ob-step-icon">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-            </div>
-            <div>
-              <div class="ob-step-num">3. Customize</div>
-              <div class="ob-step-label">Set preferences &amp; looks</div>
-            </div>
-          </div>
-          <div class="ob-step">
-            <div class="ob-step-icon">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            </div>
-            <div>
-              <div class="ob-step-num">4. Start Try-Ons</div>
-              <div class="ob-step-label">Generate &amp; amaze! ✨</div>
-            </div>
-          </div>
+      <!-- Always-visible header bar -->
+      <div class="ob-header-bar" onclick="toggleBanner()">
+        <div class="ob-header-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
         </div>
-        <button class="btn-watch-guide" onclick="toast('Guide coming soon!','info')">
-          <span class="play-dot">
-            <svg width="8" height="9" viewBox="0 0 8 9" fill="white"><polygon points="1,1 7,4.5 1,8"/></svg>
-          </span>
-          Watch 2 min Guide
+        <div class="ob-header-text">
+          <div class="ob-header-title">Get started — Create agents that understand your products &amp; style</div>
+          <div class="ob-header-sub">Follow these simple steps to get your first agent live</div>
+        </div>
+        <button class="ob-toggle-btn" onclick="event.stopPropagation();toggleBanner()" title="Expand / Collapse">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
       </div>
+      <!-- Expandable body -->
+      <div class="ob-body">
+        <div class="ob-left">
+          <div class="ob-new-label">New here?</div>
+          <div class="ob-title">Create agents that understand<br>your products &amp; style</div>
+          <div class="ob-sub">Follow these simple steps to get your first agent live.</div>
+          <div class="ob-steps">
+            <div class="ob-step">
+              <div class="ob-step-icon">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+              </div>
+              <div>
+                <div class="ob-step-num">1. Add Agent Info</div>
+                <div class="ob-step-label">Name, style &amp; domain</div>
+              </div>
+            </div>
+            <div class="ob-step">
+              <div class="ob-step-icon">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div>
+                <div class="ob-step-num">2. Add Knowledge</div>
+                <div class="ob-step-label">Upload products &amp; guidelines</div>
+              </div>
+            </div>
+            <div class="ob-step">
+              <div class="ob-step-icon">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              </div>
+              <div>
+                <div class="ob-step-num">3. Customize</div>
+                <div class="ob-step-label">Set preferences &amp; looks</div>
+              </div>
+            </div>
+            <div class="ob-step">
+              <div class="ob-step-icon">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div>
+                <div class="ob-step-num">4. Start Try-Ons</div>
+                <div class="ob-step-label">Generate &amp; amaze! ✨</div>
+              </div>
+            </div>
+          </div>
+          <button class="btn-watch-guide" onclick="toast('Guide coming soon!','info')">
+            <span class="play-dot">
+              <svg width="8" height="9" viewBox="0 0 8 9" fill="white"><polygon points="1,1 7,4.5 1,8"/></svg>
+            </span>
+            Watch 2 min Guide
+          </button>
+        </div>
       <div class="ob-right">
         <!-- Preview card -->
         <div class="ob-preview-card">
@@ -498,10 +546,9 @@
             </defs>
           </svg>
         </div>
-      </div>
-    </div>
-
-    <!-- Toolbar -->
+      </div><!-- /ob-right -->
+      </div><!-- /ob-body -->
+    </div><!-- /onboarding-banner -->
     <div class="agents-toolbar">
       <div class="tb-left">
         <div class="tb-search">
@@ -876,16 +923,15 @@ function successRate(a){
 let ALL_AGENTS=[], CURRENT_VIEW='grid'
 
 /* ── BANNER ────────────────────────────────────────────────────────── */
-function dismissBanner(){
-  localStorage.setItem('ba_ob_dismissed','1')
+function toggleBanner(){
   const b=document.getElementById('onboarding-banner')
-  b.style.transition='opacity .3s,transform .3s'
-  b.style.opacity='0';b.style.transform='translateY(-8px)'
-  setTimeout(()=>b.style.display='none',320)
+  const collapsed=b.classList.toggle('ob-collapsed')
+  localStorage.setItem('ba_ob_collapsed', collapsed ? '1' : '0')
 }
 function initBanner(){
-  if(localStorage.getItem('ba_ob_dismissed')==='1'){
-    document.getElementById('onboarding-banner').style.display='none'
+  // Banner is ALWAYS shown — never hidden. Only restore collapsed state.
+  if(localStorage.getItem('ba_ob_collapsed')==='1'){
+    document.getElementById('onboarding-banner').classList.add('ob-collapsed')
   }
 }
 
