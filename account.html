@@ -399,9 +399,9 @@
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Profile &amp; Account
         </button>
-        <button class="snav-item" onclick="switchTab('workspace',this)" data-tab="workspace">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          Workspace
+        <button class="snav-item" onclick="switchTab('gst',this)" data-tab="gst">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          GST Details
         </button>
         <button class="snav-item" onclick="switchTab('domain',this)" data-tab="domain">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
@@ -410,6 +410,10 @@
         <button class="snav-item" onclick="switchTab('billing',this)" data-tab="billing">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
           Billing &amp; Credits
+        </button>
+        <button class="snav-item" onclick="switchTab('support',this)" data-tab="support">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Support
         </button>
         <div class="snav-divider"></div>
         <button class="snav-item" onclick="switchTab('notifications',this)" data-tab="notifications">
@@ -472,7 +476,37 @@
             </div>
           </div>
 
-          <!-- GST Details -->
+          <!-- Account info strip -->
+          <div class="s-card">
+            <div class="s-card-header">
+              <div class="s-card-title">Account Information</div>
+            </div>
+            <div class="s-card-divider"></div>
+            <div class="s-card-body" style="padding-top:18px">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Member Since</div>
+                  <div style="font-size:14px;font-weight:700;" id="info-joined">—</div>
+                </div>
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Login Method</div>
+                  <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                    Google
+                  </div>
+                </div>
+                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
+                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Account ID</div>
+                  <div style="font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text-2)" id="info-id">—</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ══ GST DETAILS TAB ══ -->
+        <div class="tab-pane" id="tab-gst">
           <div class="s-card">
             <div class="s-card-header">
               <div class="s-card-title">GST Details</div>
@@ -505,35 +539,11 @@
               <button class="btn-save" onclick="saveGst()">Save GST Details</button>
             </div>
           </div>
+        </div>
 
-          <!-- Account info strip -->
-          <div class="s-card">
-            <div class="s-card-header">
-              <div class="s-card-title">Account Information</div>
-            </div>
-            <div class="s-card-divider"></div>
-            <div class="s-card-body" style="padding-top:18px">
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
-                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Member Since</div>
-                  <div style="font-size:14px;font-weight:700;" id="info-joined">—</div>
-                </div>
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
-                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Login Method</div>
-                  <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
-                    Google
-                  </div>
-                </div>
-                <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;">
-                  <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:5px">Account ID</div>
-                  <div style="font-size:12px;font-weight:600;font-family:var(--mono);color:var(--text-2)" id="info-id">—</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Support -->
+        <!-- ══ SUPPORT TAB ══ -->
+        <div class="tab-pane" id="tab-support">
+          <!-- Support Form -->
           <div class="s-card">
             <div class="s-card-header">
               <div class="s-card-title">🎧 Raise a Support Request</div>
@@ -578,95 +588,6 @@
             <div id="tickets-wrap" style="padding:14px 20px;display:flex;flex-direction:column;gap:8px">
               <div class="skel" style="height:52px;border-radius:var(--r-sm)"></div>
               <div class="skel" style="height:52px;border-radius:var(--r-sm);opacity:.7"></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ══ WORKSPACE TAB ══ -->
-        <div class="tab-pane" id="tab-workspace">
-          <!-- Workspace Details -->
-          <div class="s-card">
-            <div class="s-card-header">
-              <div class="s-card-title">Workspace Details</div>
-              <div class="s-card-sub">This is the default workspace for your agents and try-ons.</div>
-            </div>
-            <div class="s-card-divider"></div>
-            <div class="s-card-body" style="padding-top:18px">
-              <div style="display:grid;grid-template-columns:1fr auto;gap:20px;align-items:start">
-                <div style="display:flex;flex-direction:column;gap:14px">
-                  <div class="field-row">
-                    <div class="s-field">
-                      <label class="s-label">Workspace Name</label>
-                      <input class="s-input" id="ws-name" placeholder="My Boutique">
-                    </div>
-                    <div class="s-field">
-                      <label class="s-label">Industry</label>
-                      <select class="s-select" id="ws-industry">
-                        <option>Fashion &amp; Apparel</option>
-                        <option>Sarees &amp; Silk</option>
-                        <option>Jewellery</option>
-                        <option>Western Wear</option>
-                        <option>Kids Clothing</option>
-                        <option>Footwear</option>
-                        <option>Mixed / Multi-brand</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="s-field" style="max-width:220px">
-                    <label class="s-label">Default Currency</label>
-                    <select class="s-select" id="ws-currency">
-                      <option value="INR">INR (₹)</option>
-                      <option value="USD">USD ($)</option>
-                    </select>
-                  </div>
-                  <div class="s-field">
-                    <label class="s-label">Workspace ID</label>
-                    <div class="ws-id-wrap">
-                      <span id="ws-id-val" style="flex:1">ws_——————</span>
-                      <button class="copy-btn" onclick="copyWsId()" title="Copy ID">
-                        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div class="ws-icon-box" id="ws-icon-box">🏪</div>
-              </div>
-            </div>
-            <div class="s-btn-row">
-              <button class="btn-save" onclick="saveWorkspace()">Save Changes</button>
-            </div>
-          </div>
-
-          <!-- Preferences -->
-          <div class="s-card">
-            <div class="s-card-header">
-              <div class="s-card-title">Preferences</div>
-              <div class="s-card-sub">Set your default preferences for a better experience.</div>
-            </div>
-            <div class="s-card-divider"></div>
-            <div class="s-card-body" style="padding-top:18px">
-              <div class="field-row">
-                <div class="s-field">
-                  <label class="s-label">Default Try-On Quality</label>
-                  <div class="s-label" style="font-size:11px;color:var(--text-3);margin-bottom:2px">Choose the default quality for AI try-ons.</div>
-                  <select class="s-select" id="pref-quality">
-                    <option value="high">High Quality (Recommended)</option>
-                    <option value="medium">Balanced Quality</option>
-                    <option value="low">Standard Quality</option>
-                  </select>
-                </div>
-                <div class="s-field">
-                  <label class="s-label">Default Model</label>
-                  <div class="s-label" style="font-size:11px;color:var(--text-3);margin-bottom:2px">Choose the AI model for try-on generation.</div>
-                  <select class="s-select" id="pref-model">
-                    <option value="gemini-2.5-flash-image">BoutiqueAI v2 (Latest)</option>
-                    <option value="gemini-2.0-flash-image">BoutiqueAI v1</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="s-btn-row">
-              <button class="btn-save" onclick="savePreferences()">Save Changes</button>
             </div>
           </div>
         </div>
@@ -985,25 +906,11 @@ function selectCat(el) {
   selectedCat = el.dataset.cat
 }
 
-// ── Copy Workspace ID ──────────────────────────────────────────────────────
-function copyWsId() {
-  navigator.clipboard.writeText(currentWsId || '').then(() => toast('Workspace ID copied!', 'success')).catch(() => {})
-}
-
-// ── Save profile (name only — email is Google-linked) ─────────────────────
+// ── Avatar upload ──────────────────────────────────────────────────────────
 async function saveProfile() {
   try {
     toast('Profile saved successfully', 'success')
   } catch(e) { toast(e.message, 'error') }
-}
-
-// ── Save workspace preferences (local only for now) ───────────────────────
-function saveWorkspace() {
-  toast('Workspace settings saved', 'success')
-}
-
-function savePreferences() {
-  toast('Preferences saved', 'success')
 }
 
 // ── Avatar upload ──────────────────────────────────────────────────────────
@@ -1054,6 +961,7 @@ async function submitSupport() {
     document.getElementById('sup-subject').value = ''
     document.getElementById('sup-message').value = ''
     await loadTickets()
+    switchTab('support', document.querySelector('[data-tab="support"]'))
     document.getElementById('tickets-card').scrollIntoView({ behavior:'smooth', block:'start' })
   } catch(e) { toast(e.message, 'error') }
 }
@@ -1308,13 +1216,6 @@ async function loadAccount() {
     const joinedStr = fmtDate(user.created_at)
     document.getElementById('info-joined').textContent = joinedStr
     document.getElementById('info-id').textContent     = (user._id||'—').slice(-12)
-
-    // Workspace tab
-    currentWsId = 'ws_' + (user._id||'').slice(-12)
-    const wsIdEl = document.getElementById('ws-id-val')
-    if (wsIdEl) wsIdEl.textContent = currentWsId
-    const wsNameEl = document.getElementById('ws-name')
-    if (wsNameEl) wsNameEl.value = user.name || ''
 
     // Billing tab
     const balance   = dashData?.credits_stats?.balance ?? Math.max(0, Number(user.credits)||0)
