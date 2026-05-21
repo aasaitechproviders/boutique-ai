@@ -146,7 +146,7 @@
 ══════════════════════════════════════════════════ */
 .agents-grid-new {
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(360px,1fr));
+  grid-template-columns:repeat(auto-fill, minmax(420px,1fr));
   gap:18px;
 }
 .agents-grid-new.list-view {
@@ -277,36 +277,40 @@
 .ac-stat-trend.down { color:#dc2626; }
 .ac-stat-trend.flat { color:var(--text-3); }
 
-/* Action footer */
+/* Action footer — actions row + open button row stacked */
 .ac-footer {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 16px 14px; border-top:1px solid var(--border);
-  gap:8px; flex-wrap:wrap;
+  display:flex; flex-direction:column;
+  border-top:1px solid var(--border);
 }
-.ac-action-btns { display:flex; align-items:center; gap:2px; }
+.ac-actions-row {
+  display:flex; align-items:center;
+  padding:6px 10px;
+  border-bottom:1px solid var(--border);
+}
 .ac-action-btn {
-  display:flex; flex-direction:column; align-items:center; gap:3px;
-  padding:7px 10px; border-radius:10px; border:none;
+  flex:1; display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:8px 6px; border-radius:10px; border:none;
   background:none; cursor:pointer; color:var(--text-3);
   transition:var(--t); font-family:var(--font);
 }
 .ac-action-btn:hover { background:var(--surface-2); color:var(--accent); }
 .ac-action-btn svg   { flex-shrink:0; }
-.ac-action-lbl       { font-size:10px; font-weight:600; white-space:nowrap; }
+.ac-action-lbl       { font-size:10.5px; font-weight:600; white-space:nowrap; }
+.ac-open-row {
+  padding:12px 16px 14px;
+}
 .ac-open-btn {
-  display:inline-flex; align-items:center; gap:6px;
-  padding:8px 16px; border-radius:10px;
+  display:inline-flex; align-items:center; gap:7px;
+  padding:9px 20px; border-radius:10px;
   border:1.5px solid var(--border-md); background:var(--surface);
-  font-size:12.5px; font-weight:700; color:var(--text);
+  font-size:13px; font-weight:700; color:var(--text);
   text-decoration:none; cursor:pointer; transition:var(--t);
-  white-space:nowrap; flex-shrink:0;
+  white-space:nowrap;
 }
 .ac-open-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:translateY(-1px); box-shadow:0 4px 12px rgba(124,111,255,.3); }
 
 /* ── LIST VIEW ── */
-.list-view .agent-card-new {
-  border-radius:14px;
-}
+.list-view .agent-card-new { border-radius:14px; }
 .list-view .ac-header { padding:16px 18px 12px; }
 .list-view .ac-avatar { width:50px; height:50px; border-radius:12px; font-size:18px; }
 .list-view .ac-name   { font-size:14px; }
@@ -315,11 +319,8 @@
   border-top:1px solid var(--border); display:flex;
   grid-template-columns:unset;
 }
-.list-view .ac-stat {
-  flex:1; border-right:1px solid var(--border);
-  border-radius:0; padding:10px 14px;
-}
-.list-view .ac-footer { padding:10px 16px 12px; }
+.list-view .ac-stat { flex:1; border-right:1px solid var(--border); border-radius:0; padding:10px 14px; }
+.list-view .ac-open-row { padding:10px 16px 12px; }
 
 /* ══════════════════════════════════════════════════
    CONTEXT DROPDOWN MENU
@@ -448,15 +449,15 @@
 /* ══════════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════════ */
-@media(max-width:900px) {
+@media(max-width:1100px) {
   .agents-grid-new { grid-template-columns:1fr 1fr; }
 }
 @media(max-width:760px) {
+  .agents-grid-new { grid-template-columns:1fr; }
   .topbar-search-wrap { width:200px; }
   .sort-wrap span { display:none; }
 }
 @media(max-width:640px) {
-  .agents-grid-new { grid-template-columns:1fr; }
   .agents-toolbar { gap:8px; }
   .toolbar-left { flex-wrap:wrap; }
   .tb-search { min-width:0; max-width:100%; flex:1 1 auto; }
@@ -466,12 +467,12 @@
   .btn-create-agent { align-self:flex-start; }
 }
 @media(max-width:520px) {
-  .ac-stats-box { grid-template-columns:repeat(2,1fr); }
+  .ac-stats-box { grid-template-columns:1fr 1fr; }
   .ac-stat:nth-child(2) { border-right:none; }
   .ac-stat:nth-child(3) { border-top:1px solid var(--border); }
   .ac-stat:nth-child(4) { border-top:1px solid var(--border); }
   .ac-action-lbl { display:none; }
-  .ac-action-btn { padding:7px; }
+  .ac-action-btn { padding:8px 4px; }
   .sort-wrap { display:none; }
 }
 </style>
@@ -1099,7 +1100,7 @@ function renderAgentCard(a) {
   const catLabels = {sarees:'Sarees',western:'Western',kids:'Kids',jewellery:'Jewellery',footwear:'Footwear',mixed:'Mixed'}
   const catLabel  = catLabels[a.category] || a.category || 'Boutique'
 
-  const tryonTrend = a.tryon_count > 0 ? `<span class="ac-stat-trend up">↑ Active</span>` : `<span class="ac-stat-trend flat">— 0</span>`
+  const tryonTrend = a.tryon_count > 0 ? true : false  // kept for compat
 
   return `
   <div class="agent-card-new" data-id="${a._id}" data-name="${(a.agent_name||'').toLowerCase()}" data-biz="${(a.business_name||'').toLowerCase()}" data-published="${isLive?'live':'draft'}">
@@ -1142,7 +1143,7 @@ function renderAgentCard(a) {
       <div class="ac-stat">
         <div class="ac-stat-num">${fmtNum(a.tryon_count||0)}</div>
         <div class="ac-stat-lbl">Try-Ons</div>
-        ${tryonTrend}
+        ${a.tryon_count > 0 ? `<span class="ac-stat-trend up">↑ Active</span>` : `<span class="ac-stat-trend flat">— 0</span>`}
       </div>
       <div class="ac-stat">
         <div class="ac-stat-num">${fmtNum(a.chat_count||0)}</div>
@@ -1151,8 +1152,8 @@ function renderAgentCard(a) {
       </div>
       <div class="ac-stat">
         <div class="ac-stat-num">${fmtNum(a.tryon_count||0)}</div>
-        <div class="ac-stat-lbl">Products Tried</div>
-        <span class="ac-stat-trend ${a.tryon_count>0?'up flat':'flat'}">${a.tryon_count>0?'↑ 25%':'— 0%'}</span>
+        <div class="ac-stat-lbl">Products</div>
+        <span class="ac-stat-trend ${a.tryon_count>0?'up':'flat'}">${a.tryon_count>0?'↑ 25%':'— 0%'}</span>
       </div>
       <div class="ac-stat">
         <div class="ac-stat-num" style="font-size:13px;font-weight:700">${fmtRelative(a.updated_at)}</div>
@@ -1160,35 +1161,32 @@ function renderAgentCard(a) {
       </div>
     </div>
 
-    <!-- Footer actions -->
+    <!-- Footer: actions row + open agent row -->
     <div class="ac-footer">
-      <div class="ac-action-btns">
+      <div class="ac-actions-row">
         <button class="ac-action-btn" onclick="event.stopPropagation();location.href='conversations.html?agent=${a._id}'" title="Conversations">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
           <span class="ac-action-lbl">Conversations</span>
         </button>
         <button class="ac-action-btn" onclick="event.stopPropagation();openTryonGallerySheet('${a._id}')" title="Try-Ons">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
           <span class="ac-action-lbl">Try-Ons</span>
         </button>
         <button class="ac-action-btn" onclick="event.stopPropagation();openEditModal('${a._id}')" title="Settings">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
           <span class="ac-action-lbl">Settings</span>
         </button>
         <button class="ac-action-btn" onclick="event.stopPropagation();toast('Analytics coming soon','info')" title="Analytics">
-          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           <span class="ac-action-lbl">Analytics</span>
         </button>
       </div>
-      ${url ? `
-      <a class="ac-open-btn" href="${url}" target="_blank" onclick="event.stopPropagation()">
-        Open Agent
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>` : `
-      <button class="ac-open-btn" onclick="event.stopPropagation();openEditModal('${a._id}')">
-        Publish Agent
-        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </button>`}
+      <div class="ac-open-row">
+        ${url
+          ? `<a class="ac-open-btn" href="${url}" target="_blank" onclick="event.stopPropagation()">Open Agent <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>`
+          : `<button class="ac-open-btn" onclick="event.stopPropagation();openEditModal('${a._id}')">Publish Agent <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>`
+        }
+      </div>
     </div>
   </div>`
 }
