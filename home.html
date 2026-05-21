@@ -102,9 +102,9 @@
 }
 .stat-card:hover { box-shadow:var(--sh); transform:translateY(-1px); }
 
-/* Icon box — left, vertically centered by default via align-items:center */
+/* Icon box — left, vertically centered; sized to match card content height */
 .stat-icon-box {
-  width:42px; height:42px; border-radius:11px; flex-shrink:0;
+  width:52px; height:52px; border-radius:14px; flex-shrink:0;
   display:flex; align-items:center; justify-content:center;
 }
 .stat-icon-purple { background:rgba(124,111,255,.13); }
@@ -115,11 +115,11 @@
 /* Content block — right side */
 .stat-card-info { flex:1; min-width:0; }
 .stat-num {
-  font-size:26px; font-weight:800; letter-spacing:-.05em;
-  line-height:1; font-family:var(--mono); margin-bottom:3px;
+  font-size:27px; font-weight:800; letter-spacing:-.05em;
+  line-height:1; font-family:var(--mono); margin-bottom:4px;
 }
 .stat-card-info .stat-label { font-size:12.5px; font-weight:600; color:var(--text); line-height:1.3; }
-.stat-card-info .stat-sublabel { font-size:11px; color:var(--text-3); margin-top:1px; }
+.stat-card-info .stat-sublabel { font-size:11px; color:var(--text-3); margin-top:2px; }
 
 /* Trend badge — absolute top-right */
 .stat-trend {
@@ -366,21 +366,84 @@
 .agent-share-btn:hover { color:var(--accent); }
 
 /* ══════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE — web · tablet · mobile
 ══════════════════════════════════════════════════ */
-@media (max-width:1200px) { .dash-grid-new { grid-template-columns:1fr 300px; } }
-@media (max-width:1050px) { .dash-grid-new { grid-template-columns:1fr; } .dash-right { position:static; } }
-@media (max-width:860px)  { .dash-bottom-row { grid-template-columns:1fr; } }
-@media (max-width:760px)  { .stats-row { grid-template-columns:1fr 1fr; } .topbar-search-wrap { width:200px; } }
-@media (max-width:560px)  {
-  .stats-row { grid-template-columns:1fr 1fr; gap:10px; }
-  .topbar-search-wrap { display:none; }
-  .dash-page-header { flex-direction:column; gap:10px; }
-  .chart-stats-row { grid-template-columns:1fr 1fr; }
-  .chart-stat-divider { display:none; }
+
+/* ── Large desktop (>1200px): full 2-col with 340px sidebar ── */
+@media (min-width:1201px) {
+  .dash-grid-new { grid-template-columns:1fr 340px; }
+}
+
+/* ── Medium desktop (1050–1200px): tighter sidebar ── */
+@media (max-width:1200px) {
+  .dash-grid-new { grid-template-columns:1fr 300px; }
+}
+
+/* ── Tablet landscape (1050px): single column ── */
+@media (max-width:1050px) {
+  .dash-grid-new { grid-template-columns:1fr; }
+  .dash-right { position:static; }
+  /* Right col becomes a 2-col grid when stacked below */
+  .dash-right { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+}
+
+/* ── Tablet portrait (860px): bottom row stacks, right col stacks ── */
+@media (max-width:860px) {
+  .dash-bottom-row { grid-template-columns:1fr; }
+  .dash-right { grid-template-columns:1fr; }
+}
+
+/* ── Large mobile / small tablet (760px): 2-col stat cards ── */
+@media (max-width:760px) {
+  .stats-row { grid-template-columns:1fr 1fr; }
+  .topbar-search-wrap { width:200px; }
+  /* Upgrade banner: hide robot, shrink */
   .ub-robot { display:none; }
 }
-@media (max-width:400px) { .stats-row { grid-template-columns:1fr; } }
+
+/* ── Mobile (560px): key layout shifts ── */
+@media (max-width:560px) {
+  .stats-row { grid-template-columns:1fr 1fr; gap:10px; }
+  .topbar-search-wrap { display:none; }
+  .dash-page-header { flex-direction:column; align-items:flex-start; gap:10px; }
+  .date-range-btn { align-self:flex-start; }
+
+  /* Chart bottom stat row: 2x2 */
+  .chart-stats-row { grid-template-columns:1fr 1fr; }
+  .chart-stat-divider { display:none; }
+  .chart-stat-cell.has-bl { border-left-width:2px; }
+
+  /* Upgrade banner — stack vertically on mobile */
+  .upgrade-banner-new {
+    flex-direction:column;
+    align-items:flex-start;
+    gap:16px;
+    padding:22px 22px 24px;
+  }
+  .upgrade-banner-new::before,
+  .upgrade-banner-new::after { display:none; }
+  .ub-icon  { display:none; }    /* hide pill icon — keeps it clean */
+  .ub-robot { display:none; }    /* hide robot on mobile */
+  .ub-text  { width:100%; }
+  .ub-title { font-size:16px; line-height:1.3; margin-bottom:6px; }
+  .ub-sub   { font-size:12.5px; }
+  .ub-btn   {
+    width:100%;
+    justify-content:center;
+    padding:13px 20px;
+    font-size:14px;
+    border-radius:12px;
+    background:rgba(255,255,255,.22);
+    border:1px solid rgba(255,255,255,.35);
+  }
+}
+
+/* ── Small mobile (400px): single column stats ── */
+@media (max-width:400px) {
+  .stats-row { grid-template-columns:1fr; }
+  .stat-card { padding:14px; gap:12px; }
+  .stat-num  { font-size:24px; }
+}
 </style>
 
 <!-- Instant theme + token bootstrap -->
@@ -505,11 +568,11 @@
       <!-- Total Agents -->
       <div class="stat-card">
         <div class="stat-icon-box stat-icon-purple">
-          <svg width="18" height="18" fill="none" stroke="#7C6FFF" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg width="22" height="22" fill="none" stroke="#7C6FFF" stroke-width="1.7" viewBox="0 0 24 24">
             <rect x="4" y="8" width="16" height="12" rx="3"/>
             <rect x="8" y="4" width="8" height="5" rx="2"/>
-            <circle cx="9"  cy="14" r="1.4" fill="#7C6FFF" stroke="none"/>
-            <circle cx="15" cy="14" r="1.4" fill="#7C6FFF" stroke="none"/>
+            <circle cx="9"  cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
+            <circle cx="15" cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
             <path d="M10 17.5h4" stroke-linecap="round"/>
             <line x1="4" y1="12" x2="2" y2="12" stroke-linecap="round"/>
             <line x1="20" y1="12" x2="22" y2="12" stroke-linecap="round"/>
@@ -526,7 +589,7 @@
       <!-- Try-Ons Generated -->
       <div class="stat-card">
         <div class="stat-icon-box stat-icon-blue">
-          <svg width="18" height="18" fill="none" stroke="#3B82F6" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg width="22" height="22" fill="none" stroke="#3B82F6" stroke-width="1.7" viewBox="0 0 24 24">
             <path d="M12 2L2 7l10 5 10-5-10-5z"/>
             <path d="M2 17l10 5 10-5"/>
             <path d="M2 12l10 5 10-5"/>
@@ -543,7 +606,7 @@
       <!-- Total Conversations -->
       <div class="stat-card">
         <div class="stat-icon-box stat-icon-teal">
-          <svg width="18" height="18" fill="none" stroke="#14b8a6" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg width="22" height="22" fill="none" stroke="#14b8a6" stroke-width="1.7" viewBox="0 0 24 24">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
         </div>
@@ -558,7 +621,7 @@
       <!-- Total Customers -->
       <div class="stat-card">
         <div class="stat-icon-box stat-icon-pink">
-          <svg width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" viewBox="0 0 24 24">
+          <svg width="22" height="22" fill="none" stroke="#ec4899" stroke-width="1.7" viewBox="0 0 24 24">
             <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
             <circle cx="9" cy="7" r="4"/>
             <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
