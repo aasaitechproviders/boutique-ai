@@ -475,6 +475,45 @@
   .ac-action-btn { padding:8px 4px; }
   .sort-wrap { display:none; }
 }
+/* ══════════════════════════════════════════════════
+   UPGRADE BANNER
+══════════════════════════════════════════════════ */
+.upgrade-banner-new {
+  margin-top:24px; border-radius:16px;
+  background:linear-gradient(135deg,#3730a3 0%,#5b21b6 55%,#7c3aed 100%);
+  padding:20px 24px;
+  display:flex; flex-direction:row; align-items:center; gap:18px;
+  overflow:hidden; position:relative;
+}
+.upgrade-banner-new::before {
+  content:''; position:absolute; top:-60px; left:40%; width:200px; height:200px;
+  background:rgba(255,255,255,.05); border-radius:50%; pointer-events:none;
+}
+.ub-icon {
+  width:42px; height:42px; border-radius:12px; flex-shrink:0;
+  background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center;
+}
+.ub-text { flex:1; min-width:0; position:relative; z-index:1; }
+.ub-title { font-size:14.5px; font-weight:800; color:#fff; margin-bottom:3px; }
+.ub-sub   { font-size:12px; color:rgba(255,255,255,.72); line-height:1.4; }
+.ub-btn {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:10px 20px; border-radius:10px;
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
+  color:#fff; font-size:13px; font-weight:700;
+  text-decoration:none; cursor:pointer; white-space:nowrap;
+  transition:var(--t); flex-shrink:0; position:relative; z-index:1;
+}
+.ub-btn:hover { background:rgba(255,255,255,.28); transform:translateY(-1px); }
+.ub-robot { flex-shrink:0; position:relative; z-index:1; line-height:0; }
+@media(max-width:640px) {
+  .upgrade-banner-new {
+    flex-direction:column; align-items:flex-start; gap:14px; padding:20px;
+  }
+  .ub-icon,.ub-robot { display:none; }
+  .ub-btn { width:100%; justify-content:center; }
+}
+
 </style>
 
 <script>
@@ -666,6 +705,53 @@
         </svg>
         Create New Agent
       </button>
+    </div>
+
+    <!-- ── UPGRADE BANNER (free plan only) ── -->
+    <div class="upgrade-banner-new" id="upgrade-banner" style="display:none">
+      <div class="ub-icon">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <rect x="4" y="8" width="16" height="12" rx="3" fill="rgba(255,255,255,.25)"/>
+          <rect x="8" y="4" width="8" height="5" rx="2" fill="rgba(255,255,255,.3)"/>
+          <circle cx="9"  cy="14" r="1.4" fill="white"/>
+          <circle cx="15" cy="14" r="1.4" fill="white"/>
+          <path d="M10 17.5h4" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="4" y1="12" x2="1.5" y2="12" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round"/>
+          <line x1="20" y1="12" x2="22.5" y2="12" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="ub-text">
+        <div class="ub-title">Unlock unlimited agents</div>
+        <div class="ub-sub">Upgrade to Pro for unlimited agents, more credits, custom domains, and advanced features.</div>
+      </div>
+      <a href="payments.html" class="ub-btn">Upgrade Now ✨</a>
+      <div class="ub-robot">
+        <svg width="72" height="72" viewBox="0 0 82 82" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="41" y1="10" x2="41" y2="3" stroke="rgba(255,255,255,.65)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="41" cy="2" r="3" fill="rgba(255,255,255,.85)"/>
+          <rect x="17" y="10" width="48" height="34" rx="10" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+          <rect x="23" y="20" width="14" height="11" rx="4" fill="rgba(255,255,255,.95)"/>
+          <rect x="45" y="20" width="14" height="11" rx="4" fill="rgba(255,255,255,.95)"/>
+          <circle cx="30" cy="25" r="3.5" fill="#7c3aed"/><circle cx="52" cy="25" r="3.5" fill="#7c3aed"/>
+          <circle cx="31.5" cy="23.5" r="1.2" fill="white" opacity=".8"/><circle cx="53.5" cy="23.5" r="1.2" fill="white" opacity=".8"/>
+          <rect x="27" y="36" width="28" height="5" rx="2.5" fill="rgba(255,255,255,.45)"/>
+          <rect x="30" y="37" width="5" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="38" y="37" width="5" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="46" y="37" width="5" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="36" y="43" width="10" height="7" rx="3" fill="rgba(255,255,255,.2)"/>
+          <rect x="11" y="49" width="60" height="28" rx="10" fill="rgba(255,255,255,.18)" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+          <rect x="21" y="55" width="40" height="15" rx="5" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.2)" stroke-width="1"/>
+          <circle cx="32" cy="62" r="4.5" fill="rgba(255,255,255,.75)"/>
+          <circle cx="41" cy="62" r="4.5" fill="rgba(255,255,255,.45)"/>
+          <circle cx="50" cy="62" r="4.5" fill="rgba(255,255,255,.75)"/>
+          <rect x="1"  y="50" width="9" height="22" rx="4.5" fill="rgba(255,255,255,.18)"/>
+          <rect x="72" y="50" width="9" height="22" rx="4.5" fill="rgba(255,255,255,.18)"/>
+          <circle cx="5.5"  cy="75" r="4.5" fill="rgba(255,255,255,.22)"/>
+          <circle cx="76.5" cy="75" r="4.5" fill="rgba(255,255,255,.22)"/>
+          <rect x="22" y="77" width="13" height="5" rx="2.5" fill="rgba(255,255,255,.18)"/>
+          <rect x="47" y="77" width="13" height="5" rx="2.5" fill="rgba(255,255,255,.18)"/>
+        </svg>
+      </div>
     </div>
 
   </div><!-- /content -->
@@ -1209,15 +1295,31 @@ function filterAgents() {
     if(sort==='tryons_desc')  return (b.tryon_count||0)-(a.tryon_count||0)
     if(sort==='name_asc')     return(a.agent_name||'').localeCompare(b.agent_name||'')
     if(sort==='updated_desc') return new Date(b.updated_at)-new Date(a.updated_at)
-    return new Date(b.created_at)-new Date(a.created_at)  // recently created
+    return new Date(b.created_at)-new Date(a.created_at)
   })
 
-  const grid = document.getElementById('agents-grid')
+  const grid  = document.getElementById('agents-grid')
   const empty = document.getElementById('agents-empty')
-  if(!list.length) {
-    grid.innerHTML  = ''
+
+  if (ALL_AGENTS.length === 0) {
+    // Truly no agents at all → show full empty state with CTA
+    grid.innerHTML = ''
     empty.style.display = 'flex'
+  } else if (!list.length) {
+    // Has agents but search/filter returned nothing → show inline no-results
+    empty.style.display = 'none'
+    grid.innerHTML = `
+      <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;
+                  justify-content:center;padding:60px 24px;text-align:center;gap:10px">
+        <svg width="44" height="44" fill="none" stroke="var(--text-3)" stroke-width="1.5" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <div style="font-size:15px;font-weight:700;color:var(--text)">No agents found</div>
+        <div style="font-size:13px;color:var(--text-3)">Try a different name or clear your filters.</div>
+        <button class="btn btn-secondary" style="margin-top:6px" onclick="document.getElementById('agent-search').value='';document.getElementById('status-filter').value='';filterAgents()">Clear Filters</button>
+      </div>`
   } else {
+    // Normal render
     empty.style.display = 'none'
     grid.innerHTML = list.map(renderAgentCard).join('')
   }
@@ -1700,6 +1802,13 @@ async function deleteTryon(id,mobile,btn){
       ?`<img src="${user.picture}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:8px">`
       :`<span>${(user.name?.[0]||'U').toUpperCase()}</span>`
     document.getElementById('topbar-user-name').textContent=user.name?.split(' ')[0]||user.email||'User'
+  }
+
+  // Show upgrade banner for free plan
+  const plan = user?.plan || 'free'
+  if(plan === 'free' || plan === 'starter') {
+    const banner = document.getElementById('upgrade-banner')
+    if(banner) banner.style.display = 'flex'
   }
 
   // Auto-open create modal if ?create=1
