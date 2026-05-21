@@ -963,8 +963,10 @@ function fmtDate(iso) {
     }
 
     // Status banner
-    document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase()+plan.slice(1)
-    document.getElementById('billing-type-label').textContent = user.plan_billing === 'yearly' ? 'Annual' : user.plan !== 'free' ? 'Monthly' : ''
+    const planBadgeEl = document.getElementById('current-plan-badge')
+    if (planBadgeEl) planBadgeEl.textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase()+plan.slice(1)
+    const billingTypeEl = document.getElementById('billing-type-label')
+    if (billingTypeEl) billingTypeEl.textContent = user.plan_billing === 'yearly' ? 'Annual' : user.plan !== 'free' ? 'Monthly' : ''
 
     const credits = user.credits || 0
     const credEl  = document.getElementById('u-credits')
@@ -980,15 +982,18 @@ function fmtDate(iso) {
     const capAg    = (limits.agents == null || limits.agents >= 99999) ? '∞' : limits.agents
     const pctAg    = (limits.agents == null || limits.agents >= 99999) ? 0 : Math.min(100, Math.round(usedAg/limits.agents*100))
 
-    document.getElementById('u-agents').textContent    = usedAg
-    document.getElementById('u-agents-cap').textContent = capAg
+    const agentsEl = document.getElementById('u-agents')
+    const agentsCapEl = document.getElementById('u-agents-cap')
+    if (agentsEl)    agentsEl.textContent    = usedAg
+    if (agentsCapEl) agentsCapEl.textContent = capAg
     const agBar = document.getElementById('u-agents-bar')
     if (agBar) { agBar.style.width = pctAg + '%'; agBar.className = 'progress-fill' + (pctAg>=90?' danger':pctAg>=70?' warn':'') }
 
     const expiresDate = user.plan_expires_at
       ? fmtDate(user.plan_expires_at)
       : (usage.reset_at ? fmtDate(usage.reset_at) : (plan === 'free' ? '—' : 'Monthly'))
-    document.getElementById('u-expires-date').textContent = expiresDate
+    const expiresEl = document.getElementById('u-expires-date')
+    if (expiresEl) expiresEl.textContent = expiresDate
 
     renderPlans()
 
@@ -1015,8 +1020,10 @@ function fmtDate(iso) {
     renderPlans()
     renderCreditPackages()
   } finally {
-    document.getElementById('page-skeleton').style.display = 'none'
-    document.getElementById('page-content').style.display  = 'block'
+    const skel = document.getElementById('page-skeleton')
+    const page = document.getElementById('page-content')
+    if (skel) skel.style.display = 'none'
+    if (page) page.style.display = 'block'
   }
 })()
 </script>
