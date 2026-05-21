@@ -8,206 +8,378 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="stylesheet" href="shared.css">
 <style>
-/* ─── Billing toggle ──────────────────────────────────────────── */
-.billing-toggle{display:flex;align-items:center;gap:10px;margin-bottom:22px;justify-content:center}
-.billing-toggle-label{font-size:13px;font-weight:600;color:var(--text-3);cursor:pointer;transition:var(--t)}
-.billing-toggle-label.active{color:var(--text)}
-.toggle-switch{position:relative;width:40px;height:22px;cursor:pointer}
-.toggle-switch input{opacity:0;width:0;height:0;position:absolute}
-.toggle-track{position:absolute;inset:0;background:var(--border);border-radius:11px;transition:var(--t)}
-.toggle-switch input:checked + .toggle-track{background:var(--accent)}
-.toggle-thumb{position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:var(--t);box-shadow:0 1px 4px rgba(0,0,0,.25)}
-.toggle-switch input:checked ~ .toggle-thumb{left:21px}
-.yearly-badge{display:inline-flex;align-items:center;background:rgba(34,197,94,.12);color:#22c55e;border:1px solid rgba(34,197,94,.22);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:1px 7px;border-radius:20px;margin-left:2px}
 
-/* ─── Plan grid (4-col, compact) ─────────────────────────────── */
-.plans-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:28px;
+/* ── Page header ────────────────────────────────────────────────── */
+.page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:22px; }
+.page-header h1 { font-size:22px; font-weight:800; letter-spacing:-.04em; line-height:1.2; margin-bottom:4px; }
+.page-header p  { font-size:13px; color:var(--text-2); }
+
+/* ── Status row (plan · credits · agents · expiry) ──────────────── */
+.status-row {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:14px; margin-bottom:22px;
 }
-.plan-card{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:16px;padding:20px 18px;position:relative;
-  transition:var(--t);display:flex;flex-direction:column;
+.status-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:16px 14px 16px 16px;
+  display:flex; flex-direction:row; align-items:center; gap:14px;
+  box-shadow:var(--sh-sm); overflow:hidden; transition:var(--t);
 }
-.plan-card:hover{box-shadow:var(--sh);transform:translateY(-2px)}
-.plan-card.current{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
-.plan-card.popular{border-color:var(--accent)}
-.plan-badge-wrap{position:absolute;top:-11px;left:50%;transform:translateX(-50%);white-space:nowrap}
-.plan-badge-current{background:var(--green,#19a37a);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;border-radius:20px}
-.plan-badge-popular{background:var(--accent);color:#fff;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 12px;border-radius:20px}
-.plan-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:8px}
-.plan-price{font-size:28px;font-weight:800;letter-spacing:-.05em;font-family:var(--mono);color:var(--text);line-height:1;margin-bottom:2px}
-.plan-price span{font-size:13px;font-weight:500;color:var(--text-3);letter-spacing:0}
-.plan-savings{font-size:11px;color:var(--green,#19a37a);font-weight:600;min-height:16px;margin-bottom:4px}
-.plan-credits-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:12px}
-.plan-divider{height:1px;background:var(--border);margin-bottom:12px}
+.status-icon-box {
+  width:52px; height:52px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:22px;
+}
+.sib-purple { background:rgba(124,111,255,.13); }
+.sib-teal   { background:rgba(20,184,166,.13); }
+.sib-blue   { background:rgba(59,130,246,.13); }
+.sib-amber  { background:rgba(217,119,6,.12); }
+.status-info { flex:1; min-width:0; }
+.status-num {
+  font-size:24px; font-weight:800; letter-spacing:-.05em;
+  line-height:1; font-family:var(--mono); margin-bottom:3px;
+}
+.status-lbl  { font-size:12px; font-weight:600; color:var(--text); }
+.status-sub  { font-size:11px; color:var(--text-3); margin-top:2px; }
 
-/* Core features (always visible) */
-.plan-core{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.plan-feat{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text-2);line-height:1.4}
-.plan-feat-icon{flex-shrink:0;margin-top:1px;font-size:12px}
+/* credits expiry inline */
+.credit-expiry-note { font-size:10.5px; color:var(--text-3); margin-top:3px; }
 
-/* Expanded features */
-.plan-more{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;overflow:hidden;max-height:0;transition:max-height .3s ease,opacity .25s ease;opacity:0}
-.plan-more.open{max-height:300px;opacity:1}
-.plan-show-more{background:none;border:none;padding:0;font-size:11.5px;font-weight:600;color:var(--accent);cursor:pointer;font-family:var(--font);margin-bottom:12px;display:flex;align-items:center;gap:4px}
-.plan-show-more:hover{opacity:.8}
+/* agents progress inline */
+.status-prog { height:4px; border-radius:99px; background:var(--border); margin-top:6px; overflow:hidden; }
+.status-prog-fill { height:100%; border-radius:99px; background:var(--accent); transition:width .4s; }
 
-.plan-action{margin-top:auto;padding-top:14px}
+/* ── Billing toggle ─────────────────────────────────────────────── */
+.billing-toggle { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:18px; }
+.btog-lbl { font-size:13px; font-weight:600; color:var(--text-3); cursor:pointer; transition:var(--t); }
+.btog-lbl.active { color:var(--text); }
+.btog-switch { position:relative; width:40px; height:22px; cursor:pointer; }
+.btog-switch input { opacity:0; width:0; height:0; position:absolute; }
+.btog-track { position:absolute; inset:0; background:var(--border); border-radius:11px; transition:var(--t); }
+.btog-switch input:checked + .btog-track { background:var(--accent); }
+.btog-thumb { position:absolute; top:3px; left:3px; width:16px; height:16px; background:#fff; border-radius:50%; transition:var(--t); box-shadow:0 1px 4px rgba(0,0,0,.22); }
+.btog-switch input:checked ~ .btog-thumb { left:21px; }
+.yearly-badge {
+  display:inline-flex; align-items:center;
+  background:rgba(34,197,94,.12); color:#16a34a;
+  border:1px solid rgba(34,197,94,.22);
+  font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  padding:1px 7px; border-radius:20px; margin-left:2px;
+}
 
-/* ─── Status banner ───────────────────────────────────────────── */
-.status-banner{
-  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:16px;padding:18px 22px;margin-bottom:20px;
+/* ── Section label ──────────────────────────────────────────────── */
+.sec-lbl {
+  font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-3); margin-bottom:12px;
+}
+
+/* ── Plan grid ──────────────────────────────────────────────────── */
+.plans-grid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:12px; margin-bottom:24px;
+  align-items:stretch;
+}
+.plan-card {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:16px; padding:18px 16px; position:relative;
+  display:flex; flex-direction:column; transition:var(--t);
+}
+.plan-card:hover { box-shadow:var(--sh); transform:translateY(-2px); }
+.plan-card.current { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-dim); }
+.plan-card.popular { border-color:var(--accent); }
+
+.plan-pill-wrap { position:absolute; top:-11px; left:50%; transform:translateX(-50%); white-space:nowrap; z-index:1; }
+.plan-pill-current { background:var(--green,#19a37a); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:3px 12px; border-radius:20px; }
+.plan-pill-popular { background:var(--accent); color:#fff; font-size:9.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:3px 12px; border-radius:20px; }
+
+.plan-name { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:8px; }
+.plan-price {
+  font-size:27px; font-weight:800; letter-spacing:-.05em;
+  font-family:var(--mono); color:var(--text); line-height:1; margin-bottom:1px;
+}
+.plan-price span { font-size:13px; font-weight:500; color:var(--text-3); letter-spacing:0; }
+.plan-save { font-size:11px; font-weight:700; color:#16a34a; min-height:15px; margin-bottom:6px; }
+
+.plan-credits-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px;
+  font-size:11px; font-weight:700; margin-bottom:12px;
+}
+
+.plan-divider { height:1px; background:var(--border); margin-bottom:11px; }
+
+/* core features — always visible, max 3 */
+.plan-core { display:flex; flex-direction:column; gap:6px; margin-bottom:8px; }
+.plan-feat { display:flex; align-items:flex-start; gap:7px; font-size:12px; color:var(--text-2); line-height:1.4; }
+.plan-feat-check { flex-shrink:0; margin-top:1px; color:var(--accent); font-size:11px; }
+
+/* expanded features */
+.plan-more {
+  display:flex; flex-direction:column; gap:6px;
+  overflow:hidden; max-height:0; opacity:0;
+  transition:max-height .3s ease, opacity .25s ease;
+}
+.plan-more.open { max-height:300px; opacity:1; }
+.plan-more-btn {
+  background:none; border:none; padding:0 0 8px;
+  font-size:11.5px; font-weight:600; color:var(--accent);
+  cursor:pointer; font-family:var(--font);
+  display:flex; align-items:center; gap:3px; transition:var(--t);
+}
+.plan-more-btn:hover { opacity:.75; }
+.plan-action { margin-top:auto; padding-top:12px; }
+
+/* ── Top-up / primary gradient button (matches home .topup-btn) ── */
+.btn-gradient {
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  width:100%; padding:11px; border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-3));
+  color:#fff; font-size:13px; font-weight:700; border:none;
+  cursor:pointer; font-family:var(--font); transition:var(--t);
+  box-shadow:0 4px 16px rgba(124,111,255,.3);
+}
+.btn-gradient:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(124,111,255,.4); }
+.btn-gradient:disabled { opacity:.5; cursor:not-allowed; transform:none; box-shadow:none; }
+
+/* ── Tabs ───────────────────────────────────────────────────────── */
+.htabs {
+  display:flex; gap:2px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:3px; width:fit-content; margin-bottom:18px;
+}
+.htab {
+  padding:6px 16px; border-radius:8px; font-size:12.5px; font-weight:600;
+  color:var(--text-3); cursor:pointer; transition:var(--t);
+  border:none; background:none; font-family:var(--font);
+}
+.htab:hover { color:var(--text); }
+.htab.active { background:var(--surface); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,.1); }
+.htab-pane { display:none; }
+.htab-pane.active { display:block; }
+
+/* sub-tabs inside History */
+.sub-tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:16px; }
+.sub-tab {
+  padding:8px 16px; font-size:12.5px; font-weight:600;
+  color:var(--text-3); cursor:pointer; border-bottom:2px solid transparent;
+  background:none; border-top:none; border-left:none; border-right:none;
+  font-family:var(--font); transition:var(--t); margin-bottom:-1px;
+}
+.sub-tab:hover { color:var(--text); }
+.sub-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
+
+/* ── Quality chips ──────────────────────────────────────────────── */
+.qcost-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.qcost-chip {
+  display:flex; align-items:center; gap:5px;
+  padding:4px 10px; border-radius:8px;
+  background:var(--surface-2); border:1px solid var(--border);
+  font-size:11.5px; font-weight:600; color:var(--text-2);
+}
+
+/* ── Credit pack cards ──────────────────────────────────────────── */
+.credit-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:24px; }
+.credit-pack {
+  background:var(--surface); border:1.5px solid var(--border);
+  border-radius:16px; padding:16px 14px; position:relative;
+  display:flex; flex-direction:column; transition:var(--t);
   box-shadow:var(--sh-sm);
 }
-.status-left{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
-.status-pill{display:flex;align-items:center;gap:8px}
-.status-pill-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:2px}
-.status-pill-val{font-size:15px;font-weight:700;color:var(--text)}
-.status-sep{width:1px;height:36px;background:var(--border)}
-.credit-big{font-family:var(--mono);font-size:22px;font-weight:800;color:var(--accent);line-height:1}
-
-/* ─── Section label ───────────────────────────────────────────── */
-.sec-label{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px}
-
-/* ─── Payment/credit rows ─────────────────────────────────────── */
-.payment-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
-.payment-row:last-child{border-bottom:none}
-.payment-plan-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--accent-dim);color:var(--accent);text-transform:capitalize}
-.payment-amount{font-family:var(--mono);font-weight:700;font-size:13.5px;color:var(--text)}
-.payment-meta{font-size:11px;color:var(--text-3);margin-top:2px}
-.payment-status{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:20px}
-.payment-status.paid,.payment-status.captured{background:rgba(34,197,94,.1);color:var(--green,#19a37a)}
-
-/* ─── Credit package cards ────────────────────────────────────── */
-.credit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
-.credit-pack{
-  background:var(--surface);border:1.5px solid var(--border);
-  border-radius:14px;padding:16px;position:relative;
-  display:flex;flex-direction:column;transition:var(--t);
+.credit-pack:hover { transform:translateY(-1px); box-shadow:var(--sh); }
+.credit-pack.best { border-color:var(--accent); }
+.credit-pack-badge {
+  position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+  background:var(--accent); color:#fff;
+  font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:2px 10px; border-radius:20px; white-space:nowrap;
 }
-.credit-pack:hover{box-shadow:var(--sh);transform:translateY(-1px)}
-.credit-pack.best{border-color:var(--accent)}
-.credit-pack-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 10px;border-radius:20px;white-space:nowrap}
-.credit-pack-amount{font-family:var(--mono);font-size:26px;font-weight:800;color:var(--accent);line-height:1;margin-bottom:2px}
-.credit-pack-label{font-size:11px;color:var(--text-3);margin-bottom:8px}
-.credit-pack-price{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--text);margin-bottom:2px}
-.credit-pack-ppc{font-size:11px;color:var(--text-3);margin-bottom:10px}
-.credit-pack-saving{font-size:11px;color:var(--green,#19a37a);font-weight:600;min-height:15px}
+.pack-amount {
+  font-size:27px; font-weight:800; letter-spacing:-.05em;
+  font-family:var(--mono); color:var(--accent); line-height:1; margin-bottom:2px;
+}
+.pack-lbl  { font-size:11.5px; color:var(--text-3); margin-bottom:8px; }
+.pack-price {
+  font-size:18px; font-weight:800; font-family:var(--mono);
+  color:var(--text); margin-bottom:1px;
+}
+.pack-ppc  { font-size:11.5px; color:var(--text-3); margin-bottom:4px; }
+.pack-save { font-size:11px; font-weight:700; color:#16a34a; min-height:14px; margin-bottom:10px; }
+.pack-perks { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+.pack-perk { font-size:11.5px; color:var(--text-2); display:flex; align-items:center; gap:5px; }
+.pack-perk::before { content:'✓'; color:var(--accent); font-weight:700; font-size:11px; flex-shrink:0; }
 
-/* ─── Tabs ────────────────────────────────────────────────────── */
-.htabs{display:flex;gap:2px;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:18px;width:fit-content}
-.htab{padding:6px 14px;border-radius:8px;font-size:12.5px;font-weight:600;color:var(--text-3);cursor:pointer;transition:var(--t);border:none;background:none;font-family:var(--font)}
-.htab:hover{color:var(--text)}
-.htab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.htab-pane{display:none}
-.htab-pane.active{display:block}
+/* ── Payment / credit history rows ─────────────────────────────── */
+.pay-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 0; border-bottom:1px solid var(--border);
+}
+.pay-row:last-child { border-bottom:none; }
+.pay-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11.5px; font-weight:700; padding:3px 9px;
+  border-radius:20px; background:var(--accent-dim); color:var(--accent);
+  text-transform:capitalize;
+}
+.pay-amount { font-family:var(--mono); font-weight:700; font-size:13.5px; color:var(--text); }
+.pay-meta   { font-size:11px; color:var(--text-3); margin-top:2px; }
+.pay-status { font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; padding:2px 7px; border-radius:20px; }
+.pay-status.paid,.pay-status.captured { background:rgba(74,222,128,.12); color:#16a34a; }
+.btn-inv {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; padding:4px 10px;
+  border-radius:8px; cursor:pointer; transition:var(--t);
+  background:var(--surface-2); color:var(--text-2); border:1px solid var(--border-md);
+}
+.btn-inv:hover { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
 
-/* ─── Quality cost row ────────────────────────────────────────── */
-.qcost-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.qcost-chip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font-size:11.5px;font-weight:600;color:var(--text-2)}
-
-/* ─── Payment overlay ─────────────────────────────────────────── */
-#payment-overlay{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);align-items:center;justify-content:center}
-#payment-overlay.active{display:flex}
-.payment-overlay-card{background:var(--surface);border-radius:18px;padding:32px 44px;text-align:center;max-width:320px}
-.payment-overlay-spinner{width:44px;height:44px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ─── Invoice modal ───────────────────────────────────────────── */
-#invoice-modal{display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.6);align-items:flex-start;justify-content:center;overflow-y:auto;padding:24px 16px}
-#invoice-modal.active{display:flex}
-.invoice-modal-wrap{background:var(--surface);border-radius:18px;width:100%;max-width:660px;box-shadow:var(--sh-lg);position:relative;margin:auto}
-.invoice-modal-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 22px;border-bottom:1px solid var(--border);gap:10px}
-#invoice-content{padding:30px 34px}
-
-/* ─── Invoice doc ─────────────────────────────────────────────── */
-.inv-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
-.inv-brand{font-size:20px;font-weight:800;color:var(--accent);letter-spacing:-.03em}
-.inv-brand span{color:var(--text-3);font-weight:400}
-.inv-meta{text-align:right}
-.inv-meta-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-3);margin-bottom:5px}
-.inv-meta-num{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px}
-.inv-meta-date{font-size:11.5px;color:var(--text-3)}
-.inv-divider{height:1px;background:var(--border);margin:18px 0}
-.inv-parties{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-bottom:22px}
-.inv-party-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);margin-bottom:7px}
-.inv-party-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px}
-.inv-party-detail{font-size:12px;color:var(--text-2);line-height:1.6}
-.inv-gstin{display:inline-block;margin-top:4px;font-family:var(--mono);font-size:11px;background:var(--surface-3);border:1px solid var(--border-md);border-radius:5px;padding:2px 7px;color:var(--text-2)}
-.inv-table{width:100%;border-collapse:collapse;margin-bottom:18px}
-.inv-table th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border-md);text-align:left}
-.inv-table th:last-child{text-align:right}
-.inv-table td{padding:10px 10px;font-size:12.5px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:top}
-.inv-table td:last-child{text-align:right;font-family:var(--mono);font-weight:600}
-.inv-table tr:last-child td{border-bottom:none}
-.inv-table-desc{font-size:11px;color:var(--text-3);margin-top:1px}
-.inv-totals{margin-left:auto;width:210px}
-.inv-total-row{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--text-2);padding:3px 0}
-.inv-total-row.grand{font-size:15px;font-weight:800;color:var(--text);padding-top:8px;margin-top:5px;border-top:2px solid var(--border-md)}
-.inv-total-row.grand .inv-total-amt{font-family:var(--mono);color:var(--accent)}
-.inv-total-amt{font-family:var(--mono);font-weight:600}
-.inv-status-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:20px;background:rgba(25,163,122,.09);color:var(--green,#19a37a);border:1px solid rgba(25,163,122,.22)}
-.inv-footer{margin-top:22px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.inv-footer-note{font-size:11px;color:var(--text-3);line-height:1.6}
-.inv-payment-ref{font-size:11px;color:var(--text-3);text-align:right}
-.inv-loading{text-align:center;padding:44px 24px;color:var(--text-3);font-size:13.5px}
-.inv-spinner{width:32px;height:32px;border:3px solid var(--border-md);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
-.btn-invoice{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;cursor:pointer;transition:var(--t);background:var(--surface-2);color:var(--text-2);border:1px solid var(--border-md)}
-.btn-invoice:hover{background:var(--accent-dim);color:var(--accent);border-color:var(--accent)}
-
-/* ─── Empty state ─────────────────────────────────────────────── */
-.empty-state{text-align:center;padding:32px 16px;color:var(--text-3);font-size:13px}
-
-/* ─── Print ───────────────────────────────────────────────────── */
-@media print{
-  body>*:not(#invoice-print-area){display:none!important}
-  #invoice-print-area{display:block!important;font-family:'Plus Jakarta Sans',Arial,sans-serif;color:#0F1117;background:#fff;padding:40px 48px;--accent:#7C6FFF;--text:#0F1117;--text-2:#5A5E78;--text-3:#9EA3BB;--border:#E5E5EA;--border-md:#D1D1D6;--surface-3:#F7F8FD;--green:#19a37a;--green-dim:rgba(25,163,122,.09);--green-border:rgba(25,163,122,.22);--mono:'JetBrains Mono',monospace}
+/* credit purchase row number */
+.credit-row-num {
+  font-family:var(--mono); font-weight:800; font-size:17px; color:var(--accent);
 }
 
-/* ─── Responsive ──────────────────────────────────────────────── */
-@media(max-width:1100px){.plans-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:680px){
-  .plans-grid{grid-template-columns:1fr}
-  .credit-grid{grid-template-columns:1fr}
-  .status-banner{grid-template-columns:1fr}
-  .status-left{gap:12px}
+/* ── Balance card in credits tab ────────────────────────────────── */
+.bal-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:16px 18px;
+  display:flex; align-items:center; justify-content:space-between;
+  box-shadow:var(--sh-sm); margin-bottom:20px;
+}
+.bal-num {
+  font-size:27px; font-weight:800; letter-spacing:-.05em;
+  font-family:var(--mono); line-height:1;
+}
+.bal-lbl { font-size:12px; font-weight:600; color:var(--text-2); margin-top:2px; }
+
+/* ── Empty ──────────────────────────────────────────────────────── */
+.empty-row { text-align:center; padding:28px 16px; color:var(--text-3); font-size:13px; }
+
+/* ── Payment overlay ────────────────────────────────────────────── */
+#payment-overlay {
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,.55); align-items:center; justify-content:center;
+}
+#payment-overlay.active { display:flex; }
+.overlay-card {
+  background:var(--surface); border-radius:18px; padding:32px 44px;
+  text-align:center; max-width:320px; box-shadow:var(--sh-lg);
+}
+.overlay-spinner {
+  width:44px; height:44px; border:4px solid var(--border);
+  border-top-color:var(--accent); border-radius:50%;
+  animation:spin .8s linear infinite; margin:0 auto 16px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.overlay-title { font-size:15px; font-weight:700; margin-bottom:5px; color:var(--text); }
+.overlay-msg   { font-size:12.5px; color:var(--text-2); }
+
+/* ── Invoice modal ──────────────────────────────────────────────── */
+#invoice-modal {
+  display:none; position:fixed; inset:0; z-index:9998;
+  background:rgba(0,0,0,.6); align-items:flex-start;
+  justify-content:center; overflow-y:auto; padding:24px 16px;
+}
+#invoice-modal.active { display:flex; }
+.inv-wrap {
+  background:var(--surface); border-radius:16px;
+  width:100%; max-width:660px; box-shadow:var(--sh-lg);
+  position:relative; margin:auto;
+}
+.inv-toolbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 22px; border-bottom:1px solid var(--border); gap:10px;
+}
+.inv-toolbar-title { font-size:13.5px; font-weight:700; color:var(--text); }
+#invoice-content { padding:30px 34px; }
+
+/* Invoice document */
+.inv-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:22px; }
+.inv-brand  { font-size:20px; font-weight:800; color:var(--accent); letter-spacing:-.03em; }
+.inv-brand span { color:var(--text-3); font-weight:400; }
+.inv-meta { text-align:right; }
+.inv-meta-tag  { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--text-3); margin-bottom:4px; }
+.inv-meta-num  { font-family:var(--mono); font-size:14px; font-weight:700; color:var(--text); margin-bottom:2px; }
+.inv-meta-date { font-size:11.5px; color:var(--text-3); }
+.inv-divider   { height:1px; background:var(--border); margin:18px 0; }
+.inv-parties   { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+.inv-party-lbl  { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); margin-bottom:6px; }
+.inv-party-name { font-size:13.5px; font-weight:700; color:var(--text); margin-bottom:3px; }
+.inv-party-info { font-size:12px; color:var(--text-2); line-height:1.6; }
+.inv-gstin { display:inline-block; margin-top:4px; font-family:var(--mono); font-size:11px; background:var(--surface-3); border:1px solid var(--border-md); border-radius:5px; padding:2px 7px; color:var(--text-2); }
+.inv-table { width:100%; border-collapse:collapse; margin-bottom:18px; }
+.inv-table th { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--text-3); padding:7px 10px; border-bottom:2px solid var(--border-md); text-align:left; }
+.inv-table th:last-child { text-align:right; }
+.inv-table td { padding:10px; font-size:12.5px; color:var(--text); border-bottom:1px solid var(--border); vertical-align:top; }
+.inv-table td:last-child { text-align:right; font-family:var(--mono); font-weight:600; }
+.inv-table tr:last-child td { border-bottom:none; }
+.inv-table-sub { font-size:11px; color:var(--text-3); margin-top:1px; }
+.inv-totals { margin-left:auto; width:210px; }
+.inv-total-row { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; color:var(--text-2); padding:3px 0; }
+.inv-total-row.grand { font-size:15px; font-weight:800; color:var(--text); padding-top:8px; margin-top:5px; border-top:2px solid var(--border-md); }
+.inv-total-row.grand .inv-total-amt { font-family:var(--mono); color:var(--accent); }
+.inv-total-amt { font-family:var(--mono); font-weight:600; }
+.inv-paid-badge { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; padding:3px 10px; border-radius:20px; background:rgba(74,222,128,.12); color:#16a34a; border:1px solid rgba(74,222,128,.22); }
+.inv-footer { margin-top:20px; padding-top:14px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.inv-footer-note { font-size:11px; color:var(--text-3); line-height:1.6; }
+.inv-loading { text-align:center; padding:44px 24px; color:var(--text-3); font-size:13px; }
+.inv-spinner { width:32px; height:32px; border:3px solid var(--border-md); border-top-color:var(--accent); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 12px; }
+
+/* ── Print ──────────────────────────────────────────────────────── */
+@media print {
+  body>*:not(#invoice-print-area){ display:none!important; }
+  #invoice-print-area {
+    display:block!important; font-family:'Plus Jakarta Sans',Arial,sans-serif;
+    color:#0F1117; background:#fff; padding:40px 48px;
+    --accent:#7C6FFF; --text:#0F1117; --text-2:#5A5E78; --text-3:#9EA3BB;
+    --border:#E5E5EA; --border-md:#D1D1D6; --surface-3:#F7F8FD;
+    --mono:'JetBrains Mono',monospace;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media(max-width:1100px){ .plans-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:860px) { .status-row{ grid-template-columns:repeat(2,1fr); } .credit-grid{ grid-template-columns:repeat(2,1fr); } }
+@media(max-width:640px) {
+  .plans-grid{ grid-template-columns:1fr; }
+  .status-row{ grid-template-columns:1fr 1fr; }
+  .credit-grid{ grid-template-columns:1fr; }
 }
 </style>
-<link rel="stylesheet" href="shared.css">
-<script>;(function(){var d=localStorage.getItem('ba_theme')==='dark';document.documentElement[d?'setAttribute':'removeAttribute']('data-theme','dark');document.documentElement.style.background=d?'#07080D':'#F2F3F9';})();</script>
+<script>
+;(function(){
+  var d = localStorage.getItem('ba_theme') === 'dark';
+  document.documentElement[d ? 'setAttribute' : 'removeAttribute']('data-theme','dark');
+  document.documentElement.style.background = d ? '#07080D' : '#F2F3F9';
+})();
+</script>
 <script src="api.js"></script>
 <script src="nav.js"></script>
 </head>
 <body>
 <div id="toast-container"></div>
 
-<!-- Payment overlay -->
+<!-- Payment processing overlay -->
 <div id="payment-overlay">
-  <div class="payment-overlay-card">
-    <div class="payment-overlay-spinner"></div>
-    <div style="font-size:15px;font-weight:700;margin-bottom:5px" id="overlay-title">Processing Payment</div>
-    <div style="font-size:12.5px;color:var(--text-2)" id="overlay-msg">Please wait…</div>
+  <div class="overlay-card">
+    <div class="overlay-spinner"></div>
+    <div class="overlay-title" id="overlay-title">Processing Payment</div>
+    <div class="overlay-msg"   id="overlay-msg">Please wait…</div>
   </div>
 </div>
 
 <!-- Invoice modal -->
 <div id="invoice-modal" onclick="handleInvoiceBackdropClick(event)">
-  <div class="invoice-modal-wrap">
-    <div class="invoice-modal-toolbar">
-      <div style="font-size:13px;font-weight:700">🧾 Invoice</div>
+  <div class="inv-wrap">
+    <div class="inv-toolbar">
+      <div class="inv-toolbar-title">🧾 Invoice</div>
       <div style="display:flex;gap:8px;align-items:center">
         <button class="btn btn-primary btn-sm" onclick="printInvoice()" id="inv-print-btn" style="display:none">🖨️ Print / PDF</button>
         <button class="btn btn-secondary btn-sm" onclick="closeInvoiceModal()">✕ Close</button>
       </div>
     </div>
-    <div id="invoice-content"><div class="inv-loading"><div class="inv-spinner"></div>Loading…</div></div>
+    <div id="invoice-content">
+      <div class="inv-loading"><div class="inv-spinner"></div>Loading invoice…</div>
+    </div>
   </div>
 </div>
 <div id="invoice-print-area" style="display:none"></div>
@@ -230,12 +402,17 @@
 <div id="page-skeleton">
   <div class="skel-topbar"><div class="skel" style="height:12px;width:140px;border-radius:4px"></div></div>
   <div class="skel-body">
-    <div class="skel" style="height:74px;border-radius:14px;margin-bottom:18px"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px">
+      <div class="skel" style="height:84px;border-radius:16px"></div>
+      <div class="skel" style="height:84px;border-radius:16px;opacity:.85"></div>
+      <div class="skel" style="height:84px;border-radius:16px;opacity:.7"></div>
+      <div class="skel" style="height:84px;border-radius:16px;opacity:.55"></div>
+    </div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
-      <div class="skel" style="height:260px;border-radius:14px"></div>
-      <div class="skel" style="height:260px;border-radius:14px;opacity:.85"></div>
-      <div class="skel" style="height:260px;border-radius:14px;opacity:.7"></div>
-      <div class="skel" style="height:260px;border-radius:14px;opacity:.55"></div>
+      <div class="skel" style="height:280px;border-radius:16px"></div>
+      <div class="skel" style="height:280px;border-radius:16px;opacity:.85"></div>
+      <div class="skel" style="height:280px;border-radius:16px;opacity:.7"></div>
+      <div class="skel" style="height:280px;border-radius:16px;opacity:.55"></div>
     </div>
   </div>
 </div>
@@ -248,125 +425,138 @@
 
   <div class="content" id="page-content" style="display:none">
 
-    <!-- ── Status Banner ───────────────────────────────────────── -->
-    <div class="status-banner">
-      <div class="status-left">
+    <!-- ── Page header ──────────────────────────────────────────── -->
+    <div class="page-header">
+      <div>
+        <h1>Billing &amp; Plans</h1>
+        <p>Manage your subscription, buy credits, and view invoices.</p>
+      </div>
+      <a href="account.html" class="btn btn-secondary btn-sm" style="margin-top:4px">⚙️ Account Settings</a>
+    </div>
 
-        <div class="status-pill">
-          <div class="status-pill-label">Current Plan</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span class="badge badge-accent" id="current-plan-badge">—</span>
-            <span id="billing-type-label" style="font-size:11.5px;color:var(--text-3)"></span>
-          </div>
+    <!-- ── Status row ───────────────────────────────────────────── -->
+    <div class="status-row">
+
+      <!-- Current plan -->
+      <div class="status-card">
+        <div class="status-icon-box sib-purple">🏷️</div>
+        <div class="status-info">
+          <div class="status-lbl">Current Plan</div>
+          <div style="margin-top:4px"><span class="badge badge-accent" id="current-plan-badge">—</span></div>
+          <div class="status-sub" id="billing-type-label"></div>
         </div>
+      </div>
 
-        <div class="status-sep"></div>
-
-        <div class="status-pill">
-          <div class="status-pill-label">⚡ Credits</div>
-          <div style="display:flex;align-items:baseline;gap:5px">
-            <span class="credit-big" id="u-credits">—</span>
-            <span style="font-size:11.5px;color:var(--text-3)">available</span>
-          </div>
-          <div id="u-credits-expiry" style="font-size:11px;color:var(--text-3);margin-top:1px;display:none">
+      <!-- Credits -->
+      <div class="status-card">
+        <div class="status-icon-box sib-teal">⚡</div>
+        <div class="status-info">
+          <div class="status-lbl">Credits</div>
+          <div class="status-num" id="u-credits">—</div>
+          <div class="status-sub">available</div>
+          <div class="credit-expiry-note" id="u-credits-expiry" style="display:none">
             ⏰ Expires <strong id="u-credits-expiry-date"></strong>
           </div>
         </div>
+      </div>
 
-        <div class="status-sep"></div>
-
-        <div class="status-pill">
-          <div class="status-pill-label">Agents</div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-family:var(--mono);font-size:15px;font-weight:700"><span id="u-agents">—</span><span style="font-size:12px;color:var(--text-3);font-weight:500"> / <span id="u-agents-cap">—</span></span></span>
-            <div class="progress-bar" style="height:5px;width:72px">
-              <div class="progress-fill" id="u-agents-bar" style="width:0%"></div>
-            </div>
+      <!-- Agents -->
+      <div class="status-card">
+        <div class="status-icon-box sib-blue">🤖</div>
+        <div class="status-info">
+          <div class="status-lbl">Agents</div>
+          <div class="status-num">
+            <span id="u-agents">—</span><span style="font-size:14px;color:var(--text-3);font-weight:500"> / <span id="u-agents-cap">—</span></span>
           </div>
+          <div class="status-prog"><div class="status-prog-fill" id="u-agents-bar" style="width:0%"></div></div>
+          <div class="status-sub" id="u-agents-pct"></div>
         </div>
+      </div>
 
-        <div class="status-sep"></div>
-
-        <div class="status-pill">
-          <div class="status-pill-label">Renews / Expires</div>
-          <div style="font-size:13.5px;font-weight:600" id="u-expires-date">—</div>
+      <!-- Renews -->
+      <div class="status-card">
+        <div class="status-icon-box sib-amber">📅</div>
+        <div class="status-info">
+          <div class="status-lbl">Renews / Expires</div>
+          <div style="font-size:14px;font-weight:700;color:var(--text);margin-top:4px" id="u-expires-date">—</div>
+          <div class="status-sub" id="u-expires-label"></div>
         </div>
+      </div>
 
-      </div>
-      <div>
-        <a href="account.html" class="btn btn-secondary btn-sm">⚙️ Account</a>
-      </div>
+    </div>
+
+    <!-- ── Billing toggle ───────────────────────────────────────── -->
+    <div class="billing-toggle">
+      <span class="btog-lbl active" id="label-monthly">Monthly</span>
+      <label class="btog-switch">
+        <input type="checkbox" id="billing-toggle" onchange="toggleBilling()">
+        <div class="btog-track"></div>
+        <div class="btog-thumb"></div>
+      </label>
+      <span class="btog-lbl" id="label-yearly">Yearly <span class="yearly-badge">Save 10%</span></span>
     </div>
 
     <!-- ── Plans ────────────────────────────────────────────────── -->
-    <div class="billing-toggle">
-      <span class="billing-toggle-label active" id="label-monthly">Monthly</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="billing-toggle" onchange="toggleBilling()">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-      <span class="billing-toggle-label" id="label-yearly">
-        Yearly <span class="yearly-badge">Save 10%</span>
-      </span>
-    </div>
+    <div class="sec-lbl">Choose Your Plan</div>
+    <div class="plans-grid" id="plans-grid"><!-- rendered by JS --></div>
 
-    <div class="sec-label">Choose Your Plan</div>
-    <div class="plans-grid" id="plans-grid"><!-- Rendered by JS --></div>
-
-    <!-- ── Tabs: Credits | History ──────────────────────────────── -->
-    <div id="credits-section" style="height:16px"></div>
-
+    <!-- ── Credits / History tabs ──────────────────────────────── -->
+    <div id="credits-section"></div>
     <div class="htabs">
-      <button class="htab active" onclick="switchTab('credits')">⚡ Credits</button>
-      <button class="htab" onclick="switchTab('history')">🧾 History</button>
+      <button class="htab active" id="tab-btn-credits" onclick="switchTab('credits')">⚡ Credits</button>
+      <button class="htab"        id="tab-btn-history" onclick="switchTab('history')">🧾 History</button>
     </div>
 
-    <!-- CREDITS TAB -->
+    <!-- CREDITS TAB ─────────────────────────────────────────────── -->
     <div class="htab-pane active" id="tab-credits">
 
-      <!-- Quality cost info -->
-      <div class="qcost-row" id="qcost-row">
-        <span class="qcost-chip">🟢 Standard = <strong id="qcost-low" style="margin-left:3px">1</strong>&nbsp;credit</span>
-        <span class="qcost-chip">🟡 Balanced = <strong id="qcost-medium" style="margin-left:3px">2</strong>&nbsp;credits</span>
-        <span class="qcost-chip">🔴 Premium = <strong id="qcost-high" style="margin-left:3px">3</strong>&nbsp;credits</span>
-        <span style="font-size:11.5px;color:var(--text-3);align-self:center">Credits are consumed per try-on. Never expire after top-up.</span>
+      <!-- Balance card -->
+      <div class="bal-card">
+        <div>
+          <div class="status-lbl" style="margin-bottom:4px">⚡ Credit Balance</div>
+          <div class="bal-num" id="credit-balance">—</div>
+          <div class="bal-lbl">credits available</div>
+        </div>
+        <div>
+          <div class="qcost-row" id="qcost-row" style="margin-bottom:0;justify-content:flex-end">
+            <span class="qcost-chip">🟢 Standard = <strong id="qcost-low" style="margin-left:2px">1</strong></span>
+            <span class="qcost-chip">🟡 Balanced = <strong id="qcost-medium" style="margin-left:2px">2</strong></span>
+            <span class="qcost-chip">🔴 Premium = <strong id="qcost-high" style="margin-left:2px">3</strong></span>
+          </div>
+          <div style="font-size:11px;color:var(--text-3);text-align:right;margin-top:5px">credits per try-on · top-up packs never expire</div>
+        </div>
       </div>
 
-      <div class="sec-label" style="margin-top:4px">Top Up Credits</div>
+      <div class="sec-lbl">Top Up Credits</div>
       <div class="credit-grid" id="credit-packages-grid">
         <div style="color:var(--text-3);font-size:13px">Loading…</div>
       </div>
 
-      <!-- Credit balance card -->
-      <div class="card" style="margin-bottom:0">
+      <!-- Recent credit summary -->
+      <div class="card" style="margin-bottom:0" id="credit-recent-card" style="display:none">
         <div class="card-header">
-          <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
-          <div style="display:flex;align-items:baseline;gap:6px">
-            <span style="font-family:var(--mono);font-size:26px;font-weight:800;color:var(--accent)" id="credit-balance">—</span>
-            <span style="font-size:12.5px;color:var(--text-3)">credits</span>
-          </div>
+          <div class="card-title"><span class="card-icon">📋</span>Recent Credit Activity</div>
+          <button class="btn btn-secondary btn-sm" onclick="switchTab('history');switchSubTab('credit')">View all →</button>
         </div>
-        <div class="card-body" style="padding-top:0" id="credit-balance-body">
-          <div style="font-size:13px;color:var(--text-3)">Loading…</div>
+        <div class="card-body" id="credit-recent-body">
+          <div class="empty-row">No credit purchases yet.</div>
         </div>
       </div>
 
     </div>
 
-    <!-- HISTORY TAB -->
+    <!-- HISTORY TAB ─────────────────────────────────────────────── -->
     <div class="htab-pane" id="tab-history">
 
-      <!-- Sub-tabs: Plan Payments | Credit Purchases -->
-      <div style="display:flex;gap:16px;margin-bottom:16px;border-bottom:1px solid var(--border)">
-        <button class="htab active" id="sub-plan-btn" onclick="switchSubTab('plan')" style="border-radius:0;padding:6px 0;border-bottom:2px solid var(--accent);background:none">Plan Payments</button>
-        <button class="htab" id="sub-credit-btn" onclick="switchSubTab('credit')" style="border-radius:0;padding:6px 0;border-bottom:2px solid transparent;background:none">Credit Purchases</button>
+      <div class="sub-tabs">
+        <button class="sub-tab active" id="sub-btn-plan"   onclick="switchSubTab('plan')">Plan Payments</button>
+        <button class="sub-tab"        id="sub-btn-credit" onclick="switchSubTab('credit')">Credit Purchases</button>
       </div>
 
       <div id="sub-plan">
         <div class="card">
           <div class="card-body" id="payment-history-body">
-            <div class="empty-state">No payment history yet.</div>
+            <div class="empty-row">No plan payments yet.</div>
           </div>
         </div>
       </div>
@@ -374,49 +564,52 @@
       <div id="sub-credit" style="display:none">
         <div class="card">
           <div class="card-body" id="credit-purchase-body">
-            <div class="empty-state">No credit purchases yet.</div>
+            <div class="empty-row">No credit purchases yet.</div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- ── FAQ (collapsed) ──────────────────────────────────────── -->
+    <!-- ── FAQ ──────────────────────────────────────────────────── -->
     <div style="height:24px"></div>
     <div class="card">
-      <div class="card-header" style="cursor:pointer" onclick="toggleFAQ(this)">
-        <div class="card-title"><span class="card-icon">❓</span>Frequently Asked Questions</div>
-        <span style="font-size:12px;color:var(--text-3)" id="faq-toggle-lbl">Show ▾</span>
+      <div class="card-header" style="cursor:pointer" onclick="toggleFAQ()">
+        <div class="card-title"><span class="card-icon">❓</span>FAQ</div>
+        <span style="font-size:12px;color:var(--text-3)" id="faq-lbl">Show ▾</span>
       </div>
-      <div class="card-body" id="faq-body" style="display:none;flex-direction:column;gap:16px">
-
-        <div>
-          <div style="font-size:13px;font-weight:700;margin-bottom:4px">What happens when I run out of credits?</div>
-          <div style="font-size:12.5px;color:var(--text-2)">Try-on requests are paused until you top up or renew. Top-up packs never expire and carry over.</div>
+      <div id="faq-body" style="display:none" class="card-body">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">What happens when I run out of credits?</div>
+            <div style="font-size:12.5px;color:var(--text-2)">Try-on requests pause until you top up or renew. Top-up packs never expire and carry over indefinitely.</div>
+          </div>
+          <div class="divider" style="margin:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">When do plan credits expire?</div>
+            <div style="font-size:12.5px;color:var(--text-2)">Plan credits expire at the end of your billing period. Credits bought separately never expire.</div>
+          </div>
+          <div class="divider" style="margin:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Is payment secure?</div>
+            <div style="font-size:12.5px;color:var(--text-2)">All payments go through Razorpay (PCI-DSS compliant). We never store card details. UPI, cards, net banking, and wallets supported.</div>
+          </div>
+          <div class="divider" style="margin:0"></div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:3px">Can I upgrade or downgrade?</div>
+            <div style="font-size:12.5px;color:var(--text-2)">Upgrades take effect immediately. For downgrades or cancellations contact support — we'll sort it out right away.</div>
+          </div>
         </div>
-        <div class="divider" style="margin:0"></div>
-        <div>
-          <div style="font-size:13px;font-weight:700;margin-bottom:4px">When do plan credits expire?</div>
-          <div style="font-size:12.5px;color:var(--text-2)">Plan credits expire at the end of your billing period. Credits bought as top-up packs never expire.</div>
-        </div>
-        <div class="divider" style="margin:0"></div>
-        <div>
-          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Is my payment secure?</div>
-          <div style="font-size:12.5px;color:var(--text-2)">Payments are processed by Razorpay (PCI-DSS compliant). We never store card details. UPI, cards, net banking, and wallets all supported.</div>
-        </div>
-        <div class="divider" style="margin:0"></div>
-        <div>
-          <div style="font-size:13px;font-weight:700;margin-bottom:4px">Can I upgrade or downgrade?</div>
-          <div style="font-size:12.5px;color:var(--text-2)">Upgrades take effect immediately. For downgrades or cancellations, contact support.</div>
-        </div>
-
       </div>
     </div>
 
-  </div>
-</div>
+  </div><!-- /#page-content -->
+</div><!-- /.main-wrap -->
 
 <script>
+/* ══════════════════════════════════════════════════════════════════
+   RUNTIME STATE
+══════════════════════════════════════════════════════════════════ */
 const WHATSAPP_NUM = '917890123456'
 
 let PLAN_LIMITS  = {}
@@ -425,6 +618,10 @@ let PLAN_LABELS  = {
   small:'🌱 Small', medium:'🌿 Medium', enterprise:'🏢 Enterprise',
   starter:'🆓 Free', grower:'🌱 Small',
 }
+let PLAN_ICONS = {
+  free:'🆓', standard:'⚡', pro:'🚀', studio:'🎬',
+  small:'🌱', medium:'🌿', enterprise:'🏢', starter:'🆓', grower:'🌱',
+}
 let CREDIT_PACKAGES_DATA = []
 let qualityCosts = { low:1, medium:2, high:3 }
 let currentPlan  = 'free'
@@ -432,60 +629,69 @@ let billingCycle = 'monthly'
 let currentUser  = null
 let plansData    = []
 
-// ── Tab helpers ──────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.htabs:first-of-type .htab').forEach(b => b.classList.toggle('active', b.textContent.toLowerCase().includes(tab === 'credits' ? 'credit' : 'hist')))
-  document.getElementById('tab-credits').classList.toggle('active', tab === 'credits')
-  document.getElementById('tab-history').classList.toggle('active', tab === 'history')
+/* ── Helpers ──────────────────────────────────────────────────── */
+function fmtDate(iso) {
+  if (!iso) return '—'
+  try { return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) }
+  catch { return iso }
 }
+function qs(id) { return document.getElementById(id) }
 
-function switchSubTab(sub) {
-  const isPlan = sub === 'plan'
-  document.getElementById('sub-plan').style.display   = isPlan ? 'block' : 'none'
-  document.getElementById('sub-credit').style.display = isPlan ? 'none'  : 'block'
-  document.getElementById('sub-plan-btn').style.borderBottomColor   = isPlan ? 'var(--accent)' : 'transparent'
-  document.getElementById('sub-credit-btn').style.borderBottomColor = isPlan ? 'transparent' : 'var(--accent)'
-  document.getElementById('sub-plan-btn').classList.toggle('active', isPlan)
-  document.getElementById('sub-credit-btn').classList.toggle('active', !isPlan)
-}
-
-function toggleFAQ(header) {
-  const body = document.getElementById('faq-body')
-  const lbl  = document.getElementById('faq-toggle-lbl')
-  const open = body.style.display !== 'none'
-  body.style.display = open ? 'none' : 'flex'
-  lbl.textContent    = open ? 'Show ▾' : 'Hide ▴'
-}
-
-// ── Plan card show/more ──────────────────────────────────────────────────────
-function togglePlanMore(btn, planId) {
-  const moreEl = document.getElementById('plan-more-' + planId)
-  if (!moreEl) return
-  const open = moreEl.classList.toggle('open')
-  btn.innerHTML = open ? '▴ Less' : '▾ More features'
-}
-
-// ── Billing toggle ───────────────────────────────────────────────────────────
+/* ── UI toggles ───────────────────────────────────────────────── */
 function toggleBilling() {
-  billingCycle = document.getElementById('billing-toggle').checked ? 'yearly' : 'monthly'
-  document.getElementById('label-monthly').classList.toggle('active', billingCycle === 'monthly')
-  document.getElementById('label-yearly').classList.toggle('active',  billingCycle === 'yearly')
+  billingCycle = qs('billing-toggle').checked ? 'yearly' : 'monthly'
+  qs('label-monthly').classList.toggle('active', billingCycle === 'monthly')
+  qs('label-yearly').classList.toggle('active',  billingCycle === 'yearly')
   renderPlans()
 }
 
-// ── Plan icons/colours ───────────────────────────────────────────────────────
-const PLAN_ICONS = { free:'🆓', standard:'⚡', pro:'🚀', studio:'🎬', small:'🌱', medium:'🌿', enterprise:'🏢', starter:'🆓', grower:'🌱' }
-
-// Core features to ALWAYS show (max 3), rest hidden behind "show more"
-function splitFeatures(features) {
-  const core = features.slice(0, 3)
-  const more = features.slice(3)
-  return { core, more }
+function switchTab(tab) {
+  ;['credits','history'].forEach(t => {
+    qs('tab-btn-' + t).classList.toggle('active', t === tab)
+    qs('tab-' + t).classList.toggle('active', t === tab)
+  })
 }
 
-// ── Render plan cards ─────────────────────────────────────────────────────────
+function switchSubTab(sub) {
+  ;['plan','credit'].forEach(s => {
+    qs('sub-btn-' + s).classList.toggle('active', s === sub)
+    qs('sub-' + s).style.display = s === sub ? 'block' : 'none'
+  })
+}
+
+function toggleFAQ() {
+  const body = qs('faq-body')
+  const open = body.style.display !== 'none'
+  body.style.display = open ? 'none' : 'block'
+  qs('faq-lbl').textContent = open ? 'Show ▾' : 'Hide ▴'
+}
+
+function togglePlanMore(btn, planId) {
+  const el = qs('plan-more-' + planId)
+  if (!el) return
+  const open = el.classList.toggle('open')
+  btn.textContent = open ? '▴ Less' : '▾ More features'
+}
+
+/* ── Overlay ──────────────────────────────────────────────────── */
+function showOverlay(title, msg) {
+  qs('overlay-title').textContent = title
+  qs('overlay-msg').textContent   = msg
+  qs('payment-overlay').classList.add('active')
+}
+function hideOverlay() { qs('payment-overlay').classList.remove('active') }
+
+/* ── Contact sales ────────────────────────────────────────────── */
+function contactSales(plan) {
+  const name = plan.charAt(0).toUpperCase() + plan.slice(1)
+  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(`Hi! I'd like to know more about the BoutiqueAI ${name} plan.`)}`, '_blank')
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RENDER PLAN CARDS
+══════════════════════════════════════════════════════════════════ */
 function renderPlans() {
-  const grid = document.getElementById('plans-grid')
+  const grid = qs('plans-grid')
   if (!grid || !plansData.length) return
   grid.innerHTML = ''
 
@@ -496,55 +702,64 @@ function renderPlans() {
     const isUpgrade  = planIdx > currentIdx
     const price      = plan.price_inr[billingCycle]
     const savings    = billingCycle === 'yearly' ? (plan.savings_inr?.yearly || 0) : 0
-    const creditsMonthly = plan.limits?.credits_included        || 0
-    const creditsYearly  = plan.limits?.credits_included_yearly || 0
-    const credits    = billingCycle === 'yearly' ? creditsYearly : creditsMonthly
+    const crMo       = plan.limits?.credits_included        || 0
+    const crYr       = plan.limits?.credits_included_yearly || 0
+    const credits    = billingCycle === 'yearly' ? crYr : crMo
     const isFree     = price === 0 && !plan.contact
-    const { core, more } = splitFeatures(plan.features || [])
+
+    // Feature split: first 3 core, rest expandable
+    const feats = plan.features || []
+    const core  = feats.slice(0, 3)
+    const more  = feats.slice(3)
 
     const card = document.createElement('div')
     card.className = `plan-card${plan.popular ? ' popular' : ''}${isCurrent ? ' current' : ''}`
 
+    /* badge */
     const badge = isCurrent
-      ? `<div class="plan-badge-wrap"><span class="plan-badge-current">✓ Current</span></div>`
-      : (plan.popular && !isCurrent)
-        ? `<div class="plan-badge-wrap"><span class="plan-badge-popular">Popular</span></div>`
+      ? `<div class="plan-pill-wrap"><span class="plan-pill-current">✓ Current</span></div>`
+      : plan.popular
+        ? `<div class="plan-pill-wrap"><span class="plan-pill-popular">Popular</span></div>`
         : ''
 
+    /* price block */
     const priceHtml = isFree
-      ? `<div class="plan-price" style="font-size:24px;letter-spacing:-.03em">Free</div>`
+      ? `<div class="plan-price" style="font-size:22px">Free</div>`
       : plan.contact
-        ? `<div class="plan-price" style="font-size:22px">Custom</div>`
+        ? `<div class="plan-price" style="font-size:20px">Custom</div>`
         : `<div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/${billingCycle==='yearly'?'yr':'mo'}</span></div>`
 
-    const savingsHtml = savings > 0
-      ? `<div class="plan-savings">🎉 Save ₹${savings.toLocaleString('en-IN')}</div>`
-      : `<div class="plan-savings"></div>`
+    /* savings */
+    const saveHtml = savings > 0
+      ? `<div class="plan-save">🎉 Save ₹${savings.toLocaleString('en-IN')}</div>`
+      : `<div class="plan-save"></div>`
 
-    const chipColor = isFree ? 'rgba(34,197,94,.12)' : 'var(--accent-dim)'
-    const chipBorder = isFree ? 'rgba(34,197,94,.25)' : 'rgba(124,111,255,.22)'
-    const chipText  = isFree ? 'var(--green,#22c55e)' : 'var(--accent)'
-    const chipLabel = isFree
+    /* credits chip */
+    const chipBg    = isFree ? 'rgba(34,197,94,.12)'       : 'var(--accent-dim)'
+    const chipBd    = isFree ? 'rgba(34,197,94,.25)'        : 'rgba(124,111,255,.22)'
+    const chipColor = isFree ? 'var(--green,#16a34a)'       : 'var(--accent)'
+    const chipLbl   = isFree
       ? `${credits} credits on signup`
       : billingCycle === 'yearly'
         ? `${credits.toLocaleString('en-IN')} credits (12 mo)`
         : `${credits.toLocaleString('en-IN')} credits/mo`
-
-    const creditsChip = credits > 0
-      ? `<div class="plan-credits-chip" style="background:${chipColor};border:1px solid ${chipBorder};color:${chipText}">⚡ ${chipLabel}</div>`
+    const chipHtml  = credits > 0
+      ? `<div class="plan-credits-chip" style="background:${chipBg};border:1px solid ${chipBd};color:${chipColor}">⚡ ${chipLbl}</div>`
       : ''
 
-    const coreFeat = core.map(f =>
-      `<div class="plan-feat"><span class="plan-feat-icon">✅</span><span>${f.text}</span></div>`
+    /* features */
+    const coreHtml = core.map(f =>
+      `<div class="plan-feat"><span class="plan-feat-check">✓</span><span>${f.text}</span></div>`
     ).join('')
 
-    const moreFeat = more.length > 0
+    const moreHtml = more.length
       ? `<div class="plan-more" id="plan-more-${plan.id}">
-          ${more.map(f => `<div class="plan-feat"><span class="plan-feat-icon">✅</span><span>${f.text}</span></div>`).join('')}
+          ${more.map(f => `<div class="plan-feat"><span class="plan-feat-check">✓</span><span>${f.text}</span></div>`).join('')}
         </div>
-        <button class="plan-show-more" onclick="togglePlanMore(this,'${plan.id}')">▾ More features</button>`
+        <button class="plan-more-btn" onclick="togglePlanMore(this,'${plan.id}')">▾ More features</button>`
       : ''
 
+    /* CTA */
     let btnHtml = ''
     if (isCurrent) {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>✓ Current Plan</button>`
@@ -553,60 +768,66 @@ function renderPlans() {
     } else if (isFree) {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>Free Plan</button>`
     } else if (isUpgrade) {
-      btnHtml = `<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="startPayment('${plan.id}')">⬆️ ${plan.cta || 'Upgrade'}</button>`
+      btnHtml = `<button class="btn-gradient" onclick="startPayment('${plan.id}')">⬆️ ${plan.cta || 'Upgrade'}</button>`
     } else {
       btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">Contact Us</button>`
     }
 
     card.innerHTML = `
       ${badge}
-      <div class="plan-label">${PLAN_ICONS[plan.id] || ''} ${plan.name}</div>
+      <div class="plan-name">${PLAN_ICONS[plan.id] || ''} ${plan.name}</div>
       ${priceHtml}
-      ${savingsHtml}
-      ${creditsChip}
+      ${saveHtml}
+      ${chipHtml}
       <div class="plan-divider"></div>
-      <div class="plan-core">${coreFeat}</div>
-      ${moreFeat}
+      <div class="plan-core">${coreHtml}</div>
+      ${moreHtml}
       <div class="plan-action">${btnHtml}</div>
     `
     grid.appendChild(card)
   })
 }
 
-// ── Credit packages ───────────────────────────────────────────────────────────
+function showPlansError(msg) {
+  const grid = qs('plans-grid')
+  if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:13.5px">⚠️ ${msg}</div>`
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RENDER CREDIT PACKAGES
+══════════════════════════════════════════════════════════════════ */
 function renderCreditPackages(packages, qcosts) {
   CREDIT_PACKAGES_DATA = packages || CREDIT_PACKAGES_DATA
   if (qcosts) {
     qualityCosts = qcosts
-    const el = id => document.getElementById(id)
-    if (el('qcost-low'))    el('qcost-low').textContent    = qcosts.low    ?? 1
-    if (el('qcost-medium')) el('qcost-medium').textContent = qcosts.medium ?? 2
-    if (el('qcost-high'))   el('qcost-high').textContent   = qcosts.high   ?? 3
+    ;['low','medium','high'].forEach(q => {
+      const el = qs('qcost-' + q)
+      if (el) el.textContent = qcosts[q] ?? (q==='low'?1:q==='medium'?2:3)
+    })
   }
-  const grid = document.getElementById('credit-packages-grid')
+  const grid = qs('credit-packages-grid')
   if (!grid) return
   if (!CREDIT_PACKAGES_DATA.length) {
     grid.innerHTML = '<div style="color:var(--text-3);font-size:13px">No packages available.</div>'
     return
   }
   grid.innerHTML = CREDIT_PACKAGES_DATA.map(p => {
-    const ppc  = p.price_per_credit ? `₹${p.price_per_credit}/credit` : ''
-    const pop  = p.tag === 'Best Value'
+    const ppc = p.price_per_credit ? `₹${p.price_per_credit}/credit` : ''
+    const pop = p.tag === 'Best Value'
     return `
     <div class="credit-pack${pop ? ' best' : ''}">
       ${pop ? `<div class="credit-pack-badge">${p.tag}</div>` : ''}
-      <div class="credit-pack-amount">${(p.credits||0).toLocaleString('en-IN')}</div>
-      <div class="credit-pack-label">credits</div>
-      <div class="credit-pack-price">₹${(p.price_inr||0).toLocaleString('en-IN')}</div>
-      <div class="credit-pack-ppc">${ppc}</div>
-      <div class="credit-pack-saving">${p.saving || ''}</div>
-      <div style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--text-2);margin-bottom:14px">
-        <span>✅ Never expires</span>
-        <span>✅ All quality tiers</span>
+      <div class="pack-amount">${(p.credits||0).toLocaleString('en-IN')}</div>
+      <div class="pack-lbl">credits</div>
+      <div class="pack-price">₹${(p.price_inr||0).toLocaleString('en-IN')}</div>
+      <div class="pack-ppc">${ppc}</div>
+      <div class="pack-save">${p.saving || ''}</div>
+      <div class="pack-perks">
+        <span class="pack-perk">Never expires</span>
+        <span class="pack-perk">All quality tiers</span>
       </div>
       <div style="margin-top:auto">
-        <button class="btn btn-primary" style="width:100%;justify-content:center"
-          onclick="buyCredits('${p.id}', ${p.credits}, ${p.price_inr}, '${p.label}')">
+        <button class="btn-gradient" onclick="buyCredits('${p.id}',${p.credits},${p.price_inr},'${p.label}')">
           Buy ${p.label}
         </button>
       </div>
@@ -614,127 +835,116 @@ function renderCreditPackages(packages, qcosts) {
   }).join('')
 }
 
-// ── Credit balance display ────────────────────────────────────────────────────
-function renderCreditBalance(transactions, balance) {
-  const bal = balance || 0
-  // Sync all credit displays
+/* ══════════════════════════════════════════════════════════════════
+   RENDER CREDIT BALANCE + HISTORY
+══════════════════════════════════════════════════════════════════ */
+function syncCreditBalance(bal) {
+  const colour = bal === 0 ? 'var(--danger,#e53e3e)' : bal < 5 ? '#d97706' : 'var(--accent)'
   ;['credit-balance','u-credits'].forEach(id => {
-    const el = document.getElementById(id)
+    const el = qs(id)
     if (!el) return
-    el.textContent = bal.toLocaleString('en-IN')
-    el.style.color = bal === 0 ? 'var(--danger,#e53e3e)' : bal < 5 ? '#d97706' : 'var(--accent)'
+    el.textContent = (bal || 0).toLocaleString('en-IN')
+    el.style.color = colour
   })
-
-  const body = document.getElementById('credit-balance-body')
-  if (!transactions || !transactions.length) {
-    if (body) body.innerHTML = '<div style="font-size:12.5px;color:var(--text-3)">No credit purchases yet. Top up above to get started.</div>'
-    return
-  }
-  if (body) body.innerHTML = `<div style="font-size:12.5px;color:var(--text-2)">Recent credit purchase: <strong>+${transactions[0]?.credits || 0} credits</strong> on ${fmtDate(transactions[0]?.completed_at)} — <a href="javascript:;" onclick="switchTab('history');switchSubTab('credit')" style="color:var(--accent);font-weight:600">View all ↗</a></div>`
 }
 
-// ── Payment history ───────────────────────────────────────────────────────────
-function renderPaymentHistory(payments) {
-  const body = document.getElementById('payment-history-body')
-  if (!payments || !payments.length) {
-    if (body) body.innerHTML = '<div class="empty-state">No plan payments yet.</div>'
-    return
+function renderCreditBalance(transactions, balance) {
+  syncCreditBalance(balance || 0)
+
+  const card = qs('credit-recent-card')
+  const body = qs('credit-recent-body')
+  if (!transactions || !transactions.length) return
+  if (card) card.style.display = 'block'
+  if (body) {
+    body.innerHTML = transactions.slice(0, 3).map(t => `
+      <div class="pay-row">
+        <div>
+          <div style="font-size:13px;font-weight:700;margin-bottom:2px">${t.label || t.pack_id}</div>
+          <div class="pay-meta">${fmtDate(t.completed_at)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="text-align:right">
+            <div class="credit-row-num">+${(t.credits||0).toLocaleString('en-IN')}</div>
+            <div style="font-size:11.5px;color:var(--text-3)">₹${(t.price_inr||0).toLocaleString('en-IN')}</div>
+          </div>
+          <button class="btn-inv" onclick="showInvoice('${t._id}','credit')">🧾</button>
+        </div>
+      </div>`).join('')
   }
-  const icons = {free:'🆓',standard:'⚡',pro:'🚀',studio:'🎬',small:'🌱',medium:'🌿',enterprise:'🏢',starter:'🆓',grower:'🌱'}
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RENDER PAYMENT HISTORY
+══════════════════════════════════════════════════════════════════ */
+function renderPaymentHistory(payments) {
+  const body = qs('payment-history-body')
+  if (!payments || !payments.length) return
   body.innerHTML = payments.map(p => `
-    <div class="payment-row">
+    <div class="pay-row">
       <div>
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px">
-          <span class="payment-plan-badge">${icons[p.plan]||''} ${p.plan}</span>
+          <span class="pay-badge">${PLAN_ICONS[p.plan]||''} ${p.plan}</span>
           <span style="font-size:11px;color:var(--text-3);text-transform:capitalize">${p.billing||''}</span>
         </div>
-        <div class="payment-meta">
-          ${fmtDate(p.paid_at)}${p.expires_at ? ` · expires ${fmtDate(p.expires_at)}` : ''}
-        </div>
+        <div class="pay-meta">${fmtDate(p.paid_at)}${p.expires_at ? ` · expires ${fmtDate(p.expires_at)}` : ''}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <div style="text-align:right">
-          <div class="payment-amount">₹${(p.amount_inr||0).toLocaleString('en-IN')}</div>
-          <span class="payment-status ${p.status}">${p.status}</span>
+          <div class="pay-amount">₹${(p.amount_inr||0).toLocaleString('en-IN')}</div>
+          <span class="pay-status ${p.status}">${p.status}</span>
         </div>
-        <button class="btn-invoice" onclick="showInvoice('${p._id}','plan')">🧾</button>
+        <button class="btn-inv" onclick="showInvoice('${p._id}','plan')">🧾</button>
       </div>
-    </div>
-  `).join('')
+    </div>`).join('')
 }
 
-// ── Credit purchase history ───────────────────────────────────────────────────
 function renderCreditPurchaseHistory(transactions) {
-  const body = document.getElementById('credit-purchase-body')
-  if (!transactions || !transactions.length) {
-    if (body) body.innerHTML = '<div class="empty-state">No credit purchases yet.</div>'
-    return
-  }
+  const body = qs('credit-purchase-body')
+  if (!transactions || !transactions.length) return
   body.innerHTML = transactions.map(t => `
-    <div class="payment-row">
+    <div class="pay-row">
       <div>
         <div style="font-size:13px;font-weight:700;margin-bottom:2px">${t.label || t.pack_id}</div>
-        <div class="payment-meta">${fmtDate(t.completed_at)}</div>
+        <div class="pay-meta">${fmtDate(t.completed_at)}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <div style="text-align:right">
-          <div style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--accent)">+${t.credits}</div>
+          <div class="credit-row-num">+${(t.credits||0).toLocaleString('en-IN')}</div>
           <div style="font-size:11.5px;color:var(--text-3)">₹${(t.price_inr||0).toLocaleString('en-IN')}</div>
         </div>
-        <button class="btn-invoice" onclick="showInvoice('${t._id}','credit')">🧾</button>
+        <button class="btn-inv" onclick="showInvoice('${t._id}','credit')">🧾</button>
       </div>
-    </div>
-  `).join('')
+    </div>`).join('')
 }
 
-// ── Plans load error ──────────────────────────────────────────────────────────
-function showPlansError(msg) {
-  const grid = document.getElementById('plans-grid')
-  if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:13px">⚠️ ${msg}</div>`
-}
-
-// ── Contact sales ─────────────────────────────────────────────────────────────
-function contactSales(plan) {
-  const name = plan.charAt(0).toUpperCase() + plan.slice(1)
-  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(`Hi! I'd like to know more about the BoutiqueAI ${name} plan.`)}`, '_blank')
-}
-
-// ── Overlay helpers ───────────────────────────────────────────────────────────
-function showOverlay(title, msg) {
-  document.getElementById('overlay-title').textContent = title
-  document.getElementById('overlay-msg').textContent   = msg
-  document.getElementById('payment-overlay').classList.add('active')
-}
-function hideOverlay() { document.getElementById('payment-overlay').classList.remove('active') }
-
-// ── Start plan payment ────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════════
+   RAZORPAY — PLAN PAYMENT
+══════════════════════════════════════════════════════════════════ */
 async function startPayment(planId) {
   if (!currentUser) return toast('Please log in first.', 'error')
   showOverlay('Creating Order…', 'Setting up your payment. Just a moment.')
   try {
     const data = await apiFetch('/payment/create-order', {
-      method: 'POST',
-      body:   JSON.stringify({ plan: planId, billing: billingCycle }),
+      method:'POST', body: JSON.stringify({ plan: planId, billing: billingCycle }),
     })
     if (data.error || !data.order_id) {
       hideOverlay()
       return toast(data.error || 'Could not create order. Please try again.', 'error')
     }
     hideOverlay()
-    const options = {
-      key:      data.key_id, amount: data.amount, currency: data.currency,
-      name:     'BoutiqueAI',
-      description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — ${billingCycle}`,
-      image:    '/favicon.ico', order_id: data.order_id,
-      prefill:  { name: data.user_name || '', email: data.user_email || '' },
-      theme:    { color: '#7C6FFF' },
-      modal:    { ondismiss: () => { hideOverlay(); toast('Payment cancelled.', 'info') } },
+    const rzp = new Razorpay({
+      key: data.key_id, amount: data.amount, currency: data.currency,
+      name: 'BoutiqueAI',
+      description: `${planId.charAt(0).toUpperCase()+planId.slice(1)} Plan — ${billingCycle}`,
+      image: '/favicon.ico', order_id: data.order_id,
+      prefill: { name: data.user_name||'', email: data.user_email||'' },
+      theme: { color:'#7C6FFF' },
+      modal: { ondismiss: () => { hideOverlay(); toast('Payment cancelled.','info') } },
       handler: async (response) => {
-        showOverlay('Verifying Payment…', 'Confirming with our server…')
+        showOverlay('Verifying Payment…','Confirming with our server…')
         try {
-          const verifyData = await apiFetch('/payment/verify', {
-            method: 'POST',
-            body:   JSON.stringify({
+          const v = await apiFetch('/payment/verify', {
+            method:'POST', body: JSON.stringify({
               razorpay_order_id:   response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature:  response.razorpay_signature,
@@ -742,44 +952,44 @@ async function startPayment(planId) {
             }),
           })
           hideOverlay()
-          if (verifyData.error) { toast('Payment received but verification failed. Contact support.', 'error'); return }
-          toast(`🎉 ${verifyData.message || 'Plan upgraded successfully!'}`, 'success', 5000)
+          if (v.error) { toast('Payment received but verification failed. Contact support.','error'); return }
+          toast(`🎉 ${v.message||'Plan upgraded successfully!'}`, 'success', 5000)
           setTimeout(() => location.reload(), 2000)
-        } catch { hideOverlay(); toast('Verification error. Contact support if money was deducted.', 'error', 6000) }
+        } catch { hideOverlay(); toast('Verification error. Contact support if money was deducted.','error',6000) }
       },
-    }
-    const rzp = new Razorpay(options)
-    rzp.on('payment.failed', r => { hideOverlay(); toast(`Payment failed: ${r.error.description || 'Try again.'}`, 'error', 5000) })
+    })
+    rzp.on('payment.failed', r => { hideOverlay(); toast(`Payment failed: ${r.error.description||'Try again.'}`, 'error', 5000) })
     rzp.open()
-  } catch (err) { hideOverlay(); toast(err.message || 'Something went wrong.', 'error') }
+  } catch (err) { hideOverlay(); toast(err.message||'Something went wrong.','error') }
 }
 
-// ── Buy credits ───────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════════
+   RAZORPAY — BUY CREDITS
+══════════════════════════════════════════════════════════════════ */
 async function buyCredits(packId, credits, priceInr, label) {
   if (!currentUser) return toast('Please log in first.', 'error')
   showOverlay('Creating Order…', `Setting up payment for ${label}…`)
   try {
     const data = await apiFetch('/credits/purchase', {
-      method: 'POST', body: JSON.stringify({ pack_id: packId }),
+      method:'POST', body: JSON.stringify({ pack_id: packId }),
     })
     if (data.error || !data.order_id) {
       hideOverlay()
       return toast(data.error || 'Could not create order.', 'error')
     }
     hideOverlay()
-    const options = {
+    const rzp = new Razorpay({
       key: data.key_id, amount: data.amount, currency: data.currency,
       name: 'BoutiqueAI', description: `${label} — Try-On Credits`,
       order_id: data.order_id,
-      prefill: { name: data.user_name || '', email: data.user_email || '' },
-      theme: { color: '#7C6FFF' },
-      modal: { ondismiss: () => { hideOverlay(); toast('Payment cancelled.', 'info') } },
+      prefill: { name: data.user_name||'', email: data.user_email||'' },
+      theme: { color:'#7C6FFF' },
+      modal: { ondismiss: () => { hideOverlay(); toast('Payment cancelled.','info') } },
       handler: async (response) => {
-        showOverlay('Adding Credits…', 'Verifying your payment and topping up…')
+        showOverlay('Adding Credits…','Verifying your payment and topping up…')
         try {
-          const verifyData = await apiFetch('/credits/verify', {
-            method: 'POST',
-            body:   JSON.stringify({
+          const v = await apiFetch('/credits/verify', {
+            method:'POST', body: JSON.stringify({
               razorpay_order_id:   response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature:  response.razorpay_signature,
@@ -787,56 +997,57 @@ async function buyCredits(packId, credits, priceInr, label) {
             }),
           })
           hideOverlay()
-          if (verifyData.error) { toast('Payment received but top-up failed. Contact support.', 'error', 6000); return }
-          ;['credit-balance','u-credits'].forEach(id => {
-            const el = document.getElementById(id)
-            if (el) { el.textContent = (verifyData.new_balance||0).toLocaleString('en-IN'); el.style.color = (verifyData.new_balance||0)===0 ? 'var(--danger,#e53e3e)' : 'var(--accent)' }
-          })
-          toast(`⚡ ${verifyData.message || `${credits} credits added!`}`, 'success', 5000)
+          if (v.error) { toast('Payment received but top-up failed. Contact support.','error',6000); return }
+          syncCreditBalance(v.new_balance || 0)
+          toast(`⚡ ${v.message||`${credits} credits added!`}`, 'success', 5000)
           setTimeout(() => location.reload(), 2500)
-        } catch { hideOverlay(); toast('Verification error. Credits will be added automatically.', 'error', 7000) }
+        } catch { hideOverlay(); toast('Verification error. Credits will be added automatically.','error',7000) }
       },
-    }
-    const rzp = new Razorpay(options)
-    rzp.on('payment.failed', r => { hideOverlay(); toast(`Payment failed: ${r.error.description || 'Try again.'}`, 'error', 5000) })
+    })
+    rzp.on('payment.failed', r => { hideOverlay(); toast(`Payment failed: ${r.error.description||'Try again.'}`, 'error', 5000) })
     rzp.open()
-  } catch (err) { hideOverlay(); toast(err.message || 'Something went wrong.', 'error') }
+  } catch (err) { hideOverlay(); toast(err.message||'Something went wrong.','error') }
 }
 
-// ── Invoice ───────────────────────────────────────────────────────────────────
-function openInvoiceModal() { document.getElementById('invoice-modal').classList.add('active'); document.body.style.overflow = 'hidden' }
+/* ══════════════════════════════════════════════════════════════════
+   INVOICE MODAL
+══════════════════════════════════════════════════════════════════ */
+function openInvoiceModal()  { qs('invoice-modal').classList.add('active'); document.body.style.overflow='hidden' }
 function closeInvoiceModal() {
-  document.getElementById('invoice-modal').classList.remove('active')
+  qs('invoice-modal').classList.remove('active')
   document.body.style.overflow = ''
-  document.getElementById('inv-print-btn').style.display = 'none'
-  document.getElementById('invoice-content').innerHTML = '<div class="inv-loading"><div class="inv-spinner"></div>Loading…</div>'
+  qs('inv-print-btn').style.display = 'none'
+  qs('invoice-content').innerHTML = '<div class="inv-loading"><div class="inv-spinner"></div>Loading invoice…</div>'
 }
-function handleInvoiceBackdropClick(e) { if (e.target === document.getElementById('invoice-modal')) closeInvoiceModal() }
+function handleInvoiceBackdropClick(e) { if (e.target === qs('invoice-modal')) closeInvoiceModal() }
 
 async function showInvoice(id, type) {
   openInvoiceModal()
   try {
-    const endpoint = type === 'credit' ? '/credits/invoice/' : '/payment/invoice/'
-    const data = await apiFetch(endpoint + id)
+    const ep   = type === 'credit' ? '/credits/invoice/' : '/payment/invoice/'
+    const data = await apiFetch(ep + id)
     if (data.error || !data.invoice_number) {
-      document.getElementById('invoice-content').innerHTML = `<div class="inv-loading">⚠️ ${data.error || 'Could not load invoice.'}</div>`
+      qs('invoice-content').innerHTML = `<div class="inv-loading">⚠️ ${data.error||'Could not load invoice.'}</div>`
       return
     }
-    document.getElementById('invoice-content').innerHTML = renderInvoiceHtml(data)
-    document.getElementById('inv-print-btn').style.display = 'inline-flex'
-    document.getElementById('invoice-print-area').innerHTML = renderInvoiceHtml(data)
-  } catch { document.getElementById('invoice-content').innerHTML = '<div class="inv-loading">⚠️ Failed to load invoice.</div>' }
+    const html = renderInvoiceHtml(data)
+    qs('invoice-content').innerHTML    = html
+    qs('invoice-print-area').innerHTML = html
+    qs('inv-print-btn').style.display  = 'inline-flex'
+  } catch {
+    qs('invoice-content').innerHTML = '<div class="inv-loading">⚠️ Failed to load invoice. Please try again.</div>'
+  }
 }
 
 function renderInvoiceHtml(d) {
-  const planLabel = d.plan_label || (d.label ? d.label : (d.plan ? d.plan.charAt(0).toUpperCase()+d.plan.slice(1)+' Plan' : '—'))
   const isCredit  = d.type === 'credit_purchase'
-  const billing   = d.billing ? (d.billing.charAt(0).toUpperCase()+d.billing.slice(1)+' subscription') : ''
+  const planLabel = d.plan_label || d.label || (d.plan ? d.plan.charAt(0).toUpperCase()+d.plan.slice(1)+' Plan' : '—')
+  const billing   = d.billing ? d.billing.charAt(0).toUpperCase()+d.billing.slice(1)+' subscription' : ''
   const hasGst    = d.gst_rate > 0 && d.gst_amount > 0
-  const fmtInr    = n => '₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0})
-  const fmtDt     = iso => iso ? new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—'
-  const gstinBuyer  = d.customer?.gstin ? `<div class="inv-gstin">GSTIN: ${d.customer.gstin}</div>` : ''
-  const gstinSeller = d.seller?.gstin   ? `<div class="inv-gstin">GSTIN: ${d.seller.gstin}</div>` : ''
+  const ri        = n => '₹'+Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0})
+  const fd        = iso => iso ? new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : '—'
+  const buyerGst  = d.customer?.gstin ? `<div class="inv-gstin">GSTIN: ${d.customer.gstin}</div>` : ''
+  const sellerGst = d.seller?.gstin   ? `<div class="inv-gstin">GSTIN: ${d.seller.gstin}</div>`   : ''
 
   return `
   <div class="inv-header">
@@ -844,97 +1055,101 @@ function renderInvoiceHtml(d) {
       <div class="inv-brand">Boutique<span>AI</span></div>
       <div style="font-size:11.5px;color:var(--text-3);margin-top:3px">${d.seller?.address||''}</div>
       <div style="font-size:11.5px;color:var(--text-3)">${d.seller?.email||''}</div>
-      ${gstinSeller}
+      ${sellerGst}
     </div>
     <div class="inv-meta">
-      <div class="inv-meta-title">Tax Invoice</div>
+      <div class="inv-meta-tag">Tax Invoice</div>
       <div class="inv-meta-num">${d.invoice_number}</div>
-      <div class="inv-meta-date">${fmtDt(d.invoice_date)}</div>
-      <div style="margin-top:7px"><span class="inv-status-badge">✓ Paid</span></div>
+      <div class="inv-meta-date">${fd(d.invoice_date)}</div>
+      <div style="margin-top:7px"><span class="inv-paid-badge">✓ Paid</span></div>
     </div>
   </div>
   <div class="inv-divider"></div>
   <div class="inv-parties">
     <div>
-      <div class="inv-party-label">Billed to</div>
+      <div class="inv-party-lbl">Billed to</div>
       <div class="inv-party-name">${d.customer?.name||'—'}</div>
-      <div class="inv-party-detail">
+      <div class="inv-party-info">
         ${d.customer?.email||''}
         ${d.customer?.business_name ? '<br>'+d.customer.business_name : ''}
-        ${d.customer?.address ? '<br>'+d.customer.address : ''}
-        ${d.customer?.state ? ', '+d.customer.state : ''}
+        ${d.customer?.address       ? '<br>'+d.customer.address       : ''}
+        ${d.customer?.state         ? ', '+d.customer.state           : ''}
       </div>
-      ${gstinBuyer}
+      ${buyerGst}
     </div>
     <div>
-      <div class="inv-party-label">Payment reference</div>
-      <div class="inv-payment-ref">
-        <div style="font-size:11.5px;color:var(--text-3);margin-bottom:3px">Payment ID</div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--text-2)">${d.payment_id||'—'}</div>
-        ${d.expires_at ? `<div style="margin-top:8px;font-size:11.5px;color:var(--text-3)">Valid until</div><div style="font-size:12.5px;font-weight:600;color:var(--text)">${fmtDt(d.expires_at)}</div>` : ''}
-      </div>
+      <div class="inv-party-lbl">Payment reference</div>
+      <div style="font-size:11.5px;color:var(--text-3);margin-bottom:3px">Payment ID</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--text-2)">${d.payment_id||'—'}</div>
+      ${d.expires_at ? `<div style="margin-top:8px;font-size:11.5px;color:var(--text-3)">Valid until</div>
+        <div style="font-size:12.5px;font-weight:600;color:var(--text)">${fd(d.expires_at)}</div>` : ''}
     </div>
   </div>
   <div class="inv-divider"></div>
   <table class="inv-table">
-    <thead><tr><th style="width:55%">Description</th><th>${isCredit ? 'Credits' : 'Billing'}</th><th>Amount</th></tr></thead>
+    <thead><tr>
+      <th style="width:55%">Description</th>
+      <th>${isCredit ? 'Credits' : 'Billing'}</th>
+      <th>Amount</th>
+    </tr></thead>
     <tbody>
       <tr>
         <td>
           <div style="font-weight:600">${planLabel}</div>
-          <div class="inv-table-desc">${isCredit ? 'Try-on credit pack — never expires' : 'BoutiqueAI subscription plan'}</div>
+          <div class="inv-table-sub">${isCredit ? 'Try-on credit pack — never expires' : 'BoutiqueAI subscription plan'}</div>
         </td>
         <td style="text-align:left;font-size:12.5px;color:var(--text-2)">
-          ${isCredit ? `<strong style="font-family:var(--mono)">${(d.credits||0).toLocaleString('en-IN')}</strong> credits` : billing || '—'}
+          ${isCredit
+            ? `<strong style="font-family:var(--mono)">${(d.credits||0).toLocaleString('en-IN')}</strong> credits`
+            : billing || '—'}
         </td>
-        <td>${fmtInr(hasGst ? d.base_amount : d.amount_inr)}</td>
+        <td>${ri(hasGst ? d.base_amount : d.amount_inr)}</td>
       </tr>
-      ${hasGst ? `<tr><td style="color:var(--text-3);font-size:11.5px">GST @ ${d.gst_rate}%</td><td></td><td style="color:var(--text-3)">${fmtInr(d.gst_amount)}</td></tr>` : ''}
+      ${hasGst ? `<tr>
+        <td style="color:var(--text-3);font-size:11.5px">GST @ ${d.gst_rate}%</td>
+        <td></td>
+        <td style="color:var(--text-3)">${ri(d.gst_amount)}</td>
+      </tr>` : ''}
     </tbody>
   </table>
   <div style="display:flex;justify-content:flex-end">
     <div class="inv-totals">
-      <div class="inv-total-row grand"><span>Total paid</span><span class="inv-total-amt">${fmtInr(d.amount_inr)}</span></div>
+      <div class="inv-total-row grand"><span>Total paid</span><span class="inv-total-amt">${ri(d.amount_inr)}</span></div>
       <div class="inv-total-row" style="font-size:10.5px;color:var(--text-3);padding-top:3px"><span>Currency</span><span>INR</span></div>
     </div>
   </div>
   <div class="inv-footer">
     <div class="inv-footer-note">Thank you for your business!<br>Support: ${d.seller?.email||'support@boutiquesaas.aasaitech.in'}</div>
     <div style="font-size:10.5px;color:var(--text-3);text-align:right">
-      Generated ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}<br>
+      ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}<br>
       <span style="font-family:var(--mono)">${d.invoice_number}</span>
     </div>
   </div>`
 }
 
 function printInvoice() {
-  const el = document.getElementById('invoice-print-area')
-  if (!el || !el.innerHTML.trim()) { toast('Invoice not ready.', 'error'); return }
+  const el = qs('invoice-print-area')
+  if (!el || !el.innerHTML.trim()) { toast('Invoice not ready.','error'); return }
   el.style.display = 'block'
   window.print()
   setTimeout(() => { el.style.display = 'none' }, 1000)
 }
 
-// ── fmtDate util (fallback if not in shared) ──────────────────────────────────
-function fmtDate(iso) {
-  if (!iso) return '—'
-  try { return new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) }
-  catch { return iso }
-}
-
-// ── Init ──────────────────────────────────────────────────────────────────────
+/* ══════════════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════════════ */
 ;(async () => {
   const nav = await renderNav('billing')
   if (!nav) return
 
   try {
-    // Batch 1: account + plans
+    /* Batch 1 — account + plan data */
     const [accountData, plansRes] = await Promise.all([
       apiFetch('/account'),
-      apiFetch('/payment/plans').catch(e => { console.error('[billing] plans failed:', e); return null }),
+      apiFetch('/payment/plans').catch(e => { console.error('[billing] plans:', e); return null }),
     ])
 
-    if (plansRes && plansRes.plans) {
+    if (plansRes?.plans) {
       plansData = plansRes.plans
       plansData.forEach(p => { if (p.limits) PLAN_LIMITS[p.id] = p.limits })
       plansData.forEach(p => { PLAN_LABELS[p.id] = p.name })
@@ -944,60 +1159,64 @@ function fmtDate(iso) {
 
     currentUser = accountData.user || accountData
     const user  = currentUser
-    const PLAN_NORM = { starter:'free', grower:'small' }
-    const rawPlan   = user.plan || 'free'
-    const plan      = PLAN_NORM[rawPlan] || rawPlan
-    currentPlan     = rawPlan
+    const NORM  = { starter:'free', grower:'small' }
+    const raw   = user.plan || 'free'
+    const plan  = NORM[raw] || raw
+    currentPlan = raw
 
-    // Credits expiry
+    /* credits expiry */
     if (user.credits_expire_at) {
-      const expEl = document.getElementById('u-credits-expiry')
-      const datEl = document.getElementById('u-credits-expiry-date')
+      const expEl = qs('u-credits-expiry')
+      const datEl = qs('u-credits-expiry-date')
       if (expEl && datEl) {
         expEl.style.display = 'block'
         datEl.textContent   = fmtDate(user.credits_expire_at)
-        const daysLeft = Math.ceil((new Date(user.credits_expire_at) - Date.now()) / 86400000)
-        if (daysLeft <= 7)  expEl.style.color = 'var(--danger,#e53e3e)'
-        else if (daysLeft <= 14) expEl.style.color = '#d97706'
+        const days = Math.ceil((new Date(user.credits_expire_at) - Date.now()) / 86400000)
+        if (days <= 7)       expEl.style.color = 'var(--danger,#e53e3e)'
+        else if (days <= 14) expEl.style.color = '#d97706'
       }
     }
 
-    // Status banner
-    const planBadgeEl = document.getElementById('current-plan-badge')
+    /* status row */
+    const planBadgeEl = qs('current-plan-badge')
     if (planBadgeEl) planBadgeEl.textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase()+plan.slice(1)
-    const billingTypeEl = document.getElementById('billing-type-label')
-    if (billingTypeEl) billingTypeEl.textContent = user.plan_billing === 'yearly' ? 'Annual' : user.plan !== 'free' ? 'Monthly' : ''
+
+    const billingTypeEl = qs('billing-type-label')
+    if (billingTypeEl) billingTypeEl.textContent = user.plan_billing === 'yearly' ? '📅 Annual' : raw !== 'free' ? '📅 Monthly' : ''
 
     const credits = user.credits || 0
-    const credEl  = document.getElementById('u-credits')
-    if (credEl) {
-      credEl.textContent = credits.toLocaleString('en-IN')
-      credEl.style.color = credits === 0 ? 'var(--danger,#e53e3e)' : credits < 5 ? '#d97706' : 'var(--accent)'
-    }
+    syncCreditBalance(credits)
 
     const usage    = user.usage || {}
-    const planKey  = PLAN_LIMITS[plan] ? plan : PLAN_LIMITS['free'] ? 'free' : Object.keys(PLAN_LIMITS)[0]
+    const planKey  = PLAN_LIMITS[plan] ? plan : (PLAN_LIMITS['free'] ? 'free' : Object.keys(PLAN_LIMITS)[0])
     const limits   = PLAN_LIMITS[planKey] || { agents:99999 }
     const usedAg   = user.agents_count || 0
-    const capAg    = (limits.agents == null || limits.agents >= 99999) ? '∞' : limits.agents
-    const pctAg    = (limits.agents == null || limits.agents >= 99999) ? 0 : Math.min(100, Math.round(usedAg/limits.agents*100))
+    const infinite = limits.agents == null || limits.agents >= 99999
+    const capAg    = infinite ? '∞' : limits.agents
+    const pctAg    = infinite ? 0   : Math.min(100, Math.round(usedAg / limits.agents * 100))
 
-    const agentsEl = document.getElementById('u-agents')
-    const agentsCapEl = document.getElementById('u-agents-cap')
+    const agentsEl    = qs('u-agents')
+    const agentsCapEl = qs('u-agents-cap')
+    const agBar       = qs('u-agents-bar')
+    const agPct       = qs('u-agents-pct')
     if (agentsEl)    agentsEl.textContent    = usedAg
     if (agentsCapEl) agentsCapEl.textContent = capAg
-    const agBar = document.getElementById('u-agents-bar')
-    if (agBar) { agBar.style.width = pctAg + '%'; agBar.className = 'progress-fill' + (pctAg>=90?' danger':pctAg>=70?' warn':'') }
+    if (agBar) { agBar.style.width = pctAg+'%'; agBar.className = 'status-prog-fill'+(pctAg>=90?' danger':pctAg>=70?' warn':'') }
+    if (agPct) agPct.textContent = infinite ? 'Unlimited' : `${pctAg}% used`
 
-    const expiresDate = user.plan_expires_at
+    const expiresEl  = qs('u-expires-date')
+    const expiresLbl = qs('u-expires-label')
+    const expDate    = user.plan_expires_at
       ? fmtDate(user.plan_expires_at)
-      : (usage.reset_at ? fmtDate(usage.reset_at) : (plan === 'free' ? '—' : 'Monthly'))
-    const expiresEl = document.getElementById('u-expires-date')
-    if (expiresEl) expiresEl.textContent = expiresDate
+      : (usage.reset_at ? fmtDate(usage.reset_at) : (raw === 'free' ? '—' : 'Monthly'))
+    if (expiresEl)  expiresEl.textContent  = expDate
+    if (expiresLbl) expiresLbl.textContent = user.plan_billing === 'yearly'
+      ? 'Annual plan'
+      : raw !== 'free' ? 'Monthly plan' : ''
 
     renderPlans()
 
-    // Batch 2: credits + history
+    /* Batch 2 — credits + history */
     const [pkgRes, creditData, historyData] = await Promise.all([
       apiFetch('/credits/packages').catch(() => null),
       apiFetch('/credits/balance').catch(() => null),
@@ -1017,11 +1236,10 @@ function fmtDate(iso) {
   } catch (err) {
     console.error('[billing] Init error:', err)
     showPlansError('Could not load page data — please refresh.')
-    renderPlans()
     renderCreditPackages()
   } finally {
-    const skel = document.getElementById('page-skeleton')
-    const page = document.getElementById('page-content')
+    const skel = qs('page-skeleton')
+    const page = qs('page-content')
     if (skel) skel.style.display = 'none'
     if (page) page.style.display = 'block'
   }
