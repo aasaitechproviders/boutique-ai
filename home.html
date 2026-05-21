@@ -118,17 +118,17 @@
 }
 .stat-card {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 18px 20px;
+  border-radius: 16px; padding: 16px 18px;
   display: flex; flex-direction: column; gap: 12px;
   transition: var(--t); box-shadow: var(--sh-sm);
 }
 .stat-card:hover { box-shadow: var(--sh); transform: translateY(-1px); }
 .stat-card-top {
-  display: flex; align-items: flex-start;
+  display: flex; align-items: center;
   justify-content: space-between;
 }
 .stat-icon-box {
-  width: 44px; height: 44px; border-radius: 12px;
+  width: 38px; height: 38px; border-radius: 10px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
@@ -137,22 +137,25 @@
 .stat-icon-teal   { background: rgba(20,184,166,.12); }
 .stat-icon-pink   { background: rgba(236,72,153,.12); }
 .stat-trend {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 3px 8px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 2px 7px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 700;
 }
 .stat-trend-up   { background: rgba(74,222,128,.12); color: #16a34a; }
 .stat-trend-down { background: rgba(248,113,113,.12); color: #dc2626; }
 .stat-trend-flat { background: var(--surface-3); color: var(--text-3); }
-.stat-card-bottom { }
+.stat-card-bottom { display: flex; flex-direction: column; gap: 1px; }
 .stat-num {
-  font-size: 28px; font-weight: 800;
-  letter-spacing: -.05em; line-height: 1;
+  font-size: 26px; font-weight: 800;
+  letter-spacing: -.05em; line-height: 1.1;
   font-family: var(--mono);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .stat-card .stat-label {
-  font-size: 12px; color: var(--text-3); font-weight: 500;
+  font-size: 12.5px; color: var(--text); font-weight: 600;
+}
+.stat-card .stat-sublabel {
+  font-size: 11px; color: var(--text-3); font-weight: 400;
 }
 
 /* ══════════════════════════════════════════════════
@@ -363,7 +366,7 @@
   margin-top: 20px;
   border-radius: 16px;
   background: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #7c3aed 100%);
-  padding: 24px 28px;
+  padding: 24px 140px 24px 28px;
   display: flex; align-items: center;
   justify-content: space-between;
   gap: 20px; overflow: hidden; position: relative;
@@ -374,11 +377,6 @@
   width: 200px;
   background: rgba(255,255,255,.04);
   border-radius: 50%;
-}
-.upgrade-bot-illustration {
-  position: absolute; right: 28px; top: 50%;
-  transform: translateY(-50%);
-  opacity: .18; pointer-events: none;
 }
 .upgrade-banner-content { position: relative; z-index: 1; }
 .upgrade-banner-icon {
@@ -608,7 +606,7 @@
       <div class="stat-card">
         <div class="stat-card-top">
           <div class="stat-icon-box stat-icon-purple">
-            <svg width="20" height="20" fill="none" stroke="#7C6FFF" stroke-width="1.8" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="#7C6FFF" stroke-width="1.8" viewBox="0 0 24 24">
               <rect x="4" y="8" width="16" height="12" rx="3"/><rect x="8" y="4" width="8" height="5" rx="2"/>
               <circle cx="9" cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
               <circle cx="15" cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
@@ -622,7 +620,7 @@
         <div class="stat-card-bottom">
           <div class="stat-num" id="s-agents">—</div>
           <div class="stat-label">Total Agents</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Active agents</div>
+          <div class="stat-sublabel">Active agents</div>
         </div>
       </div>
 
@@ -630,7 +628,7 @@
       <div class="stat-card">
         <div class="stat-card-top">
           <div class="stat-icon-box stat-icon-blue">
-            <svg width="20" height="20" fill="none" stroke="#3B82F6" stroke-width="1.8" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="#3B82F6" stroke-width="1.8" viewBox="0 0 24 24">
               <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
             </svg>
           </div>
@@ -639,7 +637,7 @@
         <div class="stat-card-bottom">
           <div class="stat-num" id="s-tryons">—</div>
           <div class="stat-label">Try-Ons Generated</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px">In last 14 days</div>
+          <div class="stat-sublabel">In last 14 days</div>
         </div>
       </div>
 
@@ -647,7 +645,7 @@
       <div class="stat-card">
         <div class="stat-card-top">
           <div class="stat-icon-box stat-icon-teal">
-            <svg width="20" height="20" fill="none" stroke="#14b8a6" stroke-width="1.8" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="#14b8a6" stroke-width="1.8" viewBox="0 0 24 24">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
             </svg>
           </div>
@@ -656,7 +654,7 @@
         <div class="stat-card-bottom">
           <div class="stat-num" id="s-chats">—</div>
           <div class="stat-label">Total Conversations</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px">In last 14 days</div>
+          <div class="stat-sublabel">In last 14 days</div>
         </div>
       </div>
 
@@ -664,7 +662,7 @@
       <div class="stat-card">
         <div class="stat-card-top">
           <div class="stat-icon-box stat-icon-pink">
-            <svg width="20" height="20" fill="none" stroke="#ec4899" stroke-width="1.8" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="#ec4899" stroke-width="1.8" viewBox="0 0 24 24">
               <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
             </svg>
@@ -674,7 +672,7 @@
         <div class="stat-card-bottom">
           <div class="stat-num" id="s-customers">—</div>
           <div class="stat-label">Total Customers</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Across all agents</div>
+          <div class="stat-sublabel">Across all agents</div>
         </div>
       </div>
     </div>
@@ -932,17 +930,49 @@
         <div class="upgrade-banner-title">Get more out of BoutiqueAI</div>
         <div class="upgrade-banner-sub">Upgrade to Pro and unlock unlimited agents, more credits, and advanced features.</div>
       </div>
-      <!-- Robot illustration (SVG) -->
-      <svg class="upgrade-bot-illustration" width="90" height="90" viewBox="0 0 90 90" fill="none">
-        <rect x="18" y="32" width="54" height="44" rx="12" fill="white" opacity=".15"/>
-        <rect x="28" y="16" width="34" height="22" rx="8" fill="white" opacity=".2"/>
-        <circle cx="34" cy="55" r="6" fill="white" opacity=".7"/>
-        <circle cx="56" cy="55" r="6" fill="white" opacity=".7"/>
-        <path d="M37 66h16" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".8"/>
-        <line x1="18" y1="50" x2="8" y2="50" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".5"/>
-        <line x1="72" y1="50" x2="82" y2="50" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".5"/>
-        <circle cx="45" cy="27" r="4" fill="white" opacity=".4"/>
-      </svg>
+      <!-- Robot illustration -->
+      <div style="position:absolute;right:24px;top:50%;transform:translateY(-50%);pointer-events:none;flex-shrink:0;">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Head -->
+          <rect x="28" y="18" width="44" height="36" rx="10" fill="rgba(255,255,255,.22)"/>
+          <!-- Antenna -->
+          <line x1="50" y1="18" x2="50" y2="10" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="50" cy="8" r="3.5" fill="rgba(255,255,255,.8)"/>
+          <!-- Eyes -->
+          <rect x="35" y="29" width="11" height="9" rx="3" fill="rgba(255,255,255,.9)"/>
+          <rect x="54" y="29" width="11" height="9" rx="3" fill="rgba(255,255,255,.9)"/>
+          <!-- Eye pupils -->
+          <circle cx="40" cy="33" r="3" fill="#6d28d9"/>
+          <circle cx="59" cy="33" r="3" fill="#6d28d9"/>
+          <!-- Eye shine -->
+          <circle cx="41.5" cy="31.5" r="1" fill="white" opacity=".8"/>
+          <circle cx="60.5" cy="31.5" r="1" fill="white" opacity=".8"/>
+          <!-- Mouth -->
+          <rect x="38" y="43" width="24" height="5" rx="2.5" fill="rgba(255,255,255,.5)"/>
+          <rect x="42" y="44" width="5" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="49" y="44" width="5" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <rect x="56" y="44" width="4" height="3" rx="1" fill="rgba(255,255,255,.9)"/>
+          <!-- Body -->
+          <rect x="24" y="57" width="52" height="32" rx="10" fill="rgba(255,255,255,.16)"/>
+          <!-- Chest panel -->
+          <rect x="33" y="64" width="34" height="18" rx="5" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+          <!-- Chest lights -->
+          <circle cx="41" cy="73" r="4" fill="rgba(255,255,255,.7)"/>
+          <circle cx="50" cy="73" r="4" fill="rgba(255,255,255,.4)"/>
+          <circle cx="59" cy="73" r="4" fill="rgba(255,255,255,.7)"/>
+          <!-- Arms -->
+          <rect x="12" y="58" width="10" height="24" rx="5" fill="rgba(255,255,255,.18)"/>
+          <rect x="78" y="58" width="10" height="24" rx="5" fill="rgba(255,255,255,.18)"/>
+          <!-- Hands -->
+          <circle cx="17" cy="86" r="5" fill="rgba(255,255,255,.22)"/>
+          <circle cx="83" cy="86" r="5" fill="rgba(255,255,255,.22)"/>
+          <!-- Legs -->
+          <rect x="33" y="89" width="12" height="8" rx="4" fill="rgba(255,255,255,.18)"/>
+          <rect x="55" y="89" width="12" height="8" rx="4" fill="rgba(255,255,255,.18)"/>
+          <!-- Neck connector -->
+          <rect x="44" y="53" width="12" height="6" rx="3" fill="rgba(255,255,255,.2)"/>
+        </svg>
+      </div>
       <a href="payments.html" class="upgrade-banner-btn">Upgrade Now ✨</a>
     </div>
 
