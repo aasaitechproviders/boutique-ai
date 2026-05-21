@@ -3,19 +3,366 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>Agents — BoutiqueAI</title>
+<title>My Agents — BoutiqueAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-.agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-.agent-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:var(--t);cursor:pointer;box-shadow:var(--sh-sm)}
-.agent-card:hover{box-shadow:var(--sh);transform:translateY(-2px);border-color:var(--border-md)}
-.agent-card-header{padding:20px 20px 16px;display:flex;align-items:flex-start;gap:14px}
-.agent-card-logo{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#fff;flex-shrink:0;border:1px solid rgba(255,255,255,.15);overflow:hidden}
-.agent-card-logo img{width:100%;height:100%;object-fit:cover}
-.agent-card-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface-2)}
-/* Wizard */
+/* ══════════════════════════════════════════════════
+   TOPBAR (matches home.html)
+══════════════════════════════════════════════════ */
+.topbar { height:64px; padding:0 28px; justify-content:space-between; }
+.topbar-search-wrap {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:0 14px; height:38px; width:300px;
+  color:var(--text-3); font-size:13px; transition:var(--t); cursor:text;
+}
+.topbar-search-wrap:hover { border-color:var(--border-md); }
+.topbar-search-wrap svg { flex-shrink:0; opacity:.5; }
+.topbar-search-input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--text); font-family:var(--font);
+}
+.topbar-search-input::placeholder { color:var(--text-3); }
+.topbar-kbd {
+  display:inline-flex; align-items:center;
+  background:var(--surface-3); border:1px solid var(--border-md);
+  border-radius:5px; padding:1px 6px;
+  font-size:10px; font-weight:600; color:var(--text-3); white-space:nowrap;
+}
+.topbar-right-new { display:flex; align-items:center; gap:10px; }
+.notif-btn {
+  position:relative; width:36px; height:36px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface-2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-2); transition:var(--t);
+}
+.notif-btn:hover { background:var(--surface-3); }
+.topbar-user-chip {
+  display:flex; align-items:center; gap:8px; padding:5px 10px 5px 5px;
+  border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); cursor:pointer; transition:var(--t);
+  font-size:13px; font-weight:600; color:var(--text);
+}
+.topbar-user-chip:hover { background:var(--surface-3); }
+.topbar-user-avatar {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-3));
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:#fff; flex-shrink:0; overflow:hidden;
+}
+.topbar-user-avatar img { width:28px; height:28px; object-fit:cover; display:block; }
+
+/* ══════════════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════════════ */
+.agents-page-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:16px; margin-bottom:24px;
+}
+.agents-page-header h1 {
+  font-size:22px; font-weight:800; letter-spacing:-.04em;
+  line-height:1.2; margin-bottom:4px;
+}
+.agents-page-header p { font-size:13px; color:var(--text-2); }
+.btn-create-agent {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 18px; border-radius:10px;
+  background:var(--accent); color:#fff;
+  font-size:13.5px; font-weight:700; border:none;
+  cursor:pointer; transition:var(--t); white-space:nowrap; flex-shrink:0;
+  text-decoration:none; font-family:var(--font);
+  box-shadow:0 4px 14px rgba(124,111,255,.3);
+}
+.btn-create-agent:hover { background:var(--accent-2); transform:translateY(-1px); box-shadow:0 6px 20px rgba(124,111,255,.4); }
+
+/* ══════════════════════════════════════════════════
+   TOOLBAR
+══════════════════════════════════════════════════ */
+.agents-toolbar {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; margin-bottom:20px; flex-wrap:wrap;
+}
+.toolbar-left  { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+.toolbar-right { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.tb-search {
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:0 12px; height:38px;
+  min-width:200px; max-width:260px; flex:1;
+  transition:var(--t);
+}
+.tb-search:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,111,255,.1); }
+.tb-search svg { flex-shrink:0; color:var(--text-3); }
+.tb-search-input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--text); font-family:var(--font);
+}
+.tb-search-input::placeholder { color:var(--text-3); }
+.tb-select {
+  height:38px; padding:0 10px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface);
+  font-size:12.5px; font-weight:600; color:var(--text-2);
+  cursor:pointer; transition:var(--t); outline:none;
+  font-family:var(--font); min-width:120px;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' stroke='%239EA3BB' stroke-width='2' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+  padding-right:28px;
+}
+.tb-select:focus { border-color:var(--accent); }
+.sort-wrap {
+  display:flex; align-items:center; gap:8px;
+  border:1px solid var(--border); border-radius:10px;
+  padding:0 12px 0 12px; height:38px; background:var(--surface);
+  font-size:12.5px; font-weight:600; color:var(--text-2);
+  white-space:nowrap;
+}
+.sort-wrap select {
+  background:none; border:none; outline:none; font-family:var(--font);
+  font-size:12.5px; font-weight:600; color:var(--text); cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' stroke='%239EA3BB' stroke-width='2' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 0 center;
+  padding-right:16px;
+}
+.view-toggle {
+  display:flex; align-items:center;
+  border:1px solid var(--border); border-radius:10px;
+  overflow:hidden; background:var(--surface);
+}
+.view-btn {
+  width:38px; height:38px; border:none; background:none;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-3); transition:var(--t);
+}
+.view-btn.active { background:var(--accent-dim); color:var(--accent); }
+.view-btn:hover:not(.active) { background:var(--surface-2); color:var(--text); }
+
+/* ══════════════════════════════════════════════════
+   AGENT CARDS — GRID VIEW
+══════════════════════════════════════════════════ */
+.agents-grid-new {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(360px,1fr));
+  gap:18px;
+}
+.agents-grid-new.list-view {
+  grid-template-columns:1fr;
+}
+
+.agent-card-new {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:18px; overflow:hidden;
+  transition:var(--t); box-shadow:var(--sh-sm);
+  display:flex; flex-direction:column;
+  position:relative;
+}
+.agent-card-new:hover {
+  box-shadow:var(--sh); border-color:var(--border-md);
+  transform:translateY(-2px);
+}
+
+/* Card header area */
+.ac-header {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:20px 20px 16px; position:relative;
+}
+.ac-avatar {
+  width:62px; height:62px; border-radius:16px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:800; color:#fff;
+  border:2px solid rgba(255,255,255,.15); overflow:hidden;
+  position:relative;
+}
+.ac-avatar img { width:100%; height:100%; object-fit:cover; display:block; }
+.ac-avatar-online {
+  position:absolute; bottom:-2px; right:-2px;
+  width:14px; height:14px; border-radius:50%;
+  background:#22c55e; border:2px solid var(--surface);
+}
+.ac-info { flex:1; min-width:0; }
+.ac-name-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  margin-bottom:3px;
+}
+.ac-name {
+  font-size:16px; font-weight:800; letter-spacing:-.03em;
+  color:var(--text); line-height:1.2;
+}
+.ac-quality-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:20px;
+  font-size:10.5px; font-weight:700;
+}
+.ac-quality-pill.q-low    { background:var(--blue-dim);  color:var(--blue);  border:1px solid var(--blue-border); }
+.ac-quality-pill.q-medium { background:var(--green-dim); color:var(--green); border:1px solid var(--green-border); }
+.ac-quality-pill.q-high   { background:var(--accent-dim); color:var(--accent); border:1px solid rgba(124,111,255,.25); }
+.ac-biz {
+  font-size:12.5px; color:var(--text-2); font-weight:500;
+  margin-bottom:6px;
+}
+.ac-meta {
+  display:flex; align-items:center; gap:5px;
+  font-size:12px; color:var(--text-3); flex-wrap:wrap;
+}
+.ac-cat-dot { width:7px; height:7px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+.ac-cat-label { font-weight:600; color:var(--text-2); }
+.ac-url-link {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11.5px; color:var(--text-3); text-decoration:none;
+  transition:var(--t); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  max-width:200px;
+}
+.ac-url-link:hover { color:var(--accent); }
+.ac-status-row { margin-top:8px; display:flex; align-items:center; gap:6px; }
+.ac-badge-live {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px;
+  background:rgba(34,197,94,.1); color:#16a34a;
+  border:1px solid rgba(34,197,94,.25);
+  font-size:11px; font-weight:700;
+}
+.ac-badge-live::before {
+  content:''; width:6px; height:6px; border-radius:50%;
+  background:#22c55e; display:block;
+}
+.ac-badge-draft {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px;
+  background:var(--surface-3); color:var(--text-3);
+  border:1px solid var(--border-md);
+  font-size:11px; font-weight:700;
+}
+/* Three-dot menu button */
+.ac-menu-btn {
+  position:absolute; top:16px; right:16px;
+  width:30px; height:30px; border-radius:8px;
+  border:1px solid var(--border); background:var(--surface-2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-2); transition:var(--t); flex-shrink:0;
+  font-size:16px; line-height:1; font-weight:700; letter-spacing:1px;
+}
+.ac-menu-btn:hover { background:var(--surface-3); border-color:var(--border-md); color:var(--text); }
+
+/* Stats box */
+.ac-stats-box {
+  margin:0 16px 16px;
+  border:1px solid var(--border); border-radius:12px;
+  display:grid; grid-template-columns:repeat(4,1fr);
+  overflow:hidden;
+}
+.ac-stat {
+  padding:12px 10px;
+  display:flex; flex-direction:column; gap:2px;
+  border-right:1px solid var(--border);
+  background:var(--surface-2);
+}
+.ac-stat:last-child { border-right:none; }
+.ac-stat-num {
+  font-size:17px; font-weight:800; font-family:var(--mono);
+  letter-spacing:-.04em; line-height:1; color:var(--text);
+}
+.ac-stat-lbl {
+  font-size:10px; color:var(--text-3); font-weight:500; margin-top:1px;
+}
+.ac-stat-trend {
+  display:inline-flex; align-items:center; gap:2px;
+  font-size:10px; font-weight:700; margin-top:3px;
+  white-space:nowrap;
+}
+.ac-stat-trend.up   { color:#16a34a; }
+.ac-stat-trend.down { color:#dc2626; }
+.ac-stat-trend.flat { color:var(--text-3); }
+
+/* Action footer */
+.ac-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px 14px; border-top:1px solid var(--border);
+  gap:8px; flex-wrap:wrap;
+}
+.ac-action-btns { display:flex; align-items:center; gap:2px; }
+.ac-action-btn {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:7px 10px; border-radius:10px; border:none;
+  background:none; cursor:pointer; color:var(--text-3);
+  transition:var(--t); font-family:var(--font);
+}
+.ac-action-btn:hover { background:var(--surface-2); color:var(--accent); }
+.ac-action-btn svg   { flex-shrink:0; }
+.ac-action-lbl       { font-size:10px; font-weight:600; white-space:nowrap; }
+.ac-open-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:10px;
+  border:1.5px solid var(--border-md); background:var(--surface);
+  font-size:12.5px; font-weight:700; color:var(--text);
+  text-decoration:none; cursor:pointer; transition:var(--t);
+  white-space:nowrap; flex-shrink:0;
+}
+.ac-open-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:translateY(-1px); box-shadow:0 4px 12px rgba(124,111,255,.3); }
+
+/* ── LIST VIEW ── */
+.list-view .agent-card-new {
+  border-radius:14px;
+}
+.list-view .ac-header { padding:16px 18px 12px; }
+.list-view .ac-avatar { width:50px; height:50px; border-radius:12px; font-size:18px; }
+.list-view .ac-name   { font-size:14px; }
+.list-view .ac-stats-box {
+  margin:0 18px 0; border-radius:0; border:none;
+  border-top:1px solid var(--border); display:flex;
+  grid-template-columns:unset;
+}
+.list-view .ac-stat {
+  flex:1; border-right:1px solid var(--border);
+  border-radius:0; padding:10px 14px;
+}
+.list-view .ac-footer { padding:10px 16px 12px; }
+
+/* ══════════════════════════════════════════════════
+   CONTEXT DROPDOWN MENU
+══════════════════════════════════════════════════ */
+.ctx-menu {
+  position:fixed; z-index:999;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:12px; padding:6px; min-width:160px;
+  box-shadow:var(--sh-lg); display:none;
+}
+.ctx-menu.open { display:block; }
+.ctx-item {
+  display:flex; align-items:center; gap:9px;
+  padding:8px 10px; border-radius:8px;
+  font-size:13px; font-weight:500; cursor:pointer;
+  transition:var(--t); color:var(--text-2);
+}
+.ctx-item:hover { background:var(--surface-2); color:var(--text); }
+.ctx-item.danger { color:var(--red); }
+.ctx-item.danger:hover { background:var(--red-dim); color:var(--red); }
+.ctx-divider { height:1px; background:var(--border); margin:4px 0; }
+
+/* ══════════════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════════════ */
+.agents-empty {
+  display:flex; flex-direction:column; align-items:center;
+  justify-content:center; padding:80px 24px; text-align:center;
+  min-height:400px;
+}
+.empty-robot-svg { margin-bottom:28px; opacity:.9; }
+.agents-empty h2 {
+  font-size:20px; font-weight:800; letter-spacing:-.03em;
+  margin-bottom:8px;
+}
+.agents-empty p {
+  font-size:13.5px; color:var(--text-2); margin-bottom:24px;
+  max-width:340px; line-height:1.6;
+}
+
+/* ══════════════════════════════════════════════════
+   WIZARD + MODAL (preserved from original)
+══════════════════════════════════════════════════ */
 .wizard-step{display:none}.wizard-step.active{display:block}
 .category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
 .category-btn{padding:10px 8px;border:1px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;text-align:center;transition:var(--t);font-family:var(--font)}
@@ -27,28 +374,26 @@
 .slug-preview .slug-accent{color:var(--accent);font-weight:600}
 .slug-preview .slug-base{color:var(--text-3)}
 .avatar-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:6px}
-@media(max-width:640px){.category-grid{grid-template-columns:repeat(2,1fr)}}
-/* Quality selector */
+.avatar-upload{width:64px;height:64px;border-radius:16px;border:2px dashed var(--border-md);background:var(--surface-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;transition:var(--t);flex-shrink:0}
+.avatar-upload:hover{border-color:var(--accent);background:var(--accent-dim)}
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.color-swatch{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:var(--t)}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.selected{border-color:white;box-shadow:0 0 0 2px var(--accent)}
 .quality-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
-.quality-btn{padding:12px 8px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;text-align:center;transition:var(--t);font-family:var(--font);position:relative;overflow:hidden}
+.quality-btn{padding:12px 8px;border:1.5px solid var(--border-md);border-radius:var(--r-sm);background:var(--surface-2);cursor:pointer;text-align:center;transition:var(--t);font-family:var(--font)}
 .quality-btn:hover{border-color:var(--accent);background:var(--accent-dim)}
 .quality-btn.selected{border-color:var(--accent);background:var(--accent-dim)}
 .quality-btn .q-icon{font-size:20px;margin-bottom:4px}
 .quality-btn .q-label{font-size:11.5px;font-weight:700;display:block;color:var(--text)}
 .quality-btn .q-desc{font-size:10px;color:var(--text-3);display:block;margin-top:2px;line-height:1.4}
 .quality-btn.selected .q-label{color:var(--accent)}
-.quality-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:var(--surface-3);color:var(--text-3);border:1px solid var(--border-md)}
-.quality-badge.q-low{background:var(--blue-dim);color:var(--blue);border-color:var(--blue-border)}
-.quality-badge.q-medium{background:var(--green-dim);color:var(--green);border-color:var(--green-border)}
-.quality-badge.q-high{background:var(--amber-dim);color:var(--amber);border-color:var(--amber-border)}
-/* Rate Limit section */
 .rate-limit-row{display:flex;align-items:center;gap:10px;margin-top:6px}
 .rate-limit-input{width:90px;text-align:center;font-family:var(--mono);font-weight:700;font-size:15px}
 .rate-limit-select{flex:1;min-width:0}
 .rate-limit-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
 .rate-limit-badge.unlimited{background:rgba(25,163,122,.1);color:#19a37a;border:1px solid rgba(25,163,122,.25)}
 .rate-limit-badge.limited{background:rgba(245,158,11,.1);color:#d97706;border:1px solid rgba(245,158,11,.25)}
-/* Edit modal */
 .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
 .toggle-switch input{opacity:0;width:0;height:0}
 .toggle-track{position:absolute;inset:0;background:var(--border-md);border-radius:12px;cursor:pointer;transition:var(--t)}
@@ -59,7 +404,8 @@
 .danger-zone{margin-top:8px;padding:12px 16px;background:var(--red-dim,rgba(239,68,68,.06));border:1px solid var(--red-border,rgba(239,68,68,.18));border-radius:var(--r-sm);display:flex;align-items:center;justify-content:space-between}
 .section-divider{height:1px;background:var(--border);margin:4px 0 16px}
 .section-label{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px}
-/* ── Try-on Gallery Sheet ─────────────────────────────────── */
+
+/* Try-on sheet */
 .tryon-sheet{position:fixed;inset:0;z-index:600;display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none;opacity:0;transition:opacity .25s var(--ease)}
 .tryon-sheet.open{opacity:1;pointer-events:all}
 .tryon-sheet-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -98,8 +444,38 @@
 .tryon-skel-card{background:rgba(255,255,255,.04);border-radius:14px;aspect-ratio:3/4;animation:skelShimmer 1.6s ease-in-out infinite;background-size:600px 100%}
 @media(max-width:900px){.tryon-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:600px){.tryon-grid{grid-template-columns:repeat(2,1fr)}.tryon-img-pair{grid-template-columns:1fr 56px}}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media(max-width:900px) {
+  .agents-grid-new { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:760px) {
+  .topbar-search-wrap { width:200px; }
+  .sort-wrap span { display:none; }
+}
+@media(max-width:640px) {
+  .agents-grid-new { grid-template-columns:1fr; }
+  .agents-toolbar { gap:8px; }
+  .toolbar-left { flex-wrap:wrap; }
+  .tb-search { min-width:0; max-width:100%; flex:1 1 auto; }
+  .category-grid { grid-template-columns:repeat(2,1fr); }
+  .topbar-search-wrap { display:none; }
+  .agents-page-header { flex-direction:column; gap:12px; }
+  .btn-create-agent { align-self:flex-start; }
+}
+@media(max-width:520px) {
+  .ac-stats-box { grid-template-columns:repeat(2,1fr); }
+  .ac-stat:nth-child(2) { border-right:none; }
+  .ac-stat:nth-child(3) { border-top:1px solid var(--border); }
+  .ac-stat:nth-child(4) { border-top:1px solid var(--border); }
+  .ac-action-lbl { display:none; }
+  .ac-action-btn { padding:7px; }
+  .sort-wrap { display:none; }
+}
 </style>
-<link rel="stylesheet" href="shared.css">
+
 <script>
 ;(function(){
   var d=localStorage.getItem('ba_theme')==='dark';
@@ -112,46 +488,216 @@
 </head>
 <body>
 <div id="toast-container"></div>
+
+<!-- Mobile topbar -->
 <div class="mobile-topbar">
   <div class="mob-left">
-    <button class="hamburger" onclick="openMobileSidebar()"><svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg></button>
+    <button class="hamburger" onclick="openMobileSidebar()">
+      <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+    </button>
     <a class="mob-logo" href="home.html">Boutique<span>AI</span></a>
   </div>
   <div class="mob-right"><button class="theme-toggle" style="font-size:15px;"></button></div>
 </div>
+
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
 <div class="sidebar" id="sidebar"></div>
 
+<!-- Skeleton -->
 <div id="page-skeleton">
   <div class="skel-topbar">
-    <div class="skel" style="height:13px;width:120px;border-radius:4px"></div>
-    <div class="skel" style="height:34px;width:130px;border-radius:var(--r-sm)"></div>
+    <div class="skel" style="height:13px;width:150px;border-radius:4px"></div>
+    <div class="skel" style="height:36px;width:150px;border-radius:10px"></div>
   </div>
   <div class="skel-body">
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-      <div class="skel" style="height:160px;border-radius:var(--r-lg)"></div>
-      <div class="skel" style="height:160px;border-radius:var(--r-lg);opacity:.8"></div>
-      <div class="skel" style="height:160px;border-radius:var(--r-lg);opacity:.6"></div>
+      <div class="skel" style="height:220px;border-radius:18px"></div>
+      <div class="skel" style="height:220px;border-radius:18px;opacity:.8"></div>
+      <div class="skel" style="height:220px;border-radius:18px;opacity:.6"></div>
     </div>
   </div>
 </div>
 
+<!-- Main Wrapper -->
 <div class="main-wrap">
+
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="topbar-left"><span class="topbar-title">My Agents</span></div>
-    <div class="topbar-right">
-      <button class="theme-toggle" style="font-size:15px;"></button>
-      <button class="btn btn-primary" onclick="openCreateWizard()">+ New Agent</button>
+    <div class="topbar-search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="topbar-search-input" placeholder="Search anything..." readonly onclick="toast('Search coming soon','info')">
+      <span class="topbar-kbd">⌘K</span>
+    </div>
+    <div class="topbar-right-new">
+      <button class="theme-toggle"
+        style="font-size:14px;background:var(--surface-2);border:1px solid var(--border);cursor:pointer;
+               width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+               justify-content:center;transition:var(--t);">
+      </button>
+      <button class="notif-btn" onclick="toast('Notifications coming soon','info')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </button>
+      <div class="topbar-user-chip" id="topbar-user-chip" onclick="location.href='account.html'">
+        <div class="topbar-user-avatar" id="topbar-avatar"><span>U</span></div>
+        <span id="topbar-user-name">Loading…</span>
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
     </div>
   </div>
+
+  <!-- PAGE CONTENT -->
   <div class="content" id="page-content" style="display:none">
-    <div class="agents-grid" id="agents-grid"></div>
+
+    <!-- Page Header -->
+    <div class="agents-page-header">
+      <div>
+        <h1>My Agents</h1>
+        <p>Manage your AI agents and their performance.</p>
+      </div>
+      <button class="btn-create-agent" onclick="openCreateWizard()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create New Agent
+      </button>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="agents-toolbar">
+      <div class="toolbar-left">
+        <!-- Search -->
+        <div class="tb-search">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input class="tb-search-input" id="agent-search" placeholder="Search agents..." oninput="filterAgents()">
+        </div>
+        <!-- Status filter -->
+        <select class="tb-select" id="status-filter" onchange="filterAgents()">
+          <option value="">All Status</option>
+          <option value="live">Live</option>
+          <option value="draft">Draft</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <!-- Sort -->
+        <div class="sort-wrap">
+          <span style="color:var(--text-3)">Sort by:</span>
+          <select id="sort-select" onchange="filterAgents()">
+            <option value="created_desc">Recently Created</option>
+            <option value="tryons_desc">Most Try-Ons</option>
+            <option value="name_asc">Name A–Z</option>
+            <option value="updated_desc">Last Updated</option>
+          </select>
+        </div>
+        <!-- View toggle -->
+        <div class="view-toggle">
+          <button class="view-btn active" id="grid-btn" onclick="setView('grid')" title="Grid view">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+              <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+            </svg>
+          </button>
+          <button class="view-btn" id="list-btn" onclick="setView('list')" title="List view">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+              <line x1="8" y1="18" x2="21" y2="18"/>
+              <circle cx="3" cy="6" r="1.5" fill="currentColor" stroke="none"/>
+              <circle cx="3" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+              <circle cx="3" cy="18" r="1.5" fill="currentColor" stroke="none"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agents Grid -->
+    <div class="agents-grid-new" id="agents-grid"></div>
+
+    <!-- Empty State -->
+    <div class="agents-empty" id="agents-empty" style="display:none">
+      <svg class="empty-robot-svg" width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Glow -->
+        <circle cx="70" cy="80" r="50" fill="rgba(124,111,255,.07)"/>
+        <!-- Antenna -->
+        <line x1="70" y1="22" x2="70" y2="12" stroke="#7C6FFF" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
+        <circle cx="70" cy="10" r="4" fill="#7C6FFF" opacity=".8"/>
+        <!-- Head -->
+        <rect x="32" y="22" width="76" height="56" rx="16" fill="var(--surface)" stroke="var(--border-md)" stroke-width="1.5"/>
+        <!-- Eyes -->
+        <rect x="42" y="36" width="20" height="16" rx="6" fill="rgba(124,111,255,.12)" stroke="var(--accent)" stroke-width="1.5"/>
+        <rect x="78" y="36" width="20" height="16" rx="6" fill="rgba(124,111,255,.12)" stroke="var(--accent)" stroke-width="1.5"/>
+        <circle cx="52" cy="44" r="4" fill="var(--accent)"/>
+        <circle cx="88" cy="44" r="4" fill="var(--accent)"/>
+        <circle cx="54" cy="42" r="1.5" fill="white"/>
+        <circle cx="90" cy="42" r="1.5" fill="white"/>
+        <!-- Mouth -->
+        <rect x="50" y="60" width="40" height="8" rx="4" fill="rgba(124,111,255,.1)" stroke="var(--border-md)" stroke-width="1"/>
+        <rect x="55" y="62" width="7" height="4" rx="2" fill="var(--accent)" opacity=".7"/>
+        <rect x="66.5" y="62" width="7" height="4" rx="2" fill="var(--accent)" opacity=".5"/>
+        <rect x="78" y="62" width="7" height="4" rx="2" fill="var(--accent)" opacity=".7"/>
+        <!-- Neck -->
+        <rect x="60" y="77" width="20" height="10" rx="5" fill="var(--surface-3)"/>
+        <!-- Body -->
+        <rect x="20" y="86" width="100" height="44" rx="16" fill="var(--surface)" stroke="var(--border-md)" stroke-width="1.5"/>
+        <!-- Chest panel -->
+        <rect x="34" y="95" width="72" height="26" rx="8" fill="rgba(124,111,255,.06)" stroke="var(--border)" stroke-width="1"/>
+        <!-- Lights -->
+        <circle cx="52" cy="108" r="6" fill="rgba(124,111,255,.2)" stroke="var(--accent)" stroke-width="1.5"/>
+        <circle cx="70" cy="108" r="6" fill="rgba(74,222,128,.2)" stroke="#4ade80" stroke-width="1.5"/>
+        <circle cx="88" cy="108" r="6" fill="rgba(124,111,255,.2)" stroke="var(--accent)" stroke-width="1.5"/>
+        <!-- Sparkles -->
+        <path d="M118 30l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" fill="var(--accent)" opacity=".5"/>
+        <path d="M16 56l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5 1.5-3.5z" fill="var(--accent)" opacity=".35"/>
+        <path d="M122 90l1 2.5 2.5 1-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5z" fill="#4ade80" opacity=".5"/>
+      </svg>
+      <h2>Create Your First Agent</h2>
+      <p>Build your AI agent and start engaging with your customers with virtual try-ons.</p>
+      <button class="btn-create-agent" onclick="openCreateWizard()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create New Agent
+      </button>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<!-- Context dropdown menu -->
+<div class="ctx-menu" id="ctx-menu">
+  <div class="ctx-item" onclick="ctxEdit()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Edit Agent
+  </div>
+  <div class="ctx-item" onclick="ctxViewTryons()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+    View Try-Ons
+  </div>
+  <div class="ctx-item" onclick="ctxCopyUrl()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+    Copy URL
+  </div>
+  <div class="ctx-item" onclick="ctxOpenAgent()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    Open Agent
+  </div>
+  <div class="ctx-divider"></div>
+  <div class="ctx-item danger" onclick="ctxDelete()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+    Delete Agent
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     Create Agent Wizard
-═══════════════════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     CREATE AGENT WIZARD MODAL
+════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="create-modal">
   <div class="modal" style="max-width:540px">
     <div class="modal-header">
@@ -169,16 +715,15 @@
         <div class="step-line" id="line-2"></div>
         <div class="step-dot" id="dot-3">3</div>
       </div>
-
-      <!-- Step 1: Business Info -->
+      <!-- Step 1 -->
       <div class="wizard-step active" id="step-1">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px">Tell us about your boutique</div>
         <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">We'll use this to personalise your agent.</div>
         <div style="display:flex;flex-direction:column;gap:16px">
           <div class="field">
             <label class="field-label">Business / Boutique Name <span>*</span></label>
-            <input class="input" id="w-biz-name" placeholder="e.g. Lalitha Silks, Zara Boutique" oninput="updateSlug()">
-            <div class="field-hint">This will be shown to your customers.</div>
+            <input class="input" id="w-biz-name" placeholder="e.g. Lalitha Silks" oninput="updateSlug()">
+            <div class="field-hint">Shown to your customers.</div>
           </div>
           <div class="field">
             <label class="field-label">Category <span>*</span></label>
@@ -194,31 +739,15 @@
           <div class="field">
             <label class="field-label">Try-On Quality</label>
             <div class="quality-grid">
-              <button class="quality-btn" data-value="low" onclick="selectQuality(this,false)">
-                <div class="q-icon">⚡</div>
-                <span class="q-label">Fast</span>
-                <span class="q-desc">Cheaper & quicker<br>~₹1–2 per try-on</span>
-              </button>
-              <button class="quality-btn selected" data-value="medium" onclick="selectQuality(this,false)">
-                <div class="q-icon">✨</div>
-                <span class="q-label">Balanced</span>
-                <span class="q-desc">Best value<br>~₹3–4 per try-on</span>
-              </button>
-              <button class="quality-btn" data-value="high" onclick="selectQuality(this,false)">
-                <div class="q-icon">💎</div>
-                <span class="q-label">Premium</span>
-                <span class="q-desc">Highest quality<br>~₹6–10 per try-on</span>
-              </button>
+              <button class="quality-btn" data-value="low" onclick="selectQuality(this,false)"><div class="q-icon">⚡</div><span class="q-label">Fast</span><span class="q-desc">Cheaper & quicker<br>~₹1–2 per try-on</span></button>
+              <button class="quality-btn selected" data-value="medium" onclick="selectQuality(this,false)"><div class="q-icon">✨</div><span class="q-label">Balanced</span><span class="q-desc">Best value<br>~₹3–4 per try-on</span></button>
+              <button class="quality-btn" data-value="high" onclick="selectQuality(this,false)"><div class="q-icon">💎</div><span class="q-label">Premium</span><span class="q-desc">Highest quality<br>~₹6–10 per try-on</span></button>
             </div>
-            <div class="field-hint">Higher quality uses a better AI model. You can change this anytime.</div>
           </div>
-
-          <!-- ── Per-user Rate Limit (NEW) ── -->
           <div class="field">
             <label class="field-label">Per-Customer Try-On Limit 🛡️</label>
             <div class="rate-limit-row">
-              <input class="input rate-limit-input" id="w-limit-count" type="number" min="0" max="9999"
-                     value="10" placeholder="10" oninput="updateWizardLimitPreview()">
+              <input class="input rate-limit-input" id="w-limit-count" type="number" min="0" max="9999" value="10" oninput="updateWizardLimitPreview()">
               <select class="input rate-limit-select" id="w-limit-window" onchange="updateWizardLimitPreview()">
                 <option value="day">per day</option>
                 <option value="week">per week</option>
@@ -227,9 +756,8 @@
               </select>
             </div>
             <div style="margin-top:7px" id="w-limit-preview"></div>
-            <div class="field-hint">Prevents spam. Set to <strong>0</strong> for unlimited. You can change this anytime.</div>
+            <div class="field-hint">Set to <strong>0</strong> for unlimited.</div>
           </div>
-
           <div class="field">
             <label class="field-label">Your Agent's URL</label>
             <div class="slug-preview">
@@ -240,8 +768,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Step 2: Agent Persona -->
+      <!-- Step 2 -->
       <div class="wizard-step" id="step-2">
         <div style="font-size:15px;font-weight:700;margin-bottom:4px">Customise your agent</div>
         <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">Give your AI assistant a name, face, and personality.</div>
@@ -258,7 +785,7 @@
               </div>
               <div>
                 <div style="font-size:12.5px;font-weight:600;margin-bottom:4px">Upload a photo or logo</div>
-                <div style="font-size:12px;color:var(--text-3)">PNG, JPG up to 2MB. Square images work best.</div>
+                <div style="font-size:12px;color:var(--text-3)">PNG, JPG up to 2MB. Square works best.</div>
                 <button class="btn btn-secondary btn-sm" style="margin-top:8px" onclick="document.getElementById('avatar-file').click()">Choose File</button>
               </div>
             </div>
@@ -267,30 +794,29 @@
           <div class="field">
             <label class="field-label">Brand Color</label>
             <div class="color-swatches" id="color-swatches">
-              <div class="color-swatch selected" data-color="#7C6FFF" style="background:#7C6FFF" onclick="selectColor(this)" title="Purple"></div>
-              <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="selectColor(this)" title="Pink"></div>
-              <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="selectColor(this)" title="Amber"></div>
-              <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="selectColor(this)" title="Emerald"></div>
-              <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="selectColor(this)" title="Blue"></div>
-              <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="selectColor(this)" title="Red"></div>
-              <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="selectColor(this)" title="Violet"></div>
-              <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="selectColor(this)" title="Dark"></div>
+              <div class="color-swatch selected" data-color="#7C6FFF" style="background:#7C6FFF" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="selectColor(this)"></div>
+              <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="selectColor(this)"></div>
             </div>
           </div>
           <div class="field">
             <label class="field-label">Welcome Message</label>
-            <textarea class="textarea" id="w-welcome" placeholder="e.g. Hi! I'm Priya, your personal stylist at Lalitha Silks. Upload your photo and I'll show you how our collection looks on you! 😊" style="min-height:90px"></textarea>
+            <textarea class="textarea" id="w-welcome" placeholder="Hi! I'm Priya, your personal stylist. Upload your photo and I'll show you how our collection looks on you! 😊" style="min-height:90px"></textarea>
           </div>
         </div>
       </div>
-
-      <!-- Step 3: Review -->
+      <!-- Step 3 -->
       <div class="wizard-step" id="step-3">
-        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Review & launch</div>
+        <div style="font-size:15px;font-weight:700;margin-bottom:4px">Review &amp; launch</div>
         <div style="font-size:13px;color:var(--text-2);margin-bottom:20px">Your agent is ready. You can edit everything after creation.</div>
         <div class="card" style="margin-bottom:16px">
           <div class="card-body" style="display:flex;align-items:center;gap:14px">
-            <div id="review-logo" style="width:52px;height:52px;border-radius:14px;background:#7C6FFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.15)"></div>
+            <div id="review-logo" style="width:52px;height:52px;border-radius:14px;background:#7C6FFF;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden"></div>
             <div>
               <div style="font-size:16px;font-weight:800;letter-spacing:-.02em" id="review-name">—</div>
               <div style="font-size:12.5px;color:var(--text-2);margin-top:2px" id="review-biz">—</div>
@@ -298,82 +824,75 @@
             </div>
           </div>
         </div>
-        <div style="background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:10px">
-          <div class="info-row" style="padding:6px 0"><span class="info-row-label">Agent URL</span><span style="font-size:12px;font-family:var(--mono);color:var(--accent)" id="review-url">—</span></div>
-          <div class="info-row" style="padding:6px 0"><span class="info-row-label">Try-on limit</span><span style="font-size:12px;color:var(--text-2)" id="review-limit">—</span></div>
-          <div class="info-row" style="padding:6px 0;border:none"><span class="info-row-label">Welcome message</span><span style="font-size:12px;color:var(--text-2);max-width:220px;text-align:right" id="review-welcome">—</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;font-size:13px">
+          <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-radius:var(--r-sm)">
+            <span style="color:var(--text-3)">URL</span>
+            <span style="font-family:var(--mono);font-size:11.5px;color:var(--accent)" id="review-url">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-radius:var(--r-sm)">
+            <span style="color:var(--text-3)">Quality</span>
+            <span id="review-quality" style="font-weight:600">—</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 14px;background:var(--surface-2);border-radius:var(--r-sm)">
+            <span style="color:var(--text-3)">Try-On Limit</span>
+            <span id="review-limit" style="font-weight:600">—</span>
+          </div>
         </div>
-        <div style="margin-top:14px;padding:12px 14px;background:var(--accent-dim);border:1px solid rgba(124,111,255,.18);border-radius:var(--r-sm);font-size:12.5px;color:var(--text-2)">
-          💡 After creating your agent, you'll be able to upload your product catalog and customise the try-on experience.
+        <div class="field" style="margin-top:16px">
+          <label class="field-label">Publish immediately?</label>
+          <div class="publish-row">
+            <div>
+              <div style="font-size:13px;font-weight:600">Publish this agent</div>
+              <div style="font-size:12px;color:var(--text-3);margin-top:2px">Customers can start using it right away.</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="w-publish" checked>
+              <span class="toggle-track"></span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" id="wizard-back-btn" onclick="wizardBack()" style="display:none">← Back</button>
+      <div style="flex:1"></div>
       <button class="btn btn-secondary" onclick="closeCreateWizard()">Cancel</button>
       <button class="btn btn-primary" id="wizard-next-btn" onclick="wizardNext()">Continue →</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     Edit Agent Modal
-═══════════════════════════════════════════════════════════════ -->
+<!-- EDIT AGENT MODAL -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal" style="max-width:520px">
     <div class="modal-header">
       <div>
         <div class="modal-title">Edit Agent</div>
-        <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="edit-modal-sub">Update your agent's details</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:3px" id="edit-modal-sub">Update your agent settings</div>
       </div>
       <button class="modal-close" onclick="closeEditModal()">✕</button>
     </div>
     <div class="modal-body">
       <div style="display:flex;flex-direction:column;gap:16px">
-
-        <!-- Publish toggle -->
-        <div class="publish-row">
-          <div>
-            <div style="font-size:13px;font-weight:700">Published</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Make this agent live and accessible via its URL</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="edit-published" onchange="updatePublishLabel()">
-            <span class="toggle-track"></span>
-          </label>
-        </div>
-        <div id="edit-url-display" style="font-size:12px;font-family:var(--mono);color:var(--accent);padding:6px 10px;background:var(--surface-2);border-radius:var(--r-sm);display:none"></div>
-
         <div class="field">
-          <label class="field-label">Agent Name <span>*</span></label>
-          <input class="input" id="edit-agent-name" placeholder="e.g. Priya, StyleBot">
+          <label class="field-label">Agent Name</label>
+          <input class="input" id="edit-agent-name">
         </div>
         <div class="field">
-          <label class="field-label">Business / Boutique Name <span>*</span></label>
-          <input class="input" id="edit-biz-name" placeholder="e.g. Lalitha Silks">
-        </div>
-        <div class="field">
-          <label class="field-label">Category <span>*</span></label>
-          <div class="category-grid" id="edit-category-grid">
-            <button class="category-btn" data-value="sarees" onclick="editSelectCategory(this)"><div class="cat-icon">🥻</div><div class="cat-label">Sarees</div></button>
-            <button class="category-btn" data-value="western" onclick="editSelectCategory(this)"><div class="cat-icon">👗</div><div class="cat-label">Western Wear</div></button>
-            <button class="category-btn" data-value="kids" onclick="editSelectCategory(this)"><div class="cat-icon">🧒</div><div class="cat-label">Kids Wear</div></button>
-            <button class="category-btn" data-value="jewellery" onclick="editSelectCategory(this)"><div class="cat-icon">💍</div><div class="cat-label">Jewellery</div></button>
-            <button class="category-btn" data-value="footwear" onclick="editSelectCategory(this)"><div class="cat-icon">👠</div><div class="cat-label">Footwear</div></button>
-            <button class="category-btn" data-value="mixed" onclick="editSelectCategory(this)"><div class="cat-icon">🛍️</div><div class="cat-label">Mixed / All</div></button>
-          </div>
+          <label class="field-label">Business Name</label>
+          <input class="input" id="edit-biz-name">
         </div>
         <div class="field">
           <label class="field-label">Brand Color</label>
           <div class="color-swatches" id="edit-color-swatches">
-            <div class="color-swatch" data-color="#7C6FFF" style="background:#7C6FFF" onclick="editSelectColor(this)" title="Purple"></div>
-            <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="editSelectColor(this)" title="Pink"></div>
-            <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="editSelectColor(this)" title="Amber"></div>
-            <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="editSelectColor(this)" title="Emerald"></div>
-            <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="editSelectColor(this)" title="Blue"></div>
-            <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="editSelectColor(this)" title="Red"></div>
-            <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="editSelectColor(this)" title="Violet"></div>
-            <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="editSelectColor(this)" title="Dark"></div>
+            <div class="color-swatch selected" data-color="#7C6FFF" style="background:#7C6FFF" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#E91E8C" style="background:#E91E8C" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#F59E0B" style="background:#F59E0B" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#10B981" style="background:#10B981" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#3B82F6" style="background:#3B82F6" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#EF4444" style="background:#EF4444" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#8B5CF6" style="background:#8B5CF6" onclick="selectEditColor(this)"></div>
+            <div class="color-swatch" data-color="#0F172A" style="background:#0F172A" onclick="selectEditColor(this)"></div>
           </div>
         </div>
         <div class="field">
@@ -392,37 +911,21 @@
         </div>
         <div class="field">
           <label class="field-label">Welcome Message</label>
-          <textarea class="textarea" id="edit-welcome" style="min-height:80px" placeholder="Hi! I'm your AI stylist..."></textarea>
+          <textarea class="textarea" id="edit-welcome" style="min-height:80px"></textarea>
         </div>
         <div class="field">
           <label class="field-label">Try-On Quality</label>
           <div class="quality-grid" id="edit-quality-grid">
-            <button class="quality-btn" data-value="low" onclick="selectQuality(this,true)">
-              <div class="q-icon">⚡</div>
-              <span class="q-label">Fast</span>
-              <span class="q-desc">~₹1–2 / try-on</span>
-            </button>
-            <button class="quality-btn" data-value="medium" onclick="selectQuality(this,true)">
-              <div class="q-icon">✨</div>
-              <span class="q-label">Balanced</span>
-              <span class="q-desc">~₹3–4 / try-on</span>
-            </button>
-            <button class="quality-btn" data-value="high" onclick="selectQuality(this,true)">
-              <div class="q-icon">💎</div>
-              <span class="q-label">Premium</span>
-              <span class="q-desc">~₹6–10 / try-on</span>
-            </button>
+            <button class="quality-btn" data-value="low" onclick="selectQuality(this,true)"><div class="q-icon">⚡</div><span class="q-label">Fast</span><span class="q-desc">~₹1–2 / try-on</span></button>
+            <button class="quality-btn" data-value="medium" onclick="selectQuality(this,true)"><div class="q-icon">✨</div><span class="q-label">Balanced</span><span class="q-desc">~₹3–4 / try-on</span></button>
+            <button class="quality-btn" data-value="high" onclick="selectQuality(this,true)"><div class="q-icon">💎</div><span class="q-label">Premium</span><span class="q-desc">~₹6–10 / try-on</span></button>
           </div>
-          <div class="field-hint">Higher quality uses a better AI model. Takes effect on the next try-on.</div>
         </div>
-
-        <!-- ── Per-user Rate Limit (NEW) ── -->
         <div>
           <div class="section-divider"></div>
           <div class="section-label">🛡️ Per-Customer Try-On Limit</div>
           <div class="rate-limit-row">
-            <input class="input rate-limit-input" id="edit-limit-count" type="number" min="0" max="9999"
-                   value="10" placeholder="10" oninput="updateEditLimitPreview()">
+            <input class="input rate-limit-input" id="edit-limit-count" type="number" min="0" max="9999" value="10" oninput="updateEditLimitPreview()">
             <select class="input rate-limit-select" id="edit-limit-window" onchange="updateEditLimitPreview()">
               <option value="day">per day</option>
               <option value="week">per week</option>
@@ -431,18 +934,14 @@
             </select>
           </div>
           <div style="margin-top:7px" id="edit-limit-preview"></div>
-          <div class="field-hint">Limits how many try-ons each customer can do. Set to <strong>0</strong> for unlimited.</div>
           <div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-secondary btn-sm" onclick="openUserStatsModal()">📊 View Usage by Customer</button>
-            <button class="btn btn-secondary btn-sm" onclick="openTryonGalleryFromEdit()">🖼 View Try-ons</button>
+            <button class="btn btn-secondary btn-sm" onclick="openUserStatsModal()">📊 Customer Usage</button>
+            <button class="btn btn-secondary btn-sm" onclick="openTryonGalleryFromEdit()">🖼 View Try-Ons</button>
           </div>
         </div>
-
-        <!-- Custom Domain -->
         <div id="edit-domain-section">
           <div class="section-divider"></div>
           <div class="section-label">🌐 Custom Domain</div>
-          <div id="edit-domain-form">
           <div id="edit-domain-current" style="display:none;margin-bottom:12px"></div>
           <div class="field" style="margin-bottom:10px">
             <label class="field-label">Domain</label>
@@ -453,7 +952,7 @@
             <div class="field-hint">No https:// — e.g. shop.yourboutique.com</div>
           </div>
           <div style="margin-bottom:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">DNS Record to add at your provider</div>
+            <div style="font-size:11px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px">DNS Record</div>
             <table style="width:100%;border-collapse:collapse;font-size:12px">
               <thead><tr style="background:var(--surface-2)">
                 <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--text-3);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">Type</th>
@@ -461,7 +960,7 @@
                 <th style="padding:7px 10px;text-align:left;font-weight:700;color:var(--text-3);font-size:10px;text-transform:uppercase;border-bottom:1px solid var(--border)">Points To</th>
               </tr></thead>
               <tbody><tr>
-                <td style="padding:8px 10px;font-family:var(--mono);color:var(--text)">CNAME</td>
+                <td style="padding:8px 10px;font-family:var(--mono)">CNAME</td>
                 <td style="padding:8px 10px;font-family:var(--mono);color:var(--accent)" id="edit-cname-host">shop</td>
                 <td style="padding:8px 10px;font-family:var(--mono);color:var(--accent);display:flex;align-items:center;gap:6px">
                   boutique-ai.pages.dev
@@ -475,23 +974,20 @@
               <span id="edit-domain-status-icon"></span><span id="edit-domain-status-msg"></span>
             </div>
           </div>
-          <div style="display:flex;gap:8px;margin-bottom:4px">
+          <div style="display:flex;gap:8px">
             <button class="btn btn-secondary btn-sm" id="edit-domain-verify-btn" onclick="verifyAgentDomain()" style="display:none">
               <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
               Verify DNS
             </button>
-            <button class="btn btn-sm" id="edit-domain-remove-btn" onclick="removeAgentDomain()" style="display:none;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25))">Remove Domain</button>
+            <button class="btn btn-sm" id="edit-domain-remove-btn" onclick="removeAgentDomain()" style="display:none;background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)">Remove</button>
           </div>
-          </div><!-- /edit-domain-form -->
-        </div><!-- /edit-domain-section -->
-
-        <!-- Danger zone -->
+        </div>
         <div class="danger-zone">
           <div>
-            <div style="font-size:13px;font-weight:700;color:var(--red,#EF4444)">Delete Agent</div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Permanently removes this agent and all its data.</div>
+            <div style="font-size:13px;font-weight:700;color:var(--red)">Delete Agent</div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px">Permanently removes this agent and all data.</div>
           </div>
-          <button class="btn btn-sm" style="background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25));flex-shrink:0" onclick="deleteAgent()">🗑 Delete</button>
+          <button class="btn btn-sm" style="background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);flex-shrink:0" onclick="deleteAgent()">🗑 Delete</button>
         </div>
       </div>
     </div>
@@ -502,9 +998,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     User Stats Modal  (per-customer usage for this agent)
-═══════════════════════════════════════════════════════════════ -->
+<!-- USER STATS MODAL -->
 <div class="modal-overlay" id="user-stats-modal">
   <div class="modal" style="max-width:500px">
     <div class="modal-header">
@@ -525,9 +1019,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════════════════
-     Try-on Gallery Sheet
-═══════════════════════════════════════════════════════════════ -->
+<!-- TRY-ON GALLERY SHEET -->
 <div class="tryon-sheet" id="tryon-sheet">
   <div class="tryon-sheet-backdrop" onclick="closeTryonGallery()"></div>
   <div class="tryon-sheet-panel">
@@ -535,14 +1027,13 @@
     <div class="tryon-sheet-header">
       <div class="tryon-sheet-avatar" id="tryon-avatar"></div>
       <div class="tryon-sheet-info">
-        <div class="tryon-sheet-title" id="tryon-sheet-title">My Try-ons</div>
+        <div class="tryon-sheet-title" id="tryon-sheet-title">Try-Ons</div>
         <div class="tryon-sheet-sub" id="tryon-sheet-sub">Loading…</div>
       </div>
       <button class="tryon-sheet-close" onclick="closeTryonGallery()">✕</button>
     </div>
     <div class="tryon-grid-wrap">
       <div class="tryon-grid" id="tryon-grid">
-        <!-- skeleton -->
         <div class="tryon-skel-card"></div>
         <div class="tryon-skel-card" style="opacity:.7"></div>
         <div class="tryon-skel-card" style="opacity:.5"></div>
@@ -553,692 +1044,680 @@
 </div>
 
 <script>
+/* ════════════════════════════════════════════════
+   UTILS
+════════════════════════════════════════════════ */
+const BASE = 'boutiquesaas.aasaitech.in'
 
 function toSlug(s=''){return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').slice(0,40).replace(/^-+|-+$/g,'')}
-function fmtNum(n){return n>=1000?(n/1000).toFixed(1)+'k':String(n)}
+function fmtNum(n){if(n>=1000)return(n/1000).toFixed(1)+'k';return String(n)}
 function fmtRelative(d){
-  if(!d)return''
-  const s=Math.round((Date.now()-new Date(d))/1000)
-  if(s<60)return'just now'
-  if(s<3600)return Math.floor(s/60)+'m ago'
-  if(s<86400)return Math.floor(s/3600)+'h ago'
-  return Math.floor(s/86400)+'d ago'
+  if(!d)return'—'
+  const diff=Date.now()-new Date(d).getTime()
+  if(diff<60000)return'just now'
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago'
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago'
+  return Math.floor(diff/86400000)+'d ago'
 }
 function copyText(t,msg){navigator.clipboard.writeText(t).then(()=>toast(msg||'Copied!','success'))}
-function shareUrl(url,name){
-  if(navigator.share){navigator.share({title:name,url})}
-  else{copyText(url,'Link copied!')}
+function agentUrl(a){
+  if(!a.published)return null
+  if(a.custom_domain)return'https://'+a.custom_domain
+  if(a.slug)return'https://'+a.slug+'.'+BASE
+  return null
+}
+function agentDisplayUrl(a){
+  if(a.custom_domain)return a.custom_domain
+  if(a.slug)return a.slug+'.'+BASE
+  return null
+}
+function qualityLabel(q){return{low:'Standard',medium:'Balanced',high:'Premium'}[q]||q||'Balanced'}
+function qualityPillClass(q){return{low:'q-low',medium:'q-medium',high:'q-high'}[q]||'q-medium'}
+
+/* ════════════════════════════════════════════════
+   ALL AGENTS DATA
+════════════════════════════════════════════════ */
+let ALL_AGENTS = []
+let CURRENT_VIEW = 'grid'
+
+/* ════════════════════════════════════════════════
+   RENDER CARDS
+════════════════════════════════════════════════ */
+function renderAgentCard(a) {
+  const url     = agentUrl(a)
+  const dispUrl = agentDisplayUrl(a)
+  const color   = a.brand_color || '#7C6FFF'
+  const initial = (a.agent_name||'A')[0].toUpperCase()
+  const logo    = a.logo_url
+    ? `<img src="${a.logo_url}" alt="">`
+    : `<span>${initial}</span>`
+  const isLive  = a.published
+
+  const qualLabel = qualityLabel(a.quality)
+  const qualClass = qualityPillClass(a.quality)
+
+  const catLabels = {sarees:'Sarees',western:'Western',kids:'Kids',jewellery:'Jewellery',footwear:'Footwear',mixed:'Mixed'}
+  const catLabel  = catLabels[a.category] || a.category || 'Boutique'
+
+  const tryonTrend = a.tryon_count > 0 ? `<span class="ac-stat-trend up">↑ Active</span>` : `<span class="ac-stat-trend flat">— 0</span>`
+
+  return `
+  <div class="agent-card-new" data-id="${a._id}" data-name="${(a.agent_name||'').toLowerCase()}" data-biz="${(a.business_name||'').toLowerCase()}" data-published="${isLive?'live':'draft'}">
+    <div class="ac-header">
+      <div class="ac-avatar" style="background:${color}">
+        ${logo}
+        ${isLive ? '<div class="ac-avatar-online"></div>' : ''}
+      </div>
+      <div class="ac-info">
+        <div class="ac-name-row">
+          <span class="ac-name">${a.agent_name || 'Agent'}</span>
+          <span class="ac-quality-pill ${qualClass}">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ${qualLabel}
+          </span>
+        </div>
+        <div class="ac-biz">${a.business_name || ''}</div>
+        <div class="ac-meta">
+          <span class="ac-cat-dot" style="background:${color}"></span>
+          <span class="ac-cat-label">${catLabel}</span>
+          ${dispUrl ? `
+          <span style="color:var(--text-3)">•</span>
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <a class="ac-url-link" href="${url||'#'}" target="_blank" onclick="event.stopPropagation()">${dispUrl}</a>` : ''}
+        </div>
+        <div class="ac-status-row">
+          ${isLive
+            ? `<span class="ac-badge-live">Live</span>`
+            : `<span class="ac-badge-draft">Draft</span>`}
+        </div>
+      </div>
+      <button class="ac-menu-btn" title="More options"
+        onclick="event.stopPropagation();openCtxMenu(event,'${a._id}')">
+        ···
+      </button>
+    </div>
+
+    <!-- Stats box -->
+    <div class="ac-stats-box">
+      <div class="ac-stat">
+        <div class="ac-stat-num">${fmtNum(a.tryon_count||0)}</div>
+        <div class="ac-stat-lbl">Try-Ons</div>
+        ${tryonTrend}
+      </div>
+      <div class="ac-stat">
+        <div class="ac-stat-num">${fmtNum(a.chat_count||0)}</div>
+        <div class="ac-stat-lbl">Conversations</div>
+        <span class="ac-stat-trend flat">— 0%</span>
+      </div>
+      <div class="ac-stat">
+        <div class="ac-stat-num">${fmtNum(a.tryon_count||0)}</div>
+        <div class="ac-stat-lbl">Products Tried</div>
+        <span class="ac-stat-trend ${a.tryon_count>0?'up flat':'flat'}">${a.tryon_count>0?'↑ 25%':'— 0%'}</span>
+      </div>
+      <div class="ac-stat">
+        <div class="ac-stat-num" style="font-size:13px;font-weight:700">${fmtRelative(a.updated_at)}</div>
+        <div class="ac-stat-lbl">Last Active</div>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="ac-footer">
+      <div class="ac-action-btns">
+        <button class="ac-action-btn" onclick="event.stopPropagation();location.href='conversations.html?agent=${a._id}'" title="Conversations">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          <span class="ac-action-lbl">Conversations</span>
+        </button>
+        <button class="ac-action-btn" onclick="event.stopPropagation();openTryonGallerySheet('${a._id}')" title="Try-Ons">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          <span class="ac-action-lbl">Try-Ons</span>
+        </button>
+        <button class="ac-action-btn" onclick="event.stopPropagation();openEditModal('${a._id}')" title="Settings">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          <span class="ac-action-lbl">Settings</span>
+        </button>
+        <button class="ac-action-btn" onclick="event.stopPropagation();toast('Analytics coming soon','info')" title="Analytics">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          <span class="ac-action-lbl">Analytics</span>
+        </button>
+      </div>
+      ${url ? `
+      <a class="ac-open-btn" href="${url}" target="_blank" onclick="event.stopPropagation()">
+        Open Agent
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>` : `
+      <button class="ac-open-btn" onclick="event.stopPropagation();openEditModal('${a._id}')">
+        Publish Agent
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>`}
+    </div>
+  </div>`
 }
 
-// ── Wizard state ─────────────────────────────────────────────
-let currentStep=1, selectedCategory='', selectedColor='#7C6FFF', avatarBase64=null, selectedQuality='medium'
+/* ════════════════════════════════════════════════
+   FILTER + SORT + RENDER
+════════════════════════════════════════════════ */
+function filterAgents() {
+  const q      = document.getElementById('agent-search').value.toLowerCase()
+  const status = document.getElementById('status-filter').value
+  const sort   = document.getElementById('sort-select').value
 
-// ── Rate limit preview helpers ────────────────────────────────
-function limitPreviewHtml(count, window) {
-  const n = parseInt(count)
-  if (isNaN(n) || n === 0) {
-    return `<span class="rate-limit-badge unlimited">♾ Unlimited try-ons per customer</span>`
-  }
-  const windowLabel = {day:'per day',week:'per week',month:'per month',total:'lifetime total'}[window]||'per day'
-  const cls = n <= 3 ? 'limited' : 'unlimited'
-  return `<span class="rate-limit-badge ${cls}">🛡 Max ${n} try-on${n===1?'':'s'} ${windowLabel} per customer</span>`
-}
-function updateWizardLimitPreview() {
-  const cnt = document.getElementById('w-limit-count').value
-  const win = document.getElementById('w-limit-window').value
-  document.getElementById('w-limit-preview').innerHTML = limitPreviewHtml(cnt, win)
-}
-function updateEditLimitPreview() {
-  const cnt = document.getElementById('edit-limit-count').value
-  const win = document.getElementById('edit-limit-window').value
-  document.getElementById('edit-limit-preview').innerHTML = limitPreviewHtml(cnt, win)
-}
+  let list = ALL_AGENTS.filter(a => {
+    const matchQ = !q || (a.agent_name||'').toLowerCase().includes(q) || (a.business_name||'').toLowerCase().includes(q)
+    const matchS = !status || (status==='live'?a.published:!a.published)
+    return matchQ && matchS
+  })
 
-// Quality selector
-function selectQuality(btn, isEdit) {
-  const parentGrid = btn.closest('.quality-grid')
-  if (parentGrid) {
-    parentGrid.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('selected'))
+  list = list.slice().sort((a,b) => {
+    if(sort==='tryons_desc')  return (b.tryon_count||0)-(a.tryon_count||0)
+    if(sort==='name_asc')     return(a.agent_name||'').localeCompare(b.agent_name||'')
+    if(sort==='updated_desc') return new Date(b.updated_at)-new Date(a.updated_at)
+    return new Date(b.created_at)-new Date(a.created_at)  // recently created
+  })
+
+  const grid = document.getElementById('agents-grid')
+  const empty = document.getElementById('agents-empty')
+  if(!list.length) {
+    grid.innerHTML  = ''
+    empty.style.display = 'flex'
   } else {
-    const selector = isEdit ? '#edit-quality-grid .quality-btn' : '#step-1 .quality-btn'
-    document.querySelectorAll(selector).forEach(b => b.classList.remove('selected'))
+    empty.style.display = 'none'
+    grid.innerHTML = list.map(renderAgentCard).join('')
   }
-  btn.classList.add('selected')
-  if (isEdit) editSelectedQuality = btn.dataset.value
-  else        selectedQuality     = btn.dataset.value
 }
 
-// ── Wizard ─────────────────────────────────────────────────────
-function openCreateWizard() {
-  currentStep = 1; renderWizardStep(1)
-  document.getElementById('create-modal').classList.add('open')
-  updateWizardLimitPreview()
+function setView(v) {
+  CURRENT_VIEW = v
+  const grid = document.getElementById('agents-grid')
+  const gBtn = document.getElementById('grid-btn')
+  const lBtn = document.getElementById('list-btn')
+  if(v==='list'){
+    grid.classList.add('list-view')
+    gBtn.classList.remove('active')
+    lBtn.classList.add('active')
+  } else {
+    grid.classList.remove('list-view')
+    gBtn.classList.add('active')
+    lBtn.classList.remove('active')
+  }
 }
-function closeCreateWizard() {
-  document.getElementById('create-modal').classList.remove('open'); resetWizard()
+
+/* ════════════════════════════════════════════════
+   CONTEXT MENU
+════════════════════════════════════════════════ */
+let _ctxAgentId = null
+function openCtxMenu(e, agentId) {
+  _ctxAgentId = agentId
+  const menu = document.getElementById('ctx-menu')
+  menu.classList.add('open')
+  const r = e.target.getBoundingClientRect()
+  let top  = r.bottom + 6
+  let left = r.right - 170
+  if(top + 200 > window.innerHeight) top = r.top - 206
+  if(left < 8) left = 8
+  menu.style.top  = top  + 'px'
+  menu.style.left = left + 'px'
 }
-function resetWizard() {
-  currentStep=1; selectedCategory=''; selectedColor='#7C6FFF'; avatarBase64=null; selectedQuality='medium'
+document.addEventListener('click', e => {
+  if(!e.target.closest('.ac-menu-btn') && !e.target.closest('.ctx-menu'))
+    document.getElementById('ctx-menu').classList.remove('open')
+})
+
+function ctxEdit()       { document.getElementById('ctx-menu').classList.remove('open'); openEditModal(_ctxAgentId) }
+function ctxViewTryons() { document.getElementById('ctx-menu').classList.remove('open'); openTryonGallerySheet(_ctxAgentId) }
+function ctxDelete()     { document.getElementById('ctx-menu').classList.remove('open'); openEditModal(_ctxAgentId); setTimeout(deleteAgent,400) }
+function ctxCopyUrl() {
+  const a = ALL_AGENTS.find(x=>x._id===_ctxAgentId)
+  const u = agentUrl(a)
+  if(u) copyText(u,'URL copied!')
+  else toast('Agent not published yet','info')
+  document.getElementById('ctx-menu').classList.remove('open')
+}
+function ctxOpenAgent() {
+  const a = ALL_AGENTS.find(x=>x._id===_ctxAgentId)
+  const u = agentUrl(a)
+  if(u) window.open(u,'_blank')
+  else toast('Agent not published yet','info')
+  document.getElementById('ctx-menu').classList.remove('open')
+}
+
+/* ════════════════════════════════════════════════
+   CREATE WIZARD
+════════════════════════════════════════════════ */
+let _wizStep=1, _wizData={color:'#7C6FFF',quality:'medium',logoB64:null}
+
+function openCreateWizard(){
+  _wizStep=1; _wizData={color:'#7C6FFF',quality:'medium',logoB64:null}
+  showWizStep(1)
   document.getElementById('w-biz-name').value=''
   document.getElementById('w-agent-name').value=''
   document.getElementById('w-welcome').value=''
-  document.getElementById('slug-preview-val').textContent='your-boutique'
   document.getElementById('w-limit-count').value='10'
-  document.getElementById('w-limit-window').value='day'
-  document.getElementById('w-limit-preview').innerHTML=''
+  document.getElementById('w-publish').checked=true
   document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
-  document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('selected'))
-  document.querySelector('[data-color="#7C6FFF"]')?.classList.add('selected')
-  document.getElementById('avatar-upload-box').innerHTML='<span id="avatar-preview-icon">📷</span>'
-  document.querySelectorAll('#step-1 .quality-btn').forEach(b=>b.classList.remove('selected'))
-  document.querySelector('#step-1 .quality-btn[data-value="medium"]')?.classList.add('selected')
+  document.querySelectorAll('#create-modal .quality-btn').forEach(b=>{
+    b.classList.remove('selected')
+    if(b.dataset.value==='medium')b.classList.add('selected')
+  })
+  document.querySelectorAll('#color-swatches .color-swatch').forEach(s=>{
+    s.classList.toggle('selected',s.dataset.color==='#7C6FFF')
+  })
+  document.getElementById('avatar-preview-icon').textContent='📷'
+  const ab=document.getElementById('avatar-upload-box')
+  ab.style.backgroundImage=''; ab.style.backgroundSize=''; ab.style.backgroundPosition=''; ab.innerHTML='<span id="avatar-preview-icon">📷</span>'
+  updateSlug(); updateWizardLimitPreview()
+  document.getElementById('create-modal').classList.add('open')
 }
-function renderWizardStep(n) {
-  document.querySelectorAll('.wizard-step').forEach((s,i)=>s.classList.toggle('active',i+1===n))
+function closeCreateWizard(){ document.getElementById('create-modal').classList.remove('open') }
+
+function showWizStep(n){
+  _wizStep=n
+  document.querySelectorAll('.wizard-step').forEach((s,i)=>{
+    s.classList.toggle('active',i+1===n)
+  })
   for(let i=1;i<=3;i++){
     const dot=document.getElementById('dot-'+i)
-    dot.classList.remove('active','done')
-    if(i<n){dot.classList.add('done');dot.textContent='✓'}
-    else if(i===n){dot.classList.add('active');dot.textContent=i}
-    else dot.textContent=i
+    if(dot){dot.classList.toggle('active',i<=n);dot.classList.toggle('completed',i<n)}
+    const line=document.getElementById('line-'+i)
+    if(line)line.classList.toggle('active',i<n)
   }
-  for(let i=1;i<=2;i++) document.getElementById('line-'+i).classList.toggle('done',i<n)
-  document.getElementById('wizard-back-btn').style.display=n>1?'inline-flex':'none'
-  const nb=document.getElementById('wizard-next-btn')
-  if(n===3){nb.textContent='🚀 Create Agent';nb.style.background='var(--green)';prepareReview()}
-  else{nb.textContent='Continue →';nb.style.background=''}
+  const back=document.getElementById('wizard-back-btn')
+  const next=document.getElementById('wizard-next-btn')
+  back.style.display=n>1?'inline-flex':'none'
+  next.textContent=n===3?'Launch Agent 🚀':'Continue →'
 }
-function wizardNext() {
-  if(currentStep===1){
-    if(!document.getElementById('w-biz-name').value.trim()){toast('Please enter your business name','error');return}
-    if(!selectedCategory){toast('Please select a category','error');return}
-    // validate limit
-    const lv = parseInt(document.getElementById('w-limit-count').value)
-    if(isNaN(lv)||lv<0){toast('Please enter a valid try-on limit (0 = unlimited)','error');return}
-    currentStep=2; renderWizardStep(2)
-    if(!document.getElementById('w-agent-name').value)
-      document.getElementById('w-agent-name').value=document.getElementById('w-biz-name').value.trim().split(' ')[0]+' AI'
-  } else if(currentStep===2){
-    if(!document.getElementById('w-agent-name').value.trim()){toast('Please enter an agent name','error');return}
-    currentStep=3; renderWizardStep(3)
-  } else if(currentStep===3){ createAgent() }
+
+async function wizardNext(){
+  if(_wizStep===1){
+    const biz=document.getElementById('w-biz-name').value.trim()
+    const cat=document.querySelector('.category-btn.selected')?.dataset.value
+    if(!biz)return toast('Please enter your business name','error')
+    if(!cat)return toast('Please select a category','error')
+    _wizData.biz=biz; _wizData.cat=cat
+    _wizData.quality=document.querySelector('#create-modal .quality-btn.selected')?.dataset.value||'medium'
+    _wizData.limitCount=parseInt(document.getElementById('w-limit-count').value)||10
+    _wizData.limitWindow=document.getElementById('w-limit-window').value
+    showWizStep(2)
+  } else if(_wizStep===2){
+    const name=document.getElementById('w-agent-name').value.trim()
+    if(!name)return toast('Please enter an agent name','error')
+    _wizData.name=name
+    _wizData.welcome=document.getElementById('w-welcome').value.trim()
+    updateReview(); showWizStep(3)
+  } else {
+    await createAgent()
+  }
 }
-function wizardBack(){ if(currentStep>1){currentStep--;renderWizardStep(currentStep)} }
-function prepareReview(){
-  const biz     = document.getElementById('w-biz-name').value.trim()
-  const agent   = document.getElementById('w-agent-name').value.trim()
-  const welcome = document.getElementById('w-welcome').value.trim()
-  const slug    = toSlug(biz)||'your-boutique'
-  const cnt     = parseInt(document.getElementById('w-limit-count').value)||10
-  const win     = document.getElementById('w-limit-window').value||'day'
-  const windowLabel = {day:'per day',week:'per week',month:'per month',total:'lifetime'}[win]||'per day'
-  const catLabels = {sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed / All'}
-  const logoEl = document.getElementById('review-logo')
-  logoEl.style.background=selectedColor
-  logoEl.innerHTML=avatarBase64?`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`:(agent[0]?.toUpperCase()||'A')
-  document.getElementById('review-name').textContent=agent||'—'
-  document.getElementById('review-biz').textContent=biz||'—'
-  document.getElementById('review-category').textContent=catLabels[selectedCategory]||selectedCategory
-  document.getElementById('review-url').textContent=slug+'.'+SUBDOMAIN_BASE
-  document.getElementById('review-limit').textContent=cnt===0?'Unlimited':cnt+' try-ons '+windowLabel
-  document.getElementById('review-welcome').textContent=welcome||'(Using default welcome message)'
+function wizardBack(){ if(_wizStep>1)showWizStep(_wizStep-1) }
+
+function updateSlug(){
+  const v=toSlug(document.getElementById('w-biz-name').value||'')
+  document.getElementById('slug-preview-val').textContent=v||'your-boutique'
 }
+
+function selectCategory(btn){
+  document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
+  btn.classList.add('selected')
+}
+function selectQuality(btn,isEdit){
+  const grid=isEdit?'#edit-quality-grid':'#create-modal .quality-grid'
+  document.querySelectorAll(grid+' .quality-btn').forEach(b=>b.classList.remove('selected'))
+  btn.classList.add('selected')
+}
+function selectColor(swatch){
+  document.querySelectorAll('#color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'))
+  swatch.classList.add('selected')
+  _wizData.color=swatch.dataset.color
+}
+function selectEditColor(swatch){
+  document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(s=>s.classList.remove('selected'))
+  swatch.classList.add('selected')
+}
+
+function handleAvatarUpload(input){
+  const file=input.files[0]; if(!file)return
+  if(file.size>2*1024*1024)return toast('Image must be under 2MB','error')
+  const r=new FileReader()
+  r.onload=e=>{
+    _wizData.logoB64=e.target.result
+    const box=document.getElementById('avatar-upload-box')
+    box.style.cssText=`background-image:url(${e.target.result});background-size:cover;background-position:center;border-style:solid`
+    box.innerHTML=''
+  }
+  r.readAsDataURL(file)
+}
+function handleEditAvatar(input){
+  const file=input.files[0]; if(!file)return
+  if(file.size>2*1024*1024)return toast('Image must be under 2MB','error')
+  const r=new FileReader()
+  r.onload=e=>{
+    _editData.logoB64=e.target.result
+    const box=document.getElementById('edit-avatar-box')
+    box.style.cssText=`background-image:url(${e.target.result});background-size:cover;background-position:center;border-style:solid`
+    box.innerHTML=''
+  }
+  r.readAsDataURL(file)
+}
+
+function updateWizardLimitPreview(){
+  const c=parseInt(document.getElementById('w-limit-count').value)
+  const w=document.getElementById('w-limit-window').value
+  const p=document.getElementById('w-limit-preview')
+  if(!c){p.innerHTML='<span class="rate-limit-badge unlimited">♾ Unlimited</span>';return}
+  const wl={day:'day',week:'week',month:'month',total:'total'}
+  p.innerHTML=`<span class="rate-limit-badge limited">Max ${c} try-on${c!==1?'s':''} per ${wl[w]||w}</span>`
+}
+
+function updateReview(){
+  document.getElementById('review-name').textContent=_wizData.name||'—'
+  document.getElementById('review-biz').textContent=_wizData.biz||'—'
+  document.getElementById('review-category').textContent=_wizData.cat||'—'
+  document.getElementById('review-url').textContent=toSlug(_wizData.biz||'')+'.'+BASE
+  document.getElementById('review-quality').textContent=qualityLabel(_wizData.quality)
+  const c=parseInt(document.getElementById('w-limit-count').value)||0
+  const w=document.getElementById('w-limit-window').value
+  document.getElementById('review-limit').textContent=c?`${c} / ${w}`:'Unlimited'
+  const logo=document.getElementById('review-logo')
+  logo.style.background=_wizData.color
+  if(_wizData.logoB64){logo.innerHTML=`<img src="${_wizData.logoB64}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">`}
+  else{logo.textContent=(_wizData.name||'A')[0].toUpperCase()}
+}
+
 async function createAgent(){
   const btn=document.getElementById('wizard-next-btn')
   btn.disabled=true; btn.textContent='Creating…'
-  const limitCount  = parseInt(document.getElementById('w-limit-count').value)
-  const limitWindow = document.getElementById('w-limit-window').value
   try{
-    await apiFetch('/agents',{method:'POST',body:JSON.stringify({
-      business_name:        document.getElementById('w-biz-name').value.trim(),
-      agent_name:           document.getElementById('w-agent-name').value.trim(),
-      category:             selectedCategory,
-      brand_color:          selectedColor,
-      welcome_msg:          document.getElementById('w-welcome').value.trim(),
-      logo_base64:          avatarBase64||null,
-      quality:              selectedQuality,
-      tryon_limit_per_user: isNaN(limitCount)||limitCount<0 ? 10 : limitCount,
-      tryon_limit_window:   limitWindow||'day',
-    })})
-    toast('Agent created! 🎉','success')
-    closeCreateWizard(); loadAgents()
-  }catch(e){toast(e.message,'error');btn.disabled=false;btn.textContent='🚀 Create Agent'}
-}
-function selectCategory(btn){
-  document.querySelectorAll('.category-btn').forEach(b=>b.classList.remove('selected'))
-  btn.classList.add('selected'); selectedCategory=btn.dataset.value
-}
-function selectColor(s){
-  document.querySelectorAll('.color-swatch').forEach(sw=>sw.classList.remove('selected'))
-  s.classList.add('selected'); selectedColor=s.dataset.color
-}
-function updateSlug(){
-  const slug=toSlug(document.getElementById('w-biz-name').value)||'your-boutique'
-  document.getElementById('slug-preview-val').textContent=slug
-}
-function handleAvatarUpload(input){
-  const file=input.files[0]; if(!file) return
-  if(file.size>2*1024*1024){toast('Image must be under 2MB','error');return}
-  const r=new FileReader()
-  r.onload=e=>{avatarBase64=e.target.result;document.getElementById('avatar-upload-box').innerHTML=`<img src="${avatarBase64}" style="width:100%;height:100%;object-fit:cover">`; toast('Avatar uploaded','success')}
-  r.readAsDataURL(file)
-}
-
-// ── Edit Agent ────────────────────────────────────────────────
-let currentUser       = null
-let editingAgentId    = null
-let editColor         = '#7C6FFF'
-let editAvatarBase64  = null
-let editSelectedQuality = 'medium'
-
-function openEditModal(id) {
-  apiFetch('/agents/' + id).then(a => {
-    if (!a || a.error) { toast('Could not load agent', 'error'); return }
-    editingAgentId    = id
-    editColor         = a.brand_color || '#7C6FFF'
-    editSelectedQuality = a.quality || 'medium'
-    editAvatarBase64  = null
-
-    document.getElementById('edit-agent-name').value  = a.agent_name || ''
-    document.getElementById('edit-biz-name').value    = a.business_name || ''
-    document.getElementById('edit-welcome').value     = a.welcome_msg || ''
-    document.getElementById('edit-published').checked = !!a.published
-
-    // Avatar preview
-    const avatarBox = document.getElementById('edit-avatar-box')
-    const logoSrc = a.logo_url || a.logo_base64
-    avatarBox.innerHTML = logoSrc
-      ? `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:cover">`
-      : `<span id="edit-avatar-icon">📷</span>`
-
-    // Category
-    document.querySelectorAll('#edit-category-grid .category-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.value === a.category)
-    })
-
-    // Color swatches
-    document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(s => {
-      s.classList.toggle('selected', s.dataset.color === editColor)
-    })
-
-    // Quality
-    document.querySelectorAll('#edit-quality-grid .quality-btn').forEach(b => {
-      b.classList.toggle('selected', b.dataset.value === editSelectedQuality)
-    })
-
-    // Rate limit (FEAT 4)
-    const lc = document.getElementById('edit-limit-count')
-    const lw = document.getElementById('edit-limit-window')
-    lc.value = (a.tryon_limit_per_user !== undefined && a.tryon_limit_per_user !== null)
-      ? a.tryon_limit_per_user
-      : 10
-    lw.value = a.tryon_limit_window || 'day'
-    updateEditLimitPreview()
-
-    // URL display
-    updatePublishLabel(a)
-
-    // Custom domain
-    const domInput = document.getElementById('edit-domain-input')
-    domInput.value = a.custom_domain || ''
-    document.getElementById('edit-cname-host').textContent = a.custom_domain ? a.custom_domain.split('.')[0] : 'shop'
-    if (a.custom_domain) {
-      showEditDomainStatus(a.domain_status || 'pending')
-      document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
-      document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
-    } else {
-      document.getElementById('edit-domain-status-wrap').style.display = 'none'
-      document.getElementById('edit-domain-verify-btn').style.display = 'none'
-      document.getElementById('edit-domain-remove-btn').style.display = 'none'
+    const body={
+      business_name:_wizData.biz,agent_name:_wizData.name,
+      category:_wizData.cat,brand_color:_wizData.color,
+      welcome_msg:document.getElementById('w-welcome').value.trim()||undefined,
+      quality:_wizData.quality,
+      tryon_limit_per_user:parseInt(document.getElementById('w-limit-count').value)||0,
+      tryon_limit_window:document.getElementById('w-limit-window').value,
+      logo_base64:_wizData.logoB64||undefined,
+      published:document.getElementById('w-publish').checked,
     }
-
-    document.getElementById('edit-modal-sub').textContent = a.agent_name + ' · ' + (a.slug || '')
-    document.getElementById('edit-modal').classList.add('open')
-  }).catch(e => toast(e.message, 'error'))
+    const created=await apiFetch('/agents',{method:'POST',body:JSON.stringify(body)})
+    if(created.error||created.success===false)throw new Error(created.error||'Create failed')
+    ALL_AGENTS.unshift(created)
+    filterAgents()
+    closeCreateWizard()
+    toast('Agent created!','success')
+  }catch(e){toast(e.message,'error')}
+  finally{btn.disabled=false;btn.textContent='Launch Agent 🚀'}
 }
 
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('open')
-  editingAgentId = null; editAvatarBase64 = null
-}
+/* ════════════════════════════════════════════════
+   EDIT MODAL
+════════════════════════════════════════════════ */
+let _editAgentId=null, _editData={logoB64:null}
 
-function editSelectCategory(btn) {
-  document.querySelectorAll('#edit-category-grid .category-btn').forEach(b => b.classList.remove('selected'))
-  btn.classList.add('selected')
-}
-
-function editSelectColor(s) {
-  document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(sw => sw.classList.remove('selected'))
-  s.classList.add('selected')
-  editColor = s.dataset.color
-}
-
-function handleEditAvatar(input) {
-  const file = input.files[0]; if (!file) return
-  if (file.size > 2 * 1024 * 1024) { toast('Image must be under 2MB', 'error'); return }
-  const r = new FileReader()
-  r.onload = e => {
-    editAvatarBase64 = e.target.result
-    document.getElementById('edit-avatar-box').innerHTML = `<img src="${editAvatarBase64}" style="width:100%;height:100%;object-fit:cover">`
-    toast('Avatar updated', 'success')
-  }
-  r.readAsDataURL(file)
-}
-
-function updatePublishLabel(agent) {
-  const checked = document.getElementById('edit-published').checked
-  const urlDiv  = document.getElementById('edit-url-display')
-  if (checked) {
-    urlDiv.style.display = 'block'
-    if (agent && agent.slug) {
-      const url = agent.custom_domain ? agent.custom_domain : agent.slug + '.' + SUBDOMAIN_BASE
-      urlDiv.textContent = '🔗 ' + url
-    }
+function openEditModal(id){
+  _editAgentId=id; _editData={logoB64:null}
+  const a=ALL_AGENTS.find(x=>x._id===id); if(!a)return
+  document.getElementById('edit-agent-name').value=a.agent_name||''
+  document.getElementById('edit-biz-name').value=a.business_name||''
+  document.getElementById('edit-welcome').value=a.welcome_msg||''
+  document.getElementById('edit-modal-sub').textContent=a.agent_name||'Edit Agent'
+  document.querySelectorAll('#edit-quality-grid .quality-btn').forEach(b=>{
+    b.classList.toggle('selected',b.dataset.value===(a.quality||'medium'))
+  })
+  document.querySelectorAll('#edit-color-swatches .color-swatch').forEach(s=>{
+    s.classList.toggle('selected',s.dataset.color===(a.brand_color||'#7C6FFF'))
+  })
+  document.getElementById('edit-limit-count').value=a.tryon_limit_per_user??10
+  document.getElementById('edit-limit-window').value=a.tryon_limit_window||'day'
+  updateEditLimitPreview()
+  const box=document.getElementById('edit-avatar-box')
+  if(a.logo_url){
+    box.style.cssText=`background-image:url(${a.logo_url});background-size:cover;background-position:center;border-style:solid`
+    box.innerHTML=''
   } else {
-    urlDiv.style.display = 'none'
+    box.style.cssText=''; box.innerHTML=`<span id="edit-avatar-icon">📷</span>`
   }
-}
-
-async function saveAgent() {
-  if (!editingAgentId) return
-  const agentName = document.getElementById('edit-agent-name').value.trim()
-  const bizName   = document.getElementById('edit-biz-name').value.trim()
-  if (!agentName) { toast('Agent name is required', 'error'); return }
-  if (!bizName)   { toast('Business name is required', 'error'); return }
-
-  const selCat = document.querySelector('#edit-category-grid .category-btn.selected')
-  if (!selCat)  { toast('Please select a category', 'error'); return }
-
-  const limitCount = parseInt(document.getElementById('edit-limit-count').value)
-  if (isNaN(limitCount) || limitCount < 0) { toast('Enter a valid try-on limit (0 = unlimited)', 'error'); return }
-
-  const published   = document.getElementById('edit-published').checked
-  const limitWindow = document.getElementById('edit-limit-window').value
-
-  const btn = document.getElementById('edit-save-btn')
-  btn.disabled = true; btn.textContent = 'Saving…'
-
-  const body = {
-    agent_name:           agentName,
-    business_name:        bizName,
-    category:             selCat.dataset.value,
-    brand_color:          editColor,
-    welcome_msg:          document.getElementById('edit-welcome').value.trim(),
-    published,
-    quality:              editSelectedQuality,
-    tryon_limit_per_user: limitCount,
-    tryon_limit_window:   limitWindow,
+  const domainInput=document.getElementById('edit-domain-input')
+  if(domainInput)domainInput.value=a.custom_domain||''
+  const cnameHost=document.getElementById('edit-cname-host')
+  if(cnameHost)cnameHost.textContent=a.custom_domain?a.custom_domain.split('.')[0]:'shop'
+  const verifyBtn=document.getElementById('edit-domain-verify-btn')
+  const removeBtn=document.getElementById('edit-domain-remove-btn')
+  if(a.custom_domain){
+    if(verifyBtn)verifyBtn.style.display='inline-flex'
+    if(removeBtn)removeBtn.style.display='inline-flex'
+  } else {
+    if(verifyBtn)verifyBtn.style.display='none'
+    if(removeBtn)removeBtn.style.display='none'
   }
-  if (editAvatarBase64) body.logo_base64 = editAvatarBase64
+  document.getElementById('edit-modal').classList.add('open')
+}
+function closeEditModal(){ document.getElementById('edit-modal').classList.remove('open') }
 
-  try {
-    const result = await apiFetch('/agents/' + editingAgentId, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    })
-    if (result.error) { toast(result.error, 'error'); return }
-    toast(published ? '🚀 Agent is now Live!' : '✅ Agent saved', 'success')
-    closeEditModal()
-    loadAgents()
-  } catch(e) {
-    toast(e.message, 'error')
-  } finally {
-    btn.disabled = false; btn.textContent = 'Save Changes'
-  }
+function updateEditLimitPreview(){
+  const c=parseInt(document.getElementById('edit-limit-count').value)
+  const w=document.getElementById('edit-limit-window').value
+  const p=document.getElementById('edit-limit-preview')
+  if(!p)return
+  if(!c){p.innerHTML='<span class="rate-limit-badge unlimited">♾ Unlimited</span>';return}
+  p.innerHTML=`<span class="rate-limit-badge limited">Max ${c} try-on${c!==1?'s':''} per ${w}</span>`
 }
 
-async function deleteAgent() {
-  if (!editingAgentId) return
-  const name = document.getElementById('edit-agent-name').value || 'this agent'
-  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return
-
-  try {
-    const result = await apiFetch('/agents/' + editingAgentId, { method: 'DELETE' })
-    if (result.error) { toast(result.error, 'error'); return }
-    toast('Agent deleted', 'info')
-    closeEditModal()
-    loadAgents()
-  } catch(e) {
-    toast(e.message, 'error')
-  }
-}
-
-// ── User Stats Modal (per-customer usage) ──────────────────────
-async function openUserStatsModal() {
-  if (!editingAgentId) return
-  document.getElementById('user-stats-modal').classList.add('open')
-
-  // window label
-  const winEl  = document.getElementById('edit-limit-window')
-  const win    = winEl?.value || 'day'
-  const winLbl = {day:'today',week:'this week',month:'this month',total:'all time'}[win]||'this period'
-  document.getElementById('user-stats-sub').textContent = `Try-on usage per customer ${winLbl}`
-
-  const content = document.getElementById('user-stats-content')
-  content.innerHTML = '<div style="color:var(--text-3);font-size:13px;text-align:center;width:100%">Loading…</div>'
-
-  try {
-    const data = await apiFetch(`/agents/${editingAgentId}/user-stats?limit=50`)
-    const stats = data.stats || []
-    if (!stats.length) {
-      content.innerHTML = '<div style="color:var(--text-3);font-size:13px;text-align:center;width:100%">No try-ons recorded yet.</div>'
-      return
-    }
-    const limit = data.agent_limit
-    content.innerHTML = `
-      <div style="width:100%">
-        <div style="margin-bottom:10px;font-size:12px;color:var(--text-3)">
-          Showing ${stats.length} customer${stats.length===1?'':'s'} · Limit: ${limit===0?'Unlimited':limit+' '+data.limit_window+'ly'}
-        </div>
-        <div style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto">
-          ${stats.map(s => {
-            const pct   = limit===0 ? 0 : Math.min(100, Math.round(s.used/limit*100))
-            const color = s.at_limit ? 'var(--red,#EF4444)' : pct>=80 ? 'var(--amber,#d97706)' : 'var(--green,#19a37a)'
-            const mob   = s.mobile.replace(/(\d{2})(\d{4})(\d{4})/, '$1••••$3')
-            return `<div style="padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                <span style="font-family:var(--mono);font-size:13px;font-weight:600">📱 ${mob}</span>
-                <div style="display:flex;align-items:center;gap:8px">
-                  <span style="font-size:12px;font-weight:700;color:${color}">
-                    ${s.used}${limit>0?'/'+limit:''} used
-                  </span>
-                  ${s.at_limit ? `<span style="font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-dim,rgba(239,68,68,.1));color:var(--red,#EF4444);border:1px solid var(--red-border,rgba(239,68,68,.25));font-weight:700">AT LIMIT</span>` : ''}
-                </div>
-              </div>
-              ${limit>0 ? `<div style="height:4px;background:var(--border);border-radius:4px;overflow:hidden">
-                <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;transition:.3s"></div>
-              </div>` : ''}
-              <div style="font-size:10px;color:var(--text-3);margin-top:5px">Last try-on: ${fmtRelative(s.last_at)}</div>
-            </div>`
-          }).join('')}
-        </div>
-      </div>
-    `
-  } catch(e) {
-    content.innerHTML = `<div style="color:var(--red,#EF4444);font-size:13px;text-align:center;width:100%">Failed to load: ${e.message}</div>`
-  }
-}
-
-function closeUserStatsModal() {
-  document.getElementById('user-stats-modal').classList.remove('open')
-}
-
-// ── PER-AGENT CUSTOM DOMAIN ──────────────────────────────────
-async function saveAgentDomain() {
-  if (!editingAgentId) return
-  const domain = document.getElementById('edit-domain-input').value.trim().toLowerCase()
-  if (!domain) { toast('Enter a domain first', 'error'); return }
-  if (!/^[a-z0-9][a-z0-9-_.]+\.[a-z]{2,}$/.test(domain)) { toast('Invalid domain format', 'error'); return }
-  const btn = document.getElementById('edit-domain-save-btn')
-  btn.disabled = true; btn.textContent = 'Saving…'
-  try {
-    const r = await apiFetch('/agents/' + editingAgentId + '/custom-domain', {
-      method: 'POST', body: JSON.stringify({ domain })
-    })
-    if (r.error) { toast(r.error, 'error'); return }
-    document.getElementById('edit-cname-host').textContent = domain.split('.')[0]
-    showEditDomainStatus('pending')
-    document.getElementById('edit-domain-verify-btn').style.display = 'inline-flex'
-    document.getElementById('edit-domain-remove-btn').style.display = 'inline-flex'
-    toast('Domain saved! Add the CNAME then click Verify.', 'info', 6000)
-  } catch(e) { toast(e.message, 'error') }
-  finally { btn.disabled = false; btn.textContent = 'Save' }
-}
-
-async function verifyAgentDomain() {
-  if (!editingAgentId) return
-  const btn = document.getElementById('edit-domain-verify-btn')
-  btn.disabled = true; btn.innerHTML = '<svg width="12" height="12" class="spin" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Verifying…'
-  try {
-    const r = await apiFetch('/agents/' + editingAgentId + '/domain-status')
-    showEditDomainStatus(r.status || 'pending')
-    toast(
-      r.status === 'active' ? '✅ Domain is active!' : 'Still pending — DNS can take a few minutes.',
-      r.status === 'active' ? 'success' : 'info', 5000
-    )
-  } catch(e) { toast(e.message, 'error') }
-  finally {
-    btn.disabled = false
-    btn.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Verify DNS'
-  }
-}
-
-async function removeAgentDomain() {
-  if (!editingAgentId) return
-  if (!confirm('Remove this custom domain?')) return
-  try {
-    await apiFetch('/agents/' + editingAgentId + '/custom-domain', { method: 'DELETE' })
-    document.getElementById('edit-domain-input').value = ''
-    document.getElementById('edit-domain-status-wrap').style.display = 'none'
-    document.getElementById('edit-domain-verify-btn').style.display = 'none'
-    document.getElementById('edit-domain-remove-btn').style.display = 'none'
-    document.getElementById('edit-cname-host').textContent = 'shop'
-    toast('Custom domain removed', 'success')
-  } catch(e) { toast(e.message, 'error') }
-}
-
-function showEditDomainStatus(status) {
-  const wrap = document.getElementById('edit-domain-status-wrap')
-  const el   = document.getElementById('edit-domain-status')
-  const icon = document.getElementById('edit-domain-status-icon')
-  const msg  = document.getElementById('edit-domain-status-msg')
-  wrap.style.display = 'block'
-  const styles = {
-    active:  { bg: 'var(--green-dim,rgba(25,163,122,.1))',  color: 'var(--green,#19a37a)',  border: 'var(--green-border,rgba(25,163,122,.25))',  icon: '✅', text: 'Domain active and live' },
-    pending: { bg: 'var(--amber-dim,rgba(245,158,11,.1))',  color: 'var(--amber,#d97706)',  border: 'var(--amber-border,rgba(245,158,11,.25))',  icon: '⏳', text: 'Awaiting DNS propagation' },
-    error:   { bg: 'var(--red-dim,rgba(239,68,68,.1))',     color: 'var(--red,#EF4444)',    border: 'var(--red-border,rgba(239,68,68,.25))',     icon: '❌', text: 'DNS not found — check your settings' },
-  }
-  const s = styles[status] || styles.pending
-  el.style.cssText = `background:${s.bg};color:${s.color};border:1px solid ${s.border};display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r-sm);font-size:12.5px;font-weight:600`
-  icon.textContent = s.icon; msg.textContent = s.text
-}
-
-// ── Try-on Gallery ────────────────────────────────────────────
-let tryonAgentId = null
-
-async function openTryonGallery(agentId) {
-  tryonAgentId = agentId
-  const sheet   = document.getElementById('tryon-sheet')
-  const avatarEl = document.getElementById('tryon-avatar')
-  const titleEl  = document.getElementById('tryon-sheet-title')
-  const subEl    = document.getElementById('tryon-sheet-sub')
-  const grid     = document.getElementById('tryon-grid')
-
-  // skeleton
-  titleEl.textContent = 'My Try-ons'
-  subEl.textContent   = 'Loading…'
-  grid.innerHTML = [0,1,2,3].map((i)=>`<div class="tryon-skel-card" style="opacity:${1-i*.2}"></div>`).join('')
-  sheet.classList.add('open')
-  document.body.style.overflow = 'hidden'
-
-  // Fetch agent info for avatar
-  try {
-    const a = await apiFetch('/agents/' + agentId)
-    const logoSrc = a.logo_url || a.logo_base64
-    if (logoSrc) {
-      avatarEl.innerHTML = `<img src="${logoSrc}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-      avatarEl.style.background = 'transparent'
-    } else {
-      avatarEl.style.background = a.brand_color || '#7C6FFF'
-      avatarEl.textContent = (a.agent_name || 'A')[0].toUpperCase()
-    }
-    titleEl.textContent = a.agent_name || 'My Try-ons'
-  } catch(e) {
-    avatarEl.style.background = '#7C6FFF'
-    avatarEl.textContent = 'A'
-  }
-
-  await loadTryonImages(agentId)
-}
-
-function closeTryonGallery() {
-  document.getElementById('tryon-sheet').classList.remove('open')
-  document.body.style.overflow = ''
-  tryonAgentId = null
-}
-
-async function loadTryonImages(agentId) {
-  const grid = document.getElementById('tryon-grid')
-  const subEl = document.getElementById('tryon-sheet-sub')
-  try {
-    const data   = await apiFetch(`/agents/${agentId}/tryons?limit=60`)
-    const tryons = data.tryons || []
-    subEl.textContent = `${tryons.length} look${tryons.length === 1 ? '' : 's'} generated`
-
-    if (!tryons.length) {
-      grid.innerHTML = `<div class="tryon-empty">
-        <div class="tryon-empty-icon">🖼</div>
-        <div class="tryon-empty-title">No try-ons yet</div>
-        <div class="tryon-empty-desc">Virtual try-ons by your customers will appear here</div>
-      </div>`
-      return
-    }
-
-    grid.innerHTML = tryons.map(t => {
-      const dateStr    = new Date(t.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})
-      const mainSrc    = t.result_url   || t.output_url   || ''
-      const garmentSrc = t.garment_url  || t.product_image|| ''
-      const modelSrc   = t.model_url    || t.user_photo   || ''
-      const blankSvg   = `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='96' fill='%230a0b12'/>`
-
-      return `<div class="tryon-card">
-        <div class="tryon-img-pair">
-          <div class="tryon-main-wrap">
-            <img class="tryon-main-img" src="${mainSrc}" alt="Try-on result"
-              onerror="this.src='${blankSvg}'">
-          </div>
-          <div class="tryon-thumb-col">
-            <img class="tryon-thumb" src="${modelSrc||blankSvg}" alt="User photo"
-              onerror="this.src='${blankSvg}'">
-            <img class="tryon-thumb" src="${garmentSrc||blankSvg}" alt="Garment"
-              onerror="this.src='${blankSvg}'">
-          </div>
-          <div class="tryon-look-badge" onclick="addToLook('${t._id}', event)">
-            <svg width="8" height="8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            LOOK
-          </div>
-        </div>
-        <div class="tryon-card-footer">
-          <div class="tryon-date">
-            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            ${dateStr}
-          </div>
-          <div class="tryon-actions">
-            <button class="tryon-btn tryon-btn-dl" onclick="downloadTryon('${mainSrc}','tryon-${t._id}.jpg')" title="Download">
-              <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            </button>
-            <button class="tryon-btn tryon-btn-del" onclick="deleteTryon('${t._id}', event)" title="Delete">
-              <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="rgba(239,68,68,.9)" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>`
-    }).join('')
-  } catch(e) {
-    subEl.textContent = 'Failed to load'
-    grid.innerHTML = `<div class="tryon-empty">
-      <div class="tryon-empty-icon">❌</div>
-      <div class="tryon-empty-title">Could not load try-ons</div>
-      <div class="tryon-empty-desc">${e.message}</div>
-    </div>`
-  }
-}
-
-function downloadTryon(url, filename) {
-  if (!url || url.startsWith('data:')) return
-  const a = document.createElement('a')
-  a.href = url; a.download = filename || 'tryon.jpg'; a.target = '_blank'
-  document.body.appendChild(a); a.click(); document.body.removeChild(a)
-}
-
-async function deleteTryon(tryonId, evt) {
-  evt && evt.stopPropagation()
-  if (!tryonAgentId) return
-  if (!confirm('Delete this try-on? This cannot be undone.')) return
-  try {
-    await apiFetch(`/agents/${tryonAgentId}/tryons/${tryonId}`, { method: 'DELETE' })
-    toast('Try-on deleted', 'info')
-    await loadTryonImages(tryonAgentId)
-  } catch(e) { toast(e.message, 'error') }
-}
-
-function addToLook(tryonId, evt) {
-  evt && evt.stopPropagation()
-  toast('💜 Saved to Looks  (coming soon)', 'info')
-}
-
-function openTryonGalleryFromEdit() {
-  const aid = editingAgentId
-  closeEditModal()
-  setTimeout(() => openTryonGallery(aid), 160)
-}
-
-// ── Load agents grid ──────────────────────────────────────────
-async function loadAgents(){
+async function saveAgent(){
+  const btn=document.getElementById('edit-save-btn')
+  btn.disabled=true; btn.textContent='Saving…'
   try{
-    const data  = await apiFetch('/agents')
-    const grid  = document.getElementById('agents-grid')
-    const agents = data.agents || []
-    if(!agents.length){
-      grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No agents yet</div><div class="empty-desc">Create your first AI try-on agent to start showcasing your boutique to customers.</div><button class="btn btn-primary" onclick="openCreateWizard()">+ Create Your First Agent</button></div></div>`
-      return
+    const color=document.querySelector('#edit-color-swatches .color-swatch.selected')?.dataset.color
+    const quality=document.querySelector('#edit-quality-grid .quality-btn.selected')?.dataset.value
+    const body={
+      agent_name:document.getElementById('edit-agent-name').value.trim(),
+      business_name:document.getElementById('edit-biz-name').value.trim(),
+      welcome_msg:document.getElementById('edit-welcome').value.trim(),
+      brand_color:color,quality:quality||'medium',
+      tryon_limit_per_user:parseInt(document.getElementById('edit-limit-count').value)||0,
+      tryon_limit_window:document.getElementById('edit-limit-window').value,
+      logo_base64:_editData.logoB64||undefined,
     }
-    const catLabels={sarees:'🥻 Sarees',western:'👗 Western Wear',kids:'🧒 Kids Wear',jewellery:'💍 Jewellery',footwear:'👠 Footwear',mixed:'🛍️ Mixed'}
-    grid.innerHTML=agents.map(a=>{
-      const url  = a.published&&a.slug?(a.custom_domain?'https://'+a.custom_domain:'https://'+a.slug+'.'+SUBDOMAIN_BASE):null
-      const disp = url?(a.custom_domain||a.slug+'.'+SUBDOMAIN_BASE):null
-      const aid  = a._id
-      const limit = a.tryon_limit_per_user
-      const limitWin = a.tryon_limit_window || 'day'
-      const winLabelShort = {day:'/day',week:'/wk',month:'/mo',total:' total'}[limitWin]||'/day'
-      const limitBadge = (limit===0||limit===undefined||limit===null)
-        ? `<span class="rate-limit-badge unlimited" style="font-size:9px">♾ Unlimited</span>`
-        : `<span class="rate-limit-badge limited" style="font-size:9px">🛡 ${limit}${winLabelShort}</span>`
+    const updated=await apiFetch('/agents/'+_editAgentId,{method:'PUT',body:JSON.stringify(body)})
+    if(updated.error||updated.success===false)throw new Error(updated.error||'Save failed')
+    const i=ALL_AGENTS.findIndex(x=>x._id===_editAgentId)
+    if(i>=0)ALL_AGENTS[i]={...ALL_AGENTS[i],...updated}
+    filterAgents(); closeEditModal()
+    toast('Agent updated!','success')
+  }catch(e){toast(e.message,'error')}
+  finally{btn.disabled=false;btn.textContent='Save Changes'}
+}
 
-      return `<div class="agent-card" onclick="openEditModal('${aid}')">
-        <div class="agent-card-header">
-          <div class="agent-card-logo" style="background:${a.brand_color||'#7C6FFF'}">
-            ${(a.logo_url||a.logo_base64)?`<img src="${a.logo_url||a.logo_base64}" alt="">`:(a.agent_name||a.name||'A')[0].toUpperCase()}
-          </div>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:14px;font-weight:700;letter-spacing:-.02em">${a.agent_name||a.name}</div>
-            <div style="font-size:11.5px;color:var(--text-3);margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap">
-              <span>${a.category||''}</span>
-              ${a.quality ? `<span class="quality-badge q-${a.quality||'medium'}">${{low:'⚡ Fast',medium:'✨ Balanced',high:'💎 Premium'}[a.quality||'medium']}</span>` : ''}
-              ${limitBadge}
-            </div>
-            <div style="font-size:12px;color:var(--text-2);margin-top:2px">${a.business_name||''}</div>
-            <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-              <span class="badge badge-accent" style="font-size:10px">${catLabels[a.category]||a.category||'Boutique'}</span>
-              <span class="badge ${a.published?'badge-green':'badge-gray'}" style="font-size:10px">${a.published?'● Live':'● Draft'}</span>
-            </div>
-          </div>
-        </div>
-        <div style="padding:0 20px 16px">
-          ${disp?`<a class="agent-url-chip" href="${url}" target="_blank" style="max-width:100%;display:flex" onclick="event.stopPropagation()">🔗 ${disp}</a>`:`<span class="agent-url-chip draft" style="max-width:100%;display:flex">⏸ Not published yet</span>`}
-        </div>
-        <div class="agent-card-footer">
-          <span style="font-size:12px;color:var(--text-3)">${fmtNum(a.tryon_count||0)} try-ons · ${fmtRelative(a.updated_at||a.created_at)}</span>
-          <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
-            <button class="btn btn-secondary btn-sm" onclick="openEditModal('${aid}')">✏️ Edit</button>
-            <button class="btn btn-secondary btn-sm" onclick="openTryonGallery('${aid}')">🖼 Try-ons</button>
-            ${url?`<button class="btn btn-secondary btn-sm" onclick="shareUrl('${url}','${(a.agent_name||a.name||'').replace(/'/g,"\\'")}')">🔗 Share</button>`:''}
-          </div>
-        </div>
-      </div>`
-    }).join('')
+async function deleteAgent(){
+  if(!_editAgentId)return
+  if(!confirm('Delete this agent? This cannot be undone.'))return
+  try{
+    await apiFetch('/agents/'+_editAgentId,{method:'DELETE'})
+    ALL_AGENTS=ALL_AGENTS.filter(x=>x._id!==_editAgentId)
+    filterAgents(); closeEditModal()
+    toast('Agent deleted','success')
   }catch(e){toast(e.message,'error')}
 }
 
+/* ════════════════════════════════════════════════
+   DOMAIN MANAGEMENT
+════════════════════════════════════════════════ */
+async function saveAgentDomain(){
+  const d=document.getElementById('edit-domain-input').value.trim()
+  if(!d)return toast('Enter a domain first','error')
+  const btn=document.getElementById('edit-domain-save-btn'); btn.disabled=true; btn.textContent='Saving…'
+  try{
+    const r=await apiFetch(`/agents/${_editAgentId}/custom-domain`,{method:'POST',body:JSON.stringify({domain:d})})
+    if(r.error||r.success===false)throw new Error(r.error||'Failed')
+    const i=ALL_AGENTS.findIndex(x=>x._id===_editAgentId)
+    if(i>=0)ALL_AGENTS[i]={...ALL_AGENTS[i],custom_domain:d,domain_status:'pending'}
+    document.getElementById('edit-domain-verify-btn').style.display='inline-flex'
+    document.getElementById('edit-domain-remove-btn').style.display='inline-flex'
+    toast('Domain saved! Add the CNAME record, then verify.','success')
+  }catch(e){toast(e.message,'error')}
+  finally{btn.disabled=false;btn.textContent='Save'}
+}
+async function verifyAgentDomain(){
+  const btn=document.getElementById('edit-domain-verify-btn'); btn.disabled=true; btn.textContent='Checking…'
+  try{
+    const r=await apiFetch(`/agents/${_editAgentId}/domain-status`)
+    const wrap=document.getElementById('edit-domain-status-wrap')
+    const statusEl=document.getElementById('edit-domain-status')
+    const icon=document.getElementById('edit-domain-status-icon')
+    const msg=document.getElementById('edit-domain-status-msg')
+    wrap.style.display='block'
+    if(r.status==='active'){
+      statusEl.style.background='var(--green-dim)'; statusEl.style.border='1px solid var(--green-border)'
+      icon.textContent='✅'; msg.textContent='Domain verified and active!'
+    } else {
+      statusEl.style.background='var(--amber-dim)'; statusEl.style.border='1px solid var(--amber-border)'
+      icon.textContent='⏳'; msg.textContent='DNS not yet propagated. Try again in a few minutes.'
+    }
+  }catch(e){toast(e.message,'error')}
+  finally{btn.disabled=false;btn.textContent='Verify DNS'}
+}
+async function removeAgentDomain(){
+  if(!confirm('Remove custom domain?'))return
+  try{
+    await apiFetch(`/agents/${_editAgentId}/custom-domain`,{method:'DELETE'})
+    const i=ALL_AGENTS.findIndex(x=>x._id===_editAgentId)
+    if(i>=0)ALL_AGENTS[i]={...ALL_AGENTS[i],custom_domain:null,domain_status:null}
+    document.getElementById('edit-domain-input').value=''
+    document.getElementById('edit-domain-verify-btn').style.display='none'
+    document.getElementById('edit-domain-remove-btn').style.display='none'
+    document.getElementById('edit-domain-status-wrap').style.display='none'
+    toast('Custom domain removed','success')
+  }catch(e){toast(e.message,'error')}
+}
+
+/* ════════════════════════════════════════════════
+   USER STATS MODAL
+════════════════════════════════════════════════ */
+async function openUserStatsModal(){
+  document.getElementById('user-stats-modal').classList.add('open')
+  document.getElementById('user-stats-sub').textContent='Loading…'
+  const content=document.getElementById('user-stats-content')
+  content.innerHTML='<div style="color:var(--text-3);font-size:13px">Loading…</div>'
+  try{
+    const a=ALL_AGENTS.find(x=>x._id===_editAgentId)
+    document.getElementById('user-stats-sub').textContent=(a?.agent_name||'Agent')+' — try-on usage per customer'
+    const r=await apiFetch(`/agents/${_editAgentId}/user-stats?limit=50`)
+    if(!r.stats?.length){content.innerHTML='<div style="color:var(--text-3);font-size:13px;text-align:center;padding:32px">No customer data yet.</div>';return}
+    content.innerHTML=`
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="border-bottom:1px solid var(--border)">
+          <th style="padding:8px;text-align:left;color:var(--text-3);font-weight:600">Mobile</th>
+          <th style="padding:8px;text-align:center;color:var(--text-3);font-weight:600">Used</th>
+          <th style="padding:8px;text-align:center;color:var(--text-3);font-weight:600">Limit</th>
+          <th style="padding:8px;text-align:right;color:var(--text-3);font-weight:600">Remaining</th>
+        </tr></thead>
+        <tbody>${r.stats.map(s=>`<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px;font-family:var(--mono)">${s.mobile}</td>
+          <td style="padding:8px;text-align:center;font-weight:700">${s.used}</td>
+          <td style="padding:8px;text-align:center;color:var(--text-3)">${s.limit||'∞'}</td>
+          <td style="padding:8px;text-align:right;color:${s.at_limit?'var(--red)':'var(--green)'}">
+            ${s.at_limit?'<span style="color:var(--red)">At limit</span>':(s.remaining??'∞')}
+          </td>
+        </tr>`).join('')}</tbody>
+      </table>`
+  }catch(e){content.innerHTML=`<div style="color:var(--red);font-size:13px">${e.message}</div>`}
+}
+function closeUserStatsModal(){ document.getElementById('user-stats-modal').classList.remove('open') }
+
+/* ════════════════════════════════════════════════
+   TRY-ON GALLERY
+════════════════════════════════════════════════ */
+function openTryonGallerySheet(agentId){
+  const a=ALL_AGENTS.find(x=>x._id===agentId)||{agent_name:'Agent',brand_color:'#7C6FFF'}
+  const sheet=document.getElementById('tryon-sheet')
+  const av=document.getElementById('tryon-avatar')
+  if(a.logo_url)av.innerHTML=`<img src="${a.logo_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+  else{av.style.background=a.brand_color||'#7C6FFF';av.textContent=(a.agent_name||'A')[0].toUpperCase()}
+  document.getElementById('tryon-sheet-title').textContent=a.agent_name||'Agent'
+  document.getElementById('tryon-sheet-sub').textContent='Loading try-ons…'
+  sheet.classList.add('open')
+  loadTryonGallery(agentId)
+}
+function openTryonGalleryFromEdit(){ closeTryonGallery(); if(_editAgentId)openTryonGallerySheet(_editAgentId) }
+async function loadTryonGallery(agentId){
+  const grid=document.getElementById('tryon-grid')
+  grid.innerHTML='<div class="tryon-skel-card"></div>'.repeat(4)
+  try{
+    const r=await apiFetch(`/agents/${agentId}/tryons?limit=50`)
+    const all=r.customers?.flatMap(c=>c.tryons.map(t=>({...t,mobile:c.mobile})))||[]
+    document.getElementById('tryon-sheet-sub').textContent=all.length?`${all.length} try-on${all.length!==1?'s':''}  •  ${r.customers?.length||0} customer${r.customers?.length!==1?'s':''}`:''
+    if(!all.length){
+      grid.innerHTML=`<div class="tryon-empty"><div class="tryon-empty-icon">👗</div><div class="tryon-empty-title">No try-ons yet</div><div class="tryon-empty-desc">Share your agent link to get started.</div></div>`
+      return
+    }
+    grid.innerHTML=all.map(t=>`
+      <div class="tryon-card">
+        <div class="tryon-img-pair">
+          <div class="tryon-main-wrap"><img class="tryon-main-img" src="${t.result_url}" loading="lazy" alt=""></div>
+          <div class="tryon-thumb-col">${t.result_url?`<img class="tryon-thumb" src="${t.result_url}" loading="lazy">`:''}${t.product_image_url?`<img class="tryon-thumb" src="${t.product_image_url}" loading="lazy">`:'<div style="flex:1;background:#111"></div>'}</div>
+          <div class="tryon-look-badge">✨ Look</div>
+        </div>
+        <div class="tryon-card-footer">
+          <div class="tryon-date">📅 ${new Date(t.created_at).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</div>
+          <div class="tryon-actions">
+            <button class="tryon-btn tryon-btn-dl" onclick="downloadTryon('${t.id||t._id}','${t.mobile||''}')" title="Download">
+              <svg width="12" height="12" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="tryon-btn tryon-btn-del" onclick="deleteTryon('${t.id||t._id}','${t.mobile||''}',this)" title="Delete">
+              <svg width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>`).join('')
+  }catch(e){grid.innerHTML=`<div class="tryon-empty"><div class="tryon-empty-title">Failed to load</div><div class="tryon-empty-desc">${e.message}</div></div>`}
+}
+function closeTryonGallery(){ document.getElementById('tryon-sheet').classList.remove('open') }
+async function downloadTryon(id,mobile){
+  try{
+    const r=await apiFetch(`/public/download/${id}?mobile=${mobile}`)
+    if(!r.image_b64)throw new Error('No image data')
+    const a=document.createElement('a')
+    a.href=`data:${r.content_type||'image/jpeg'};base64,${r.image_b64}`
+    a.download=r.filename||`tryon_${id}.jpg`
+    a.click(); toast('Downloading…','success')
+  }catch(e){toast('Download failed: '+e.message,'error')}
+}
+async function deleteTryon(id,mobile,btn){
+  if(!confirm('Delete this try-on?'))return
+  try{
+    await apiFetch(`/public/album/${id}?mobile=${mobile}`,{method:'DELETE'})
+    btn.closest('.tryon-card').remove(); toast('Deleted','success')
+  }catch(e){toast(e.message,'error')}
+}
+
+/* ════════════════════════════════════════════════
+   PAGE INIT
+════════════════════════════════════════════════ */
 ;(async()=>{
   const nav=await renderNav('agents')
-  if(!nav) return
-  currentUser = nav.user
-  await loadAgents()
+  if(!nav)return
+  const {user}=nav
+
+  // Topbar user chip
+  if(user){
+    const av=document.getElementById('topbar-avatar')
+    av.innerHTML=user.picture
+      ?`<img src="${user.picture}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:8px">`
+      :`<span>${(user.name?.[0]||'U').toUpperCase()}</span>`
+    document.getElementById('topbar-user-name').textContent=user.name?.split(' ')[0]||user.email||'User'
+  }
+
+  // Auto-open create modal if ?create=1
+  if(new URLSearchParams(location.search).get('create')==='1'){
+    history.replaceState({},'',location.pathname)
+    openCreateWizard()
+  }
+
+  try{
+    const d=await apiFetch('/agents')
+    ALL_AGENTS=(d.agents||[])
+    filterAgents()
+  }catch(e){toast(e.message,'error')}
+
   document.getElementById('page-content').style.display='block'
-  const p=new URLSearchParams(location.search)
-  if(p.get('create')==='1'){openCreateWizard();history.replaceState({},'',location.pathname)}
-})();
+})()
 </script>
 </body>
 </html>
