@@ -8,227 +8,475 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="shared.css">
 
 <style>
-/* ── DASHBOARD LAYOUT ──────────────────────────────────────────── */
-.dash-grid {
+/* ══════════════════════════════════════════════════
+   TOPBAR OVERRIDE — search + notif + user chip
+══════════════════════════════════════════════════ */
+.topbar {
+  height: 64px;
+  padding: 0 28px;
+  gap: 0;
+  justify-content: space-between;
+}
+.topbar-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 38px;
+  width: 300px;
+  color: var(--text-3);
+  font-size: 13px;
+  transition: var(--t);
+  cursor: text;
+}
+.topbar-search-wrap:hover { border-color: var(--border-md); }
+.topbar-search-wrap svg   { flex-shrink: 0; opacity: .55; }
+.topbar-search-input      { flex: 1; background: none; border: none; outline: none;
+                             font-size: 13px; color: var(--text); font-family: var(--font); }
+.topbar-search-input::placeholder { color: var(--text-3); }
+.topbar-kbd {
+  display: inline-flex; align-items: center;
+  background: var(--surface-3); border: 1px solid var(--border-md);
+  border-radius: 5px; padding: 1px 6px;
+  font-size: 10px; font-weight: 600; color: var(--text-3);
+  white-space: nowrap;
+}
+.topbar-right-new {
+  display: flex; align-items: center; gap: 12px;
+}
+.notif-btn {
+  position: relative; width: 36px; height: 36px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-2); transition: var(--t);
+}
+.notif-btn:hover { background: var(--surface-3); color: var(--text); }
+.notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: #ef4444; color: #fff;
+  font-size: 9px; font-weight: 700;
+  min-width: 16px; height: 16px;
+  border-radius: 8px; padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--surface);
+}
+.topbar-user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px 5px 5px;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface-2); cursor: pointer;
+  transition: var(--t); font-size: 13px; font-weight: 600;
+  color: var(--text);
+}
+.topbar-user-chip:hover { background: var(--surface-3); }
+.topbar-user-avatar {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  overflow: hidden;
+}
+.topbar-user-avatar img { width: 28px; height: 28px; object-fit: cover; display: block; }
+
+/* ══════════════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════════════ */
+.dash-page-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 16px;
+  margin-bottom: 24px;
+}
+.dash-page-header h1 {
+  font-size: 22px; font-weight: 800;
+  letter-spacing: -.04em; line-height: 1.2;
+  margin-bottom: 4px;
+}
+.dash-page-header p { font-size: 13px; color: var(--text-2); }
+.date-range-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  font-size: 12.5px; font-weight: 600; color: var(--text-2);
+  cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: var(--t); margin-top: 2px;
+}
+.date-range-btn:hover { border-color: var(--border-md); color: var(--text); }
+
+/* ══════════════════════════════════════════════════
+   STAT CARDS — updated design
+══════════════════════════════════════════════════ */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 14px; margin-bottom: 22px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  transition: var(--t); box-shadow: var(--sh-sm);
+}
+.stat-card:hover { box-shadow: var(--sh); transform: translateY(-1px); }
+.stat-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+}
+.stat-icon-box {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.stat-icon-purple { background: rgba(124,111,255,.12); }
+.stat-icon-blue   { background: rgba(59,130,246,.12); }
+.stat-icon-teal   { background: rgba(20,184,166,.12); }
+.stat-icon-pink   { background: rgba(236,72,153,.12); }
+.stat-trend {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 3px 8px; border-radius: 20px;
+  font-size: 11px; font-weight: 700;
+}
+.stat-trend-up   { background: rgba(74,222,128,.12); color: #16a34a; }
+.stat-trend-down { background: rgba(248,113,113,.12); color: #dc2626; }
+.stat-trend-flat { background: var(--surface-3); color: var(--text-3); }
+.stat-card-bottom { }
+.stat-num {
+  font-size: 28px; font-weight: 800;
+  letter-spacing: -.05em; line-height: 1;
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+.stat-card .stat-label {
+  font-size: 12px; color: var(--text-3); font-weight: 500;
+}
+
+/* ══════════════════════════════════════════════════
+   MAIN GRID
+══════════════════════════════════════════════════ */
+.dash-grid-new {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr 340px;
   gap: 20px;
   align-items: start;
 }
+.dash-left  { display: flex; flex-direction: column; gap: 20px; }
+.dash-right { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 68px; }
 
-/* ── CHART ─────────────────────────────────────────────────────── */
-.chart-wrap { height: 200px; position: relative; }
+/* ══════════════════════════════════════════════════
+   CHART CARD
+══════════════════════════════════════════════════ */
+.chart-topbar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 0;
+}
+.chart-title { font-size: 14px; font-weight: 700; }
+.chart-period-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+  cursor: pointer; transition: var(--t);
+}
+.chart-period-btn:hover { background: var(--surface-3); }
+.chart-canvas-wrap { height: 200px; padding: 16px 20px 8px; position: relative; }
+.chart-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr 1px 1fr;
+  border-top: 1px solid var(--border);
+}
+.chart-stat-divider { background: var(--border); }
+.chart-stat-cell {
+  padding: 14px 18px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.chart-stat-cell.has-border { border-left: 3px solid transparent; }
+.chart-stat-num  { font-size: 18px; font-weight: 800; font-family: var(--mono); letter-spacing: -.04em; }
+.chart-stat-lbl  { font-size: 11px; color: var(--text-3); font-weight: 500; }
 
-/* ── QUICKSTART BANNER ─────────────────────────────────────────── */
-.quickstart-banner {
-  background: linear-gradient(135deg, var(--accent-soft), var(--accent-dim));
-  border: 1px solid rgba(124,111,255,.15);
-  border-radius: var(--r-lg);
-  padding: 20px 22px;
-  margin-bottom: 22px;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
-.qsb-icon {
-  width: 50px; height: 50px;
-  border-radius: 14px;
-  background: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; flex-shrink: 0;
-  box-shadow: 0 4px 14px var(--accent-glow);
+/* ══════════════════════════════════════════════════
+   BOTTOM 2-COL: Quality + Activity
+══════════════════════════════════════════════════ */
+.dash-bottom-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
 }
 
-/* ── CREDIT RING ───────────────────────────────────────────────── */
-.credit-ring-wrap {
-  position: relative;
-  width: 130px; height: 130px;
-  margin: 0 auto 18px;
-  flex-shrink: 0;
+/* ── Quality card ── */
+.quality-subtitle {
+  font-size: 11.5px; color: var(--text-3);
+  padding: 0 20px 14px; margin-top: -6px;
 }
-.credit-ring-wrap svg { transform: rotate(-90deg); }
-.credit-ring-center {
+.stacked-bar-wrap { padding: 0 20px 16px; }
+.stacked-bar {
+  display: flex; height: 10px; border-radius: 99px;
+  overflow: hidden; gap: 2px; margin-bottom: 14px;
+}
+.stacked-bar-seg { height: 100%; border-radius: 3px; transition: width .6s var(--ease); }
+.quality-legend { display: flex; flex-direction: column; gap: 8px; }
+.quality-legend-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+}
+.quality-legend-left { display: flex; align-items: center; gap: 7px; }
+.quality-dot-new {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.quality-lbl-new  { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.quality-val-new  { font-size: 12px; font-weight: 700; font-family: var(--mono); }
+.quality-pct-new  { font-size: 10.5px; color: var(--text-3); margin-left: 3px; }
+.quality-total-row {
+  border-top: 1px solid var(--border);
+  padding-top: 10px; margin-top: 2px;
+  display: flex; justify-content: space-between;
+  font-size: 12px; font-weight: 700;
+}
+
+/* ── Activity card ── */
+.activity-list { display: flex; flex-direction: column; }
+.activity-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.activity-item:last-child { border-bottom: none; }
+.activity-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 4px;
+}
+.activity-text { flex: 1; font-size: 12.5px; font-weight: 500; color: var(--text-2); line-height: 1.4; }
+.activity-time { font-size: 11px; color: var(--text-3); white-space: nowrap; margin-top: 1px; }
+
+/* ══════════════════════════════════════════════════
+   CREDITS & USAGE CARD
+══════════════════════════════════════════════════ */
+.credits-card-body {
+  padding: 20px;
+}
+.credits-donut-row {
+  display: flex; align-items: center; gap: 20px;
+  margin-bottom: 18px;
+}
+.donut-wrap {
+  position: relative; width: 110px; height: 110px; flex-shrink: 0;
+}
+.donut-wrap svg { transform: rotate(-90deg); display: block; }
+.donut-center {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   pointer-events: none;
 }
-.credit-ring-num {
-  font-size: 24px; font-weight: 800;
-  font-family: var(--mono);
-  letter-spacing: -.04em; line-height: 1;
+.donut-num {
+  font-size: 22px; font-weight: 800;
+  font-family: var(--mono); letter-spacing: -.04em; line-height: 1;
 }
-.credit-ring-label {
-  font-size: 9px; color: var(--text-3);
-  text-transform: uppercase;
+.donut-lbl {
+  font-size: 9px; text-transform: uppercase;
   letter-spacing: .08em; font-weight: 600;
-  margin-top: 3px;
+  color: var(--text-3); margin-top: 2px;
+  text-align: center; line-height: 1.2;
 }
-
-/* ── CREDIT STATS GRID ─────────────────────────────────────────── */
-.credit-stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-.credit-stat-cell {
-  text-align: center;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 6px;
-}
-.credit-stat-val {
-  font-size: 16px; font-weight: 800;
-  font-family: var(--mono);
-  line-height: 1;
-}
-.credit-stat-lbl {
-  font-size: 10px; color: var(--text-3);
-  margin-top: 3px; font-weight: 500;
-}
-
-/* ── PLAN ROW ──────────────────────────────────────────────────── */
-.plan-row {
+.credits-legend { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.credits-legend-row {
   display: flex; align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+}
+.credits-legend-left { display: flex; align-items: center; gap: 7px; }
+.credits-legend-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.credits-legend-label { font-size: 12px; color: var(--text-2); font-weight: 500; }
+.credits-legend-val   { font-size: 12px; font-weight: 700; font-family: var(--mono); }
+.credits-legend-pct   { font-size: 10.5px; color: var(--text-3); margin-left: 2px; }
+.credits-total-row {
   border-top: 1px solid var(--border);
-  margin-top: 2px;
+  padding-top: 12px; margin-top: 4px;
+  display: flex; justify-content: space-between; align-items: center;
   font-size: 13px;
 }
-.plan-row-label { color: var(--text-3); font-weight: 500; }
-.plan-row-val   { font-weight: 700; color: var(--text); }
+.credits-total-lbl { color: var(--text-3); font-weight: 500; }
+.credits-total-val { font-weight: 700; font-family: var(--mono); }
+.topup-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 12px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  color: #fff; font-size: 13.5px; font-weight: 700;
+  border: none; cursor: pointer; text-decoration: none;
+  transition: var(--t); margin-top: 16px;
+  box-shadow: 0 4px 16px rgba(124,111,255,.3);
+}
+.topup-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,111,255,.4); }
 
-/* ── QUICK LINKS LIST ──────────────────────────────────────────── */
-.quick-links-list {
-  padding: 8px 14px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+/* ══════════════════════════════════════════════════
+   QUICK ACTIONS CARD
+══════════════════════════════════════════════════ */
+.quick-actions-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; padding: 16px 16px 0;
 }
-.quick-link-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: var(--r-sm);
-  border: 1px solid var(--border);
-  background: var(--surface-2);
+.quick-action-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 12px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  cursor: pointer; transition: var(--t); text-decoration: none;
   color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: var(--t);
-  cursor: pointer;
 }
-.quick-link-item:hover {
+.quick-action-btn:hover {
   background: var(--accent-dim);
-  border-color: rgba(var(--accent-rgb),.2);
-  color: var(--accent);
+  border-color: rgba(124,111,255,.25);
+  transform: translateY(-1px);
+  box-shadow: var(--sh-sm);
 }
-.quick-link-icon {
-  font-size: 15px;
-  width: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.qa-icon {
+  width: 34px; height: 34px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.qa-icon-purple { background: rgba(124,111,255,.15); }
+.qa-icon-amber  { background: rgba(217,119,6,.12); }
+.qa-icon-gray   { background: var(--surface-3); }
+.qa-label { font-size: 12px; font-weight: 600; line-height: 1.3; }
+.help-center-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px 16px; margin-top: 2px;
+  cursor: pointer; text-decoration: none; color: var(--text);
+  border-top: 1px solid var(--border); margin-top: 14px;
+  transition: var(--t);
+}
+.help-center-row:hover .help-title { color: var(--accent); }
+.hc-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.help-title { font-size: 13px; font-weight: 700; transition: var(--t); }
+.help-sub   { font-size: 11px; color: var(--text-3); margin-top: 1px; }
 
-/* ── QUALITY ROWS ──────────────────────────────────────────────── */
-.quality-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
+/* ══════════════════════════════════════════════════
+   UPGRADE BANNER
+══════════════════════════════════════════════════ */
+.upgrade-banner-new {
+  margin-top: 20px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4338ca 0%, #6d28d9 50%, #7c3aed 100%);
+  padding: 24px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 20px; overflow: hidden; position: relative;
 }
-.quality-row:last-child { border-bottom: none; padding-bottom: 0; }
-.quality-dot {
-  width: 9px; height: 9px;
-  border-radius: 50%; flex-shrink: 0;
+.upgrade-banner-new::before {
+  content: '';
+  position: absolute; top: -40px; right: 120px; bottom: -40px;
+  width: 200px;
+  background: rgba(255,255,255,.04);
+  border-radius: 50%;
 }
-.quality-name-block { min-width: 56px; }
-.quality-label {
-  font-size: 12.5px; font-weight: 700;
+.upgrade-bot-illustration {
+  position: absolute; right: 28px; top: 50%;
+  transform: translateY(-50%);
+  opacity: .18; pointer-events: none;
 }
-.quality-cost {
-  font-size: 10px; color: var(--text-3);
-  font-weight: 500; white-space: nowrap;
-  margin-top: 1px;
+.upgrade-banner-content { position: relative; z-index: 1; }
+.upgrade-banner-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
 }
-.quality-bar-track {
-  flex: 1; height: 7px;
-  background: var(--surface-3);
-  border-radius: 99px; overflow: hidden;
+.upgrade-banner-title {
+  font-size: 15px; font-weight: 800; color: #fff;
+  margin-bottom: 4px;
 }
-.quality-bar-fill {
-  height: 100%; border-radius: 99px;
-  transition: width .6s cubic-bezier(.4,0,.2,1);
+.upgrade-banner-sub {
+  font-size: 12.5px; color: rgba(255,255,255,.7);
+  max-width: 440px;
 }
-.quality-stat {
-  text-align: right;
-  min-width: 80px; flex-shrink: 0;
+.upgrade-banner-btn {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 22px; border-radius: 10px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.28);
+  color: #fff; font-size: 13.5px; font-weight: 700;
+  text-decoration: none; cursor: pointer; white-space: nowrap;
+  transition: var(--t); backdrop-filter: blur(8px);
+  flex-shrink: 0;
 }
-.quality-stat-count {
-  font-size: 12px; font-weight: 700;
-  font-family: var(--mono);
-}
-.quality-stat-cr {
-  font-size: 10px; color: var(--text-3);
-  margin-top: 1px;
+.upgrade-banner-btn:hover {
+  background: rgba(255,255,255,.28);
+  transform: translateY(-1px);
 }
 
-/* ── QUALITY CHIPS ─────────────────────────────────────────────── */
-.quality-chips {
-  display: flex; gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 14px;
+/* ══════════════════════════════════════════════════
+   SKELETON OVERRIDE (matches new layout)
+══════════════════════════════════════════════════ */
+.skel-stats-row {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 14px; margin-bottom: 22px;
 }
-.chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 4px 10px; border-radius: 6px;
-  font-size: 11px; font-weight: 700;
-}
-.chip-dot {
-  width: 7px; height: 7px;
-  border-radius: 50%; display: inline-block; flex-shrink: 0;
-}
-.chip-low    { background: rgba(74,222,128,.1);  color: #16a34a; border: 1px solid rgba(74,222,128,.25); }
-.chip-medium { background: rgba(250,204,21,.1);  color: #ca8a04; border: 1px solid rgba(250,204,21,.25); }
-.chip-high   { background: rgba(248,113,113,.1); color: #dc2626; border: 1px solid rgba(248,113,113,.25); }
 
-/* ── REFRESH BTN ───────────────────────────────────────────────── */
-.refresh-btn {
-  background: none; border: none; cursor: pointer;
-  color: var(--text-3); font-size: 17px;
-  padding: 0 2px; line-height: 1;
-  transition: var(--t); display: flex;
-  align-items: center; border-radius: 6px;
+/* ══════════════════════════════════════════════════
+   AGENT ROW (used in recent agents section)
+══════════════════════════════════════════════════ */
+.agent-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 20px; border-bottom: 1px solid var(--border);
+  cursor: pointer; transition: var(--t);
 }
-.refresh-btn:hover { color: var(--accent); }
+.agent-row:last-child { border-bottom: none; }
+.agent-row:hover { background: var(--surface-2); }
+.agent-logo {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: #fff;
+}
+.agent-url-chip {
+  font-size: 10.5px; color: var(--text-3);
+  background: var(--surface-3); border-radius: 4px;
+  padding: 1px 6px; max-width: 160px;
+  overflow: hidden; text-overflow: ellipsis;
+  white-space: nowrap; text-decoration: none;
+}
+.agent-url-chip:hover { color: var(--accent); }
+.agent-url-chip.draft { opacity: .6; }
+.agent-share-btn {
+  background: var(--surface-3); border: 1px solid var(--border);
+  border-radius: 6px; padding: 4px 9px; font-size: 11px;
+  font-weight: 600; cursor: pointer; color: var(--text-2);
+  transition: var(--t); white-space: nowrap;
+}
+.agent-share-btn:hover { color: var(--accent); }
 
-/* ── RESPONSIVE ────────────────────────────────────────────────── */
-@media (max-width: 1100px) {
-  .dash-grid { grid-template-columns: 1fr; }
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media (max-width: 1200px) {
+  .dash-grid-new { grid-template-columns: 1fr 300px; }
 }
-@media (max-width: 648px) {
-  .dash-grid { gap: 14px; }
-  .quickstart-banner { flex-direction: column; text-align: center; gap: 12px; padding: 16px; }
-  .qsb-icon { width: 40px; height: 40px; font-size: 18px; }
-  .agent-row { padding: 10px 14px; gap: 10px; }
-  .agent-share-btn { display: none; }
-  .agent-url-chip { max-width: 130px; font-size: 9.5px; }
-  .chart-wrap { height: 160px; }
-  .quality-cost { display: none; }
+@media (max-width: 1050px) {
+  .dash-grid-new { grid-template-columns: 1fr; }
+  .dash-right { position: static; }
+}
+@media (max-width: 820px) {
+  .dash-bottom-row { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2,1fr); }
+  .topbar-search-wrap { width: 200px; }
+}
+@media (max-width: 560px) {
+  .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .topbar-search-wrap { display: none; }
+  .dash-page-header { flex-direction: column; gap: 10px; }
+  .chart-stats-row { grid-template-columns: 1fr 1fr; }
+  .chart-stat-divider { display: none; }
+}
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr; }
 }
 </style>
-
-<link rel="stylesheet" href="shared.css">
 
 <!-- Instant theme + token bootstrap (runs before paint) -->
 <script>
@@ -264,306 +512,451 @@
 <!-- Sidebar backdrop -->
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
 
-<!-- Sidebar (populated by nav.js) -->
+<!-- Sidebar (populated by nav.js — unchanged) -->
 <div class="sidebar" id="sidebar"></div>
 
-<!-- Page skeleton (fades out after nav loads) -->
+<!-- Page skeleton -->
 <div id="page-skeleton">
   <div class="skel-topbar">
     <div class="skel" style="height:13px;width:220px;border-radius:4px"></div>
     <div class="skel" style="height:34px;width:120px;border-radius:var(--r-sm)"></div>
   </div>
   <div class="skel-body">
-    <div class="stats-row" style="margin-bottom:20px">
-      <div class="skel" style="height:78px;border-radius:var(--r-lg)"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.8"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.6"></div>
-      <div class="skel" style="height:78px;border-radius:var(--r-lg);opacity:.4"></div>
+    <div class="skel-stats-row">
+      <div class="skel" style="height:96px;border-radius:16px"></div>
+      <div class="skel" style="height:96px;border-radius:16px;opacity:.8"></div>
+      <div class="skel" style="height:96px;border-radius:16px;opacity:.6"></div>
+      <div class="skel" style="height:96px;border-radius:16px;opacity:.4"></div>
     </div>
-    <div class="dash-grid">
+    <div class="dash-grid-new">
       <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="skel" style="height:280px;border-radius:var(--r-lg)"></div>
-        <div class="skel" style="height:240px;border-radius:var(--r-lg);opacity:.8"></div>
+        <div class="skel" style="height:300px;border-radius:16px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="skel" style="height:220px;border-radius:16px;opacity:.8"></div>
+          <div class="skel" style="height:220px;border-radius:16px;opacity:.6"></div>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="skel" style="height:340px;border-radius:var(--r-lg)"></div>
-        <div class="skel" style="height:200px;border-radius:var(--r-lg);opacity:.7"></div>
+        <div class="skel" style="height:320px;border-radius:16px"></div>
+        <div class="skel" style="height:240px;border-radius:16px;opacity:.7"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Main -->
+<!-- Main Wrapper -->
 <div class="main-wrap">
 
-  <!-- Topbar -->
+  <!-- ── TOPBAR ── -->
   <div class="topbar">
-    <div class="topbar-left">
-      <span class="topbar-title" id="greeting">Dashboard</span>
+    <!-- Search -->
+    <div class="topbar-search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="topbar-search-input" placeholder="Search anything..." readonly onclick="toast('Search coming soon','info')">
+      <span class="topbar-kbd">⌘K</span>
     </div>
-    <div class="topbar-right">
-      <button class="theme-toggle" style="font-size:15px;"></button>
-      <a href="agents.html?create=1" class="btn btn-primary">+ New Agent</a>
+
+    <!-- Right actions -->
+    <div class="topbar-right-new">
+      <!-- Theme toggle -->
+      <button class="theme-toggle" style="font-size:15px;background:none;border:none;cursor:pointer;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);display:flex;align-items:center;justify-content:center;transition:var(--t);" title="Toggle theme"></button>
+
+      <!-- Notifications -->
+      <button class="notif-btn" onclick="toast('Notifications coming soon','info')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        <span class="notif-badge" id="notif-badge" style="display:none">0</span>
+      </button>
+
+      <!-- User chip (populated after auth) -->
+      <div class="topbar-user-chip" id="topbar-user-chip" onclick="location.href='account.html'">
+        <div class="topbar-user-avatar" id="topbar-avatar"><span>U</span></div>
+        <span id="topbar-user-name">Loading…</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
     </div>
   </div>
 
-  <!-- Page content (hidden until data loads) -->
+  <!-- ── PAGE CONTENT ── -->
   <div class="content" id="page-content" style="display:none">
 
-    <!-- Quickstart banner (shown only when 0 agents) -->
-    <div class="quickstart-banner" id="quickstart-banner" style="display:none">
-      <div class="qsb-icon">👗</div>
-      <div style="flex:1">
-        <div style="font-size:15px;font-weight:800;margin-bottom:4px">Welcome to BoutiqueAI!</div>
-        <div style="font-size:13px;color:var(--text-2);margin-bottom:12px">
-          You have <strong>200 free credits</strong> to get started — create your first agent and start trying on products!
-        </div>
-        <a href="agents.html?create=1" class="btn btn-primary btn-sm">Create Your First Agent →</a>
+    <!-- Page Header -->
+    <div class="dash-page-header">
+      <div>
+        <h1 id="greeting">Dashboard</h1>
+        <p>Here's what's happening with your store today.</p>
       </div>
-      <button onclick="this.closest('.quickstart-banner').style.display='none'"
-        style="background:none;border:none;color:var(--text-3);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">✕</button>
+      <button class="date-range-btn" id="date-range-btn">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span id="date-range-label">Last 14 days</span>
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
     </div>
 
     <!-- ── STAT CARDS ── -->
     <div class="stats-row">
+      <!-- Total Agents -->
       <div class="stat-card">
-        <div class="stat-icon-wrap">🤖</div>
-        <div class="stat-info">
+        <div class="stat-card-top">
+          <div class="stat-icon-box stat-icon-purple">
+            <svg width="20" height="20" fill="none" stroke="#7C6FFF" stroke-width="1.8" viewBox="0 0 24 24">
+              <rect x="4" y="8" width="16" height="12" rx="3"/><rect x="8" y="4" width="8" height="5" rx="2"/>
+              <circle cx="9" cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
+              <circle cx="15" cy="14" r="1.5" fill="#7C6FFF" stroke="none"/>
+              <path d="M10 17.5h4" stroke-linecap="round"/>
+              <line x1="4" y1="12" x2="2" y2="12" stroke-linecap="round"/>
+              <line x1="20" y1="12" x2="22" y2="12" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="stat-trend stat-trend-up" id="trend-agents">↑ 100%</span>
+        </div>
+        <div class="stat-card-bottom">
+          <div class="stat-num" id="s-agents">—</div>
           <div class="stat-label">Total Agents</div>
-          <div class="stat-value loading" id="s-agents">—</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Active agents</div>
         </div>
       </div>
+
+      <!-- Try-Ons Generated -->
       <div class="stat-card">
-        <div class="stat-icon-wrap">👗</div>
-        <div class="stat-info">
+        <div class="stat-card-top">
+          <div class="stat-icon-box stat-icon-blue">
+            <svg width="20" height="20" fill="none" stroke="#3B82F6" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <span class="stat-trend stat-trend-up" id="trend-tryons">↑ 0%</span>
+        </div>
+        <div class="stat-card-bottom">
+          <div class="stat-num" id="s-tryons">—</div>
           <div class="stat-label">Try-Ons Generated</div>
-          <div class="stat-value loading" id="s-tryons">—</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">In last 14 days</div>
         </div>
       </div>
+
+      <!-- Total Conversations -->
       <div class="stat-card">
-        <div class="stat-icon-wrap">💬</div>
-        <div class="stat-info">
-          <div class="stat-label">Conversations</div>
-          <div class="stat-value loading" id="s-chats">—</div>
+        <div class="stat-card-top">
+          <div class="stat-icon-box stat-icon-teal">
+            <svg width="20" height="20" fill="none" stroke="#14b8a6" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+            </svg>
+          </div>
+          <span class="stat-trend stat-trend-flat" id="trend-chats">— 0%</span>
+        </div>
+        <div class="stat-card-bottom">
+          <div class="stat-num" id="s-chats">—</div>
+          <div class="stat-label">Total Conversations</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">In last 14 days</div>
         </div>
       </div>
+
+      <!-- Total Customers -->
       <div class="stat-card">
-        <div class="stat-icon-wrap">📅</div>
-        <div class="stat-info">
-          <div class="stat-label">Today</div>
-          <div class="stat-value loading" id="s-today">—</div>
+        <div class="stat-card-top">
+          <div class="stat-icon-box stat-icon-pink">
+            <svg width="20" height="20" fill="none" stroke="#ec4899" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+            </svg>
+          </div>
+          <span class="stat-trend stat-trend-up" id="trend-customers">↑ 0%</span>
+        </div>
+        <div class="stat-card-bottom">
+          <div class="stat-num" id="s-customers">—</div>
+          <div class="stat-label">Total Customers</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Across all agents</div>
         </div>
       </div>
     </div>
 
     <!-- ── MAIN GRID ── -->
-    <div class="dash-grid">
+    <div class="dash-grid-new">
 
-      <!-- LEFT COLUMN -->
-      <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- ── LEFT COLUMN ── -->
+      <div class="dash-left">
 
-        <!-- 14-day chart -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <span class="card-icon">📈</span>Try-Ons (last 14 days)
-            </div>
-            <span class="badge badge-accent" id="chart-total">0 total</span>
+        <!-- Try-Ons Overview Chart -->
+        <div class="card" style="overflow:visible">
+          <div class="chart-topbar">
+            <span class="chart-title">Try-Ons Overview</span>
+            <button class="chart-period-btn">
+              Last 14 days
+              <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
           </div>
-          <div style="padding:20px 20px 16px">
-            <div class="chart-wrap"><canvas id="daily-chart"></canvas></div>
+          <div class="chart-canvas-wrap">
+            <canvas id="daily-chart"></canvas>
           </div>
-        </div>
-
-        <!-- Quality breakdown -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">
-              <span class="card-icon">⚡</span>Try-Ons by Quality
+          <!-- Bottom stats row -->
+          <div class="chart-stats-row">
+            <div class="chart-stat-cell">
+              <div class="chart-stat-num" id="chart-total-num" style="color:var(--text)">0</div>
+              <div class="chart-stat-lbl">Total Try-Ons</div>
             </div>
-            <span class="badge badge-accent" id="credits-used-badge">0 credits used</span>
-          </div>
-          <div class="card-body" style="padding-top:14px">
-
-            <!-- Summary chips -->
-            <div class="quality-chips">
-              <div class="chip chip-low">
-                <span class="chip-dot" style="background:#4ade80"></span>
-                Standard &mdash; <span id="chip-low-val">0 try-ons</span>
-              </div>
-              <div class="chip chip-medium">
-                <span class="chip-dot" style="background:#facc15"></span>
-                Balanced &mdash; <span id="chip-med-val">0 try-ons</span>
-              </div>
-              <div class="chip chip-high">
-                <span class="chip-dot" style="background:#f87171"></span>
-                Premium Studio &mdash; <span id="chip-hi-val">0 try-ons</span>
-              </div>
+            <div class="chart-stat-divider"></div>
+            <div class="chart-stat-cell has-border" style="border-left-color:#7C6FFF">
+              <div class="chart-stat-num" id="chart-high-num" style="color:#7C6FFF">0</div>
+              <div class="chart-stat-lbl">High Quality</div>
             </div>
-
-            <!-- Per-quality rows -->
-            <div>
-              <!-- Standard -->
-              <div class="quality-row">
-                <span class="quality-dot" style="background:#4ade80"></span>
-                <div class="quality-name-block">
-                  <div class="quality-label" style="color:#16a34a">Standard</div>
-                  <div class="quality-cost">1 cr / try-on</div>
-                </div>
-                <div class="quality-bar-track">
-                  <div class="quality-bar-fill" id="bar-low" style="background:#4ade80;width:0%"></div>
-                </div>
-                <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-low-count">0 try-ons</div>
-                  <div class="quality-stat-cr"    id="stat-low-cr">0 cr used</div>
-                </div>
-              </div>
-              <!-- Balanced -->
-              <div class="quality-row">
-                <span class="quality-dot" style="background:#facc15"></span>
-                <div class="quality-name-block">
-                  <div class="quality-label" style="color:#ca8a04">Balanced</div>
-                  <div class="quality-cost">2 cr / try-on</div>
-                </div>
-                <div class="quality-bar-track">
-                  <div class="quality-bar-fill" id="bar-medium" style="background:#facc15;width:0%"></div>
-                </div>
-                <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-med-count">0 try-ons</div>
-                  <div class="quality-stat-cr"    id="stat-med-cr">0 cr used</div>
-                </div>
-              </div>
-              <!-- Premium Studio -->
-              <div class="quality-row">
-                <span class="quality-dot" style="background:#f87171"></span>
-                <div class="quality-name-block">
-                  <div class="quality-label" style="color:#dc2626">Premium Studio</div>
-                  <div class="quality-cost">3 cr / try-on</div>
-                </div>
-                <div class="quality-bar-track">
-                  <div class="quality-bar-fill" id="bar-high" style="background:#f87171;width:0%"></div>
-                </div>
-                <div class="quality-stat">
-                  <div class="quality-stat-count" id="stat-hi-count">0 try-ons</div>
-                  <div class="quality-stat-cr"    id="stat-hi-cr">0 cr used</div>
-                </div>
-              </div>
+            <div class="chart-stat-divider"></div>
+            <div class="chart-stat-cell has-border" style="border-left-color:#f59e0b">
+              <div class="chart-stat-num" id="chart-med-num" style="color:#f59e0b">0</div>
+              <div class="chart-stat-lbl">Medium Quality</div>
+            </div>
+            <div class="chart-stat-divider"></div>
+            <div class="chart-stat-cell has-border" style="border-left-color:#f87171">
+              <div class="chart-stat-num" id="chart-low-num" style="color:#f87171">0</div>
+              <div class="chart-stat-lbl">Low Quality</div>
             </div>
           </div>
         </div>
 
-        <!-- Recent agents -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title"><span class="card-icon">🤖</span>Your Agents</div>
-            <a href="agents.html" class="btn-ghost">View all →</a>
-          </div>
-          <div id="recent-agents-wrap">
-            <div style="padding:16px;display:flex;flex-direction:column;gap:8px">
-              <div class="skel" style="height:52px;border-radius:var(--r-sm)"></div>
-              <div class="skel" style="height:52px;border-radius:var(--r-sm);opacity:.7"></div>
+        <!-- Bottom 2-col: Quality + Activity -->
+        <div class="dash-bottom-row">
+
+          <!-- Try-Ons by Quality -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Try-Ons by Quality</div>
+              <a href="credits.html" class="btn-ghost" style="font-size:12px;padding:4px 8px">View Details</a>
+            </div>
+            <p class="quality-subtitle">Breakdown of try-ons by quality tier</p>
+            <div class="stacked-bar-wrap">
+              <!-- Stacked bar -->
+              <div class="stacked-bar">
+                <div class="stacked-bar-seg" id="sbar-low"    style="background:#4ade80;width:33.3%"></div>
+                <div class="stacked-bar-seg" id="sbar-medium" style="background:#f59e0b;width:33.3%"></div>
+                <div class="stacked-bar-seg" id="sbar-high"   style="background:#f87171;width:33.4%"></div>
+              </div>
+              <!-- Legend -->
+              <div class="quality-legend">
+                <div class="quality-legend-row">
+                  <div class="quality-legend-left">
+                    <span class="quality-dot-new" style="background:#4ade80"></span>
+                    <span class="quality-lbl-new">Low Quality</span>
+                  </div>
+                  <div>
+                    <span class="quality-val-new" id="qleg-low">0</span>
+                    <span class="quality-pct-new" id="qleg-low-pct">(0%)</span>
+                  </div>
+                </div>
+                <div class="quality-legend-row">
+                  <div class="quality-legend-left">
+                    <span class="quality-dot-new" style="background:#f59e0b"></span>
+                    <span class="quality-lbl-new">Medium Quality</span>
+                  </div>
+                  <div>
+                    <span class="quality-val-new" id="qleg-med">0</span>
+                    <span class="quality-pct-new" id="qleg-med-pct">(0%)</span>
+                  </div>
+                </div>
+                <div class="quality-legend-row">
+                  <div class="quality-legend-left">
+                    <span class="quality-dot-new" style="background:#f87171"></span>
+                    <span class="quality-lbl-new">High Quality</span>
+                  </div>
+                  <div>
+                    <span class="quality-val-new" id="qleg-high">0</span>
+                    <span class="quality-pct-new" id="qleg-high-pct">(0%)</span>
+                  </div>
+                </div>
+                <div class="quality-total-row">
+                  <span style="color:var(--text-3);font-weight:500">Total</span>
+                  <span id="qleg-total" style="font-family:var(--mono)">0</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-      </div><!-- /LEFT COLUMN -->
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent Activity</div>
+              <a href="conversations.html" class="btn-ghost" style="font-size:12px;padding:4px 8px">View All</a>
+            </div>
+            <div class="activity-list" id="activity-list">
+              <!-- Populated by JS -->
+              <div style="padding:12px 20px 12px;display:flex;flex-direction:column;gap:8px">
+                <div class="skel" style="height:36px;border-radius:8px"></div>
+                <div class="skel" style="height:36px;border-radius:8px;opacity:.7"></div>
+                <div class="skel" style="height:36px;border-radius:8px;opacity:.5"></div>
+              </div>
+            </div>
+          </div>
 
-      <!-- RIGHT COLUMN (sticky) -->
-      <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:68px">
+        </div><!-- /dash-bottom-row -->
 
-        <!-- Credit Balance card -->
+      </div><!-- /dash-left -->
+
+      <!-- ── RIGHT COLUMN ── -->
+      <div class="dash-right">
+
+        <!-- Credits & Usage -->
         <div class="card">
           <div class="card-header">
             <div class="card-title">
-              <span class="card-icon">⚡</span>Credit Balance
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--accent)"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Credits &amp; Usage
             </div>
-            <div style="display:flex;align-items:center;gap:6px">
-              <button class="refresh-btn" id="refresh-credits-btn" onclick="refreshCredits()" title="Refresh balance">↻</button>
-              <a href="payments.html#credits-section" class="btn-ghost" style="font-size:13px;padding:5px 8px">Top Up →</a>
-            </div>
+            <a href="payments.html" class="btn-ghost" style="font-size:12px;padding:4px 8px">View Plans</a>
           </div>
-          <div class="card-body" style="padding-top:18px;padding-bottom:18px">
+          <div class="credits-card-body">
+            <!-- Donut + Legend row -->
+            <div class="credits-donut-row">
+              <!-- Donut chart -->
+              <div class="donut-wrap">
+                <svg width="110" height="110" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+                  <!-- Background ring -->
+                  <circle cx="55" cy="55" r="42" fill="none" stroke="var(--surface-3)" stroke-width="10"/>
+                  <!-- Used arc (shown as a colored segment — sits on top of gray) -->
+                  <circle id="donut-used-arc" cx="55" cy="55" r="42" fill="none"
+                    stroke="rgba(124,111,255,.18)" stroke-width="10" stroke-linecap="butt"
+                    stroke-dasharray="0 263.9"/>
+                  <!-- Remaining arc -->
+                  <circle id="donut-rem-arc"  cx="55" cy="55" r="42" fill="none"
+                    stroke="var(--accent)" stroke-width="10" stroke-linecap="butt"
+                    stroke-dasharray="0 263.9"
+                    style="transition:stroke-dasharray .7s ease"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="donut-num" id="donut-balance">—</div>
+                  <div class="donut-lbl">Credits<br>Left</div>
+                </div>
+              </div>
 
-            <!-- Ring -->
-            <div class="credit-ring-wrap">
-              <svg width="130" height="130" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="65" cy="65" r="54" fill="none" stroke="var(--surface-3)" stroke-width="11"/>
-                <circle id="ring-arc" cx="65" cy="65" r="54" fill="none"
-                  stroke="#4ade80" stroke-width="11" stroke-linecap="round"
-                  stroke-dasharray="0 339"
-                  style="transition:stroke-dasharray .7s ease,stroke .3s"/>
-              </svg>
-              <div class="credit-ring-center">
-                <div class="credit-ring-num" id="ring-balance">—</div>
-                <div class="credit-ring-label">credits</div>
+              <!-- Legend -->
+              <div class="credits-legend">
+                <div class="credits-legend-row">
+                  <div class="credits-legend-left">
+                    <span class="credits-legend-dot" style="background:rgba(124,111,255,.4)"></span>
+                    <span class="credits-legend-label">Used</span>
+                  </div>
+                  <div>
+                    <span class="credits-legend-val" id="legend-used">0</span>
+                    <span class="credits-legend-pct" id="legend-used-pct">(0%)</span>
+                  </div>
+                </div>
+                <div class="credits-legend-row">
+                  <div class="credits-legend-left">
+                    <span class="credits-legend-dot" style="background:var(--accent)"></span>
+                    <span class="credits-legend-label">Remaining</span>
+                  </div>
+                  <div>
+                    <span class="credits-legend-val" id="legend-rem">0</span>
+                    <span class="credits-legend-pct" id="legend-rem-pct">(0%)</span>
+                  </div>
+                </div>
+                <div class="credits-total-row">
+                  <span class="credits-total-lbl">Total</span>
+                  <span class="credits-total-val"><span id="legend-total">0</span> Credits</span>
+                </div>
               </div>
             </div>
 
-            <!-- Used / Remaining -->
-            <div class="credit-stats-grid">
-              <div class="credit-stat-cell">
-                <div class="credit-stat-val" id="stat-used">0</div>
-                <div class="credit-stat-lbl">Used</div>
-              </div>
-              <div class="credit-stat-cell">
-                <div class="credit-stat-val" id="stat-pct">—%</div>
-                <div class="credit-stat-lbl">Remaining</div>
-              </div>
-            </div>
-
-            <!-- Plan -->
-            <div class="plan-row">
-              <span class="plan-row-label">Plan</span>
-              <span class="plan-row-val" id="tu-plan">—</span>
-            </div>
-
-            <!-- CTA -->
-            <a href="payments.html#credits-section"
-               class="btn btn-primary"
-               style="width:100%;justify-content:center;margin-top:14px;border-radius:var(--r-sm)">
+            <!-- Top Up button -->
+            <a href="payments.html#credits-section" class="topup-btn">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
               Top Up Credits
             </a>
           </div>
         </div>
 
-        <!-- Quick Links -->
+        <!-- Quick Actions -->
         <div class="card">
           <div class="card-header">
-            <div class="card-title">
-              <span class="card-icon">🔗</span>Quick Links
+            <div class="card-title">Quick Actions</div>
+          </div>
+          <div class="quick-actions-grid">
+            <a href="agents.html?create=1" class="quick-action-btn">
+              <div class="qa-icon qa-icon-purple">
+                <svg width="16" height="16" fill="none" stroke="#7C6FFF" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </div>
+              <span class="qa-label">Create New Agent</span>
+            </a>
+            <a href="conversations.html" class="quick-action-btn">
+              <div class="qa-icon qa-icon-purple">
+                <svg width="16" height="16" fill="none" stroke="#7C6FFF" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              </div>
+              <span class="qa-label">View Conversations</span>
+            </a>
+            <a href="payments.html" class="quick-action-btn">
+              <div class="qa-icon qa-icon-amber">
+                <svg width="16" height="16" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+              </div>
+              <span class="qa-label">Billing &amp; Plans</span>
+            </a>
+            <a href="account.html" class="quick-action-btn">
+              <div class="qa-icon qa-icon-gray">
+                <svg width="16" height="16" fill="none" stroke="var(--text-2)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+              </div>
+              <span class="qa-label">Account Settings</span>
+            </a>
+          </div>
+          <!-- Help Center row -->
+          <a href="account.html" class="help-center-row">
+            <div class="hc-icon">
+              <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" stroke-linecap="round" stroke-width="3"/></svg>
             </div>
-          </div>
-          <div class="quick-links-list">
-            <a href="agents.html" class="quick-link-item">
-              <span class="quick-link-icon">🤖</span>My Agents
-            </a>
-            <a href="conversations.html" class="quick-link-item">
-              <span class="quick-link-icon">💬</span>Conversations
-            </a>
-            <a href="payments.html" class="quick-link-item">
-              <span class="quick-link-icon">💳</span>Billing &amp; Plans
-            </a>
-            <a href="account.html" class="quick-link-item">
-              <span class="quick-link-icon">⚙️</span>Account Settings
-            </a>
-          </div>
+            <div>
+              <div class="help-title">Explore Help Center</div>
+              <div class="help-sub">Get help and learn more</div>
+            </div>
+          </a>
         </div>
 
-      </div><!-- /RIGHT COLUMN -->
+      </div><!-- /dash-right -->
 
-    </div><!-- /dash-grid -->
+    </div><!-- /dash-grid-new -->
+
+    <!-- ── UPGRADE BANNER ── -->
+    <div class="upgrade-banner-new" id="upgrade-banner" style="display:none">
+      <div class="upgrade-banner-content">
+        <div class="upgrade-banner-icon">
+          <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="4" y="8" width="16" height="12" rx="3"/><rect x="8" y="4" width="8" height="5" rx="2"/>
+            <circle cx="9" cy="14" r="1.2" fill="white" stroke="none"/>
+            <circle cx="15" cy="14" r="1.2" fill="white" stroke="none"/>
+            <path d="M10 18h4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="upgrade-banner-title">Get more out of BoutiqueAI</div>
+        <div class="upgrade-banner-sub">Upgrade to Pro and unlock unlimited agents, more credits, and advanced features.</div>
+      </div>
+      <!-- Robot illustration (SVG) -->
+      <svg class="upgrade-bot-illustration" width="90" height="90" viewBox="0 0 90 90" fill="none">
+        <rect x="18" y="32" width="54" height="44" rx="12" fill="white" opacity=".15"/>
+        <rect x="28" y="16" width="34" height="22" rx="8" fill="white" opacity=".2"/>
+        <circle cx="34" cy="55" r="6" fill="white" opacity=".7"/>
+        <circle cx="56" cy="55" r="6" fill="white" opacity=".7"/>
+        <path d="M37 66h16" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        <line x1="18" y1="50" x2="8" y2="50" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+        <line x1="72" y1="50" x2="82" y2="50" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+        <circle cx="45" cy="27" r="4" fill="white" opacity=".4"/>
+      </svg>
+      <a href="payments.html" class="upgrade-banner-btn">Upgrade Now ✨</a>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /main-wrap -->
 
 <script>
-/* ═══════════════════════════════════════════════════════════
-   CREDIT RING
-   balance       = current credit balance (source of truth)
+/* ═══════════════════════════════════════════════════════
+   DONUT CHART
+   balance       = current credit balance
    used          = total credits ever burned
-   totalAllotted = total credits ever granted (never decreases)
-   remainingPct  = balance / totalAllotted × 100 (always 0–100)
-═══════════════════════════════════════════════════════════ */
-function setRing(balance, used, totalAllotted) {
+   totalAllotted = total credits ever granted
+═══════════════════════════════════════════════════════ */
+function setDonut(balance, used, totalAllotted) {
   balance       = Math.max(0, Number(balance)       || 0)
   used          = Math.max(0, Number(used)          || 0)
   totalAllotted = Math.max(0, Number(totalAllotted) || 0)
@@ -571,37 +964,148 @@ function setRing(balance, used, totalAllotted) {
   if (!totalAllotted) totalAllotted = balance + used
   if (totalAllotted < balance) totalAllotted = balance
 
-  const circ    = 2 * Math.PI * 54          // r=54 → ≈339.3 px
-  const remFrac = totalAllotted > 0 ? Math.min(1, balance / totalAllotted) : 1
-  const arc     = remFrac * circ
+  const r    = 42
+  const circ = 2 * Math.PI * r  // ≈ 263.89
 
-  const el = document.getElementById('ring-arc')
-  el.setAttribute('stroke-dasharray', `${arc.toFixed(1)} ${(circ - arc).toFixed(1)}`)
-  el.setAttribute('stroke', balance > 100 ? '#4ade80' : balance > 30 ? '#facc15' : '#f87171')
+  const remFrac  = totalAllotted > 0 ? Math.min(1, balance / totalAllotted) : 1
+  const usedFrac = 1 - remFrac
 
-  document.getElementById('ring-balance').textContent = balance.toLocaleString('en-IN')
-  document.getElementById('stat-used').textContent    = used.toLocaleString('en-IN')
+  const remArc  = (remFrac  * circ).toFixed(1)
+  const usedArc = (usedFrac * circ).toFixed(1)
 
-  const remPct = totalAllotted > 0 ? Math.min(100, Math.round(remFrac * 100)) : 100
-  document.getElementById('stat-pct').textContent = remPct + '%'
+  // Remaining arc (brand color)
+  const remEl = document.getElementById('donut-rem-arc')
+  remEl.setAttribute('stroke-dasharray', `${remArc} ${circ.toFixed(1)}`)
+  remEl.setAttribute('stroke', balance > 100 ? 'var(--accent)' : balance > 30 ? '#f59e0b' : '#f87171')
+
+  // Used arc (lighter, behind remaining — starts offset at 0)
+  const usedEl = document.getElementById('donut-used-arc')
+  usedEl.setAttribute('stroke-dasharray', `${circ.toFixed(1)} 0`)  // full circle = bg
+  usedEl.setAttribute('stroke', 'var(--surface-3)')
+
+  // Center text
+  document.getElementById('donut-balance').textContent = balance.toLocaleString('en-IN')
+
+  // Legend
+  const remPct  = totalAllotted > 0 ? Math.round(remFrac  * 100) : 100
+  const usedPct = 100 - remPct
+
+  document.getElementById('legend-used').textContent     = used.toLocaleString('en-IN')
+  document.getElementById('legend-used-pct').textContent = `(${usedPct}%)`
+  document.getElementById('legend-rem').textContent      = balance.toLocaleString('en-IN')
+  document.getElementById('legend-rem-pct').textContent  = `(${remPct}%)`
+  document.getElementById('legend-total').textContent    = totalAllotted.toLocaleString('en-IN')
 }
 
-/* ── Auto-refresh credit ring every 60 s ── */
+/* ── Quality breakdown ── */
+function setQuality(qb) {
+  const low = (qb.low    || { count: 0 }).count
+  const med = (qb.medium || { count: 0 }).count
+  const hi  = (qb.high   || { count: 0 }).count
+  const tot = low + med + hi
+
+  const pct = n => tot > 0 ? Math.round(n / tot * 100) : 0
+
+  // Chart bottom row
+  document.getElementById('chart-total-num').textContent = tot
+  document.getElementById('chart-high-num').textContent  = hi
+  document.getElementById('chart-med-num').textContent   = med
+  document.getElementById('chart-low-num').textContent   = low
+
+  // Stacked bar
+  const lp = pct(low), mp = pct(med), hp = 100 - lp - mp
+  document.getElementById('sbar-low').style.width    = lp + '%'
+  document.getElementById('sbar-medium').style.width = mp + '%'
+  document.getElementById('sbar-high').style.width   = hp + '%'
+
+  // Legend
+  document.getElementById('qleg-low').textContent      = low
+  document.getElementById('qleg-low-pct').textContent  = `(${pct(low)}%)`
+  document.getElementById('qleg-med').textContent      = med
+  document.getElementById('qleg-med-pct').textContent  = `(${pct(med)}%)`
+  document.getElementById('qleg-high').textContent     = hi
+  document.getElementById('qleg-high-pct').textContent = `(${pct(hi)}%)`
+  document.getElementById('qleg-total').textContent    = tot
+}
+
+/* ── Trend badge ── */
+function setTrend(id, val) {
+  const el = document.getElementById(id)
+  if (!el) return
+  if (val > 0) {
+    el.textContent = `↑ ${val}%`
+    el.className   = 'stat-trend stat-trend-up'
+  } else if (val < 0) {
+    el.textContent = `↓ ${Math.abs(val)}%`
+    el.className   = 'stat-trend stat-trend-down'
+  } else {
+    el.textContent = `— 0%`
+    el.className   = 'stat-trend stat-trend-flat'
+  }
+}
+
+/* ── Compute 7-day trend ── */
+function computeTrend(dailyStats) {
+  const today = new Date()
+  const day = d => new Date(today.getTime() - d * 86400000).toISOString().slice(0,10)
+  const map = {}
+  ;(dailyStats || []).forEach(s => { map[s._id] = s.count || 0 })
+  let curr = 0, prev = 0
+  for (let i = 0; i < 7;  i++) curr += (map[day(i)]  || 0)
+  for (let i = 7; i < 14; i++) prev += (map[day(i)]  || 0)
+  if (!prev) return curr > 0 ? 100 : 0
+  return Math.round((curr - prev) / prev * 100)
+}
+
+/* ── Activity feed ── */
+function buildActivity(d, recentAgents) {
+  const items = []
+  const fmtAgo = iso => {
+    if (!iso) return ''
+    const diff = Date.now() - new Date(iso).getTime()
+    if (diff < 60000)     return 'just now'
+    if (diff < 3600000)   return Math.floor(diff/60000)  + 'm ago'
+    if (diff < 86400000)  return Math.floor(diff/3600000) + 'h ago'
+    return Math.floor(diff/86400000) + 'd ago'
+  }
+
+  // Try-ons today
+  if (d.today_count > 0) {
+    const quality = d.quality_breakdown?.high?.count > 0 ? 'High quality' : 'Balanced quality'
+    items.push({ dot: '#f87171', text: `${quality} try-on${d.today_count>1?'s':''} generated today`, time: 'today' })
+  }
+
+  // Recent agents
+  ;(recentAgents || []).slice(0,2).forEach(a => {
+    items.push({ dot: '#60A5FA', text: `Agent "${a.agent_name || a.name || 'Agent'}" ${a.published ? 'is live' : 'created'}`, time: fmtAgo(a.updated_at || a.created_at) })
+  })
+
+  // Conversations
+  if (d.chats_count > 0) {
+    items.push({ dot: '#7C6FFF', text: `${d.chats_count} conversation${d.chats_count>1?'s':''} with customers`, time: 'this period' })
+  }
+
+  // Credits info
+  const cs = d.credits_stats || {}
+  if (cs.total_used > 0) {
+    items.push({ dot: '#4ade80', text: `${cs.total_used} credit${cs.total_used!==1?'s':''} used across all try-ons`, time: 'total' })
+  }
+
+  // Fallback
+  if (!items.length) {
+    items.push({ dot: '#7C6FFF', text: 'Welcome to BoutiqueAI! Create your first agent.', time: 'now' })
+  }
+
+  return items.slice(0,5)
+}
+
+/* ── Auto-refresh credits ── */
 let _creditTimer = null
 async function refreshCredits(spinner = true) {
-  const btn = document.getElementById('refresh-credits-btn')
-  if (btn && spinner) {
-    btn.style.transform = 'rotate(360deg)'
-    btn.style.transition = 'transform .5s ease'
-    setTimeout(() => { btn.style.transform = ''; btn.style.transition = ''; }, 520)
-  }
   try {
     const d  = await apiFetch('/dashboard')
     const cs = d.credits_stats || {}
-    setRing(cs.balance, cs.total_used, cs.total_allotted)
-    if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0)
-    document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count || 0)
-    document.getElementById('s-today').textContent  = fmtNum(d.today_count  || 0)
+    setDonut(cs.balance, cs.total_used, cs.total_allotted)
   } catch (e) { console.warn('[credits refresh]', e.message) }
 }
 function startCreditAutoRefresh() {
@@ -609,84 +1113,87 @@ function startCreditAutoRefresh() {
   _creditTimer = setInterval(() => refreshCredits(false), 60_000)
 }
 
-/* ── Quality breakdown ── */
-function setQuality(qb, totalUsed) {
-  const low = qb.low    || { count: 0, credits: 0 }
-  const med = qb.medium || { count: 0, credits: 0 }
-  const hi  = qb.high   || { count: 0, credits: 0 }
-
-  const pl = n => n.toLocaleString('en-IN') + ' try-on' + (n !== 1 ? 's' : '')
-
-  // Chips
-  document.getElementById('chip-low-val').textContent = pl(low.count)
-  document.getElementById('chip-med-val').textContent = pl(med.count)
-  document.getElementById('chip-hi-val').textContent  = pl(hi.count)
-
-  // Per-row
-  document.getElementById('stat-low-count').textContent = pl(low.count)
-  document.getElementById('stat-low-cr').textContent    = low.credits.toLocaleString('en-IN') + ' cr used'
-  document.getElementById('stat-med-count').textContent = pl(med.count)
-  document.getElementById('stat-med-cr').textContent    = med.credits.toLocaleString('en-IN') + ' cr used'
-  document.getElementById('stat-hi-count').textContent  = pl(hi.count)
-  document.getElementById('stat-hi-cr').textContent     = hi.credits.toLocaleString('en-IN') + ' cr used'
-
-  // Bars scaled to highest-credits tier
-  const maxCr = Math.max(low.credits, med.credits, hi.credits, 1)
-  document.getElementById('bar-low').style.width    = (low.credits / maxCr * 100).toFixed(1) + '%'
-  document.getElementById('bar-medium').style.width = (med.credits / maxCr * 100).toFixed(1) + '%'
-  document.getElementById('bar-high').style.width   = (hi.credits  / maxCr * 100).toFixed(1) + '%'
-
-  document.getElementById('credits-used-badge').textContent =
-    (totalUsed || 0).toLocaleString('en-IN') + ' credits used'
-}
-
-/* ═══════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════
    PAGE INIT
-═══════════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════ */
 ;(async () => {
   const nav = await renderNav('dashboard')
   if (!nav) return
   const { user } = nav
 
-  // Greeting
+  // ── Topbar user chip ──
+  if (user) {
+    const avatarEl = document.getElementById('topbar-avatar')
+    if (user.picture) {
+      avatarEl.innerHTML = `<img src="${user.picture}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:8px">`
+    } else {
+      avatarEl.innerHTML = `<span>${(user.name?.[0] || 'U').toUpperCase()}</span>`
+    }
+    document.getElementById('topbar-user-name').textContent = user.name?.split(' ')[0] || user.email || 'User'
+  }
+
+  // ── Greeting ──
   const hr = new Date().getHours()
   document.getElementById('greeting').textContent =
     (hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening') +
     ', ' + (user?.name?.split(' ')[0] || 'there') + ' 👋'
 
-  // Plan label map (matches nav.js)
-  const planLabels = {
-    free: '🆓 Free', standard: '⚡ Standard',
-    pro: '🚀 Pro Store', studio: '🎬 Studio Premium',
-    small: '🌱 Small', medium: '🌿 Medium',
-    enterprise: '🏢 Enterprise', starter: '🆓 Free', grower: '🌱 Small',
-  }
+  // ── Date range label ──
+  const now = new Date()
+  const from = new Date(now); from.setDate(now.getDate() - 13)
+  const fmt = d => d.toLocaleDateString('en-IN', { day:'numeric', month:'short' })
+  document.getElementById('date-range-label').textContent =
+    fmt(from) + ' – ' + fmt(now) + ', ' + now.getFullYear()
+
+  // ── Upgrade banner for free plan ──
+  const plan = user?.plan || 'free'
+  if (plan === 'free' || plan === 'starter')
+    document.getElementById('upgrade-banner').style.display = 'flex'
 
   try {
-    const d = await apiFetch('/dashboard')
+    // ── Dashboard data ──
+    const d  = await apiFetch('/dashboard')
+    const cs = d.credits_stats || {}
 
     // Stat cards
     document.getElementById('s-agents').textContent = fmtNum(d.agents_count || 0)
     document.getElementById('s-tryons').textContent = fmtNum(d.tryons_count || 0)
     document.getElementById('s-chats').textContent  = fmtNum(d.chats_count  || 0)
-    document.getElementById('s-today').textContent  = fmtNum(d.today_count  || 0)
-    document.querySelectorAll('.stat-value.loading').forEach(e => e.classList.remove('loading'))
 
-    // Credit ring
-    const cs = d.credits_stats || {}
-    setRing(cs.balance, cs.total_used, cs.total_allotted)
-    document.getElementById('tu-plan').textContent = planLabels[user?.plan] || user?.plan || '—'
+    // Try-on trend
+    const tryonTrend = computeTrend(d.daily_stats)
+    setTrend('trend-tryons', tryonTrend)
+    setTrend('trend-agents', d.agents_count > 0 ? 100 : 0)
+    setTrend('trend-chats',  d.chats_count  > 0 ? Math.min(100, d.chats_count * 10) : 0)
+
+    // Customer count (separate call)
+    try {
+      const custData = await apiFetch('/owner/customers?limit=1')
+      const custCount = custData.total || 0
+      document.getElementById('s-customers').textContent = fmtNum(custCount)
+      setTrend('trend-customers', custCount > 0 ? 25 : 0)
+    } catch { document.getElementById('s-customers').textContent = '0' }
+
+    // Donut
+    setDonut(cs.balance, cs.total_used, cs.total_allotted)
 
     // Quality breakdown
-    if (d.quality_breakdown) setQuality(d.quality_breakdown, Number(cs.total_used) || 0)
+    if (d.quality_breakdown) setQuality(d.quality_breakdown)
+
+    // Activity feed
+    const activityItems = buildActivity(d, d.recent_agents)
+    const actEl = document.getElementById('activity-list')
+    actEl.innerHTML = activityItems.map(item => `
+      <div class="activity-item">
+        <span class="activity-dot" style="background:${item.dot}"></span>
+        <span class="activity-text">${item.text}</span>
+        <span class="activity-time">${item.time}</span>
+      </div>`).join('')
 
     // Auto-refresh
     startCreditAutoRefresh()
 
-    // Quickstart banner
-    if (!d.agents_count) document.getElementById('quickstart-banner').style.display = 'flex'
-
-    // ── 14-day bar chart ──
+    // ── 14-day chart ──
     const last14 = Array.from({ length: 14 }, (_, i) => {
       const dt = new Date(); dt.setDate(dt.getDate() - (13 - i))
       return dt.toISOString().slice(0, 10)
@@ -695,11 +1202,10 @@ function setQuality(qb, totalUsed) {
     ;(d.daily_stats || []).forEach(s => { statMap[s._id] = s.count || 0 })
     const labels = last14.map(day => {
       const [, m, dd] = day.split('-')
-      return dd + '/' + m
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+      return months[parseInt(m)-1] + ' ' + parseInt(dd)
     })
     const values = last14.map(day => statMap[day] || 0)
-    document.getElementById('chart-total').textContent =
-      values.reduce((a, b) => a + b, 0).toLocaleString() + ' total'
 
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
     new Chart(document.getElementById('daily-chart').getContext('2d'), {
@@ -709,20 +1215,20 @@ function setQuality(qb, totalUsed) {
         datasets: [{
           data: values,
           fill: true,
-          tension: 0.4,
-          backgroundColor: (ctx) => {
-            const gradient = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height)
-            gradient.addColorStop(0,   'rgba(124,111,255,.22)')
-            gradient.addColorStop(1,   'rgba(124,111,255,.01)')
-            return gradient
+          tension: 0.45,
+          backgroundColor: ctx => {
+            const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, ctx.chart.height)
+            g.addColorStop(0, 'rgba(124,111,255,.18)')
+            g.addColorStop(1, 'rgba(124,111,255,.01)')
+            return g
           },
-          borderColor:          'rgba(124,111,255,.85)',
-          borderWidth:          2,
-          pointBackgroundColor: '#7C6FFF',
-          pointBorderColor:     '#fff',
-          pointBorderWidth:     2,
-          pointRadius:          4,
-          pointHoverRadius:     6,
+          borderColor:     'rgba(124,111,255,.9)',
+          borderWidth:     2,
+          pointBackgroundColor:  '#7C6FFF',
+          pointBorderColor:      '#fff',
+          pointBorderWidth:      2,
+          pointRadius:           3,
+          pointHoverRadius:      5,
           pointHoverBackgroundColor: '#7C6FFF',
           pointHoverBorderColor:     '#fff',
           pointHoverBorderWidth:     2,
@@ -735,13 +1241,11 @@ function setQuality(qb, totalUsed) {
           legend: { display: false },
           tooltip: {
             backgroundColor: isDark ? '#0C0E16' : '#fff',
-            titleColor:      isDark ? '#878BAA' : '#5A5E78',
-            bodyColor:       isDark ? '#ECEDF4' : '#0F1117',
-            borderColor:     isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)',
-            borderWidth: 1, padding: 10,
-            callbacks: {
-              label: ctx => ` ${ctx.parsed.y} try-on${ctx.parsed.y !== 1 ? 's' : ''}`
-            }
+            titleColor:  isDark ? '#878BAA' : '#5A5E78',
+            bodyColor:   isDark ? '#ECEDF4' : '#0F1117',
+            borderColor: isDark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.07)',
+            borderWidth: 1, padding: 10, cornerRadius: 8,
+            callbacks: { label: ctx => ` ${ctx.parsed.y} try-on${ctx.parsed.y !== 1 ? 's' : ''}` }
           },
         },
         scales: {
@@ -749,7 +1253,9 @@ function setQuality(qb, totalUsed) {
             grid: { display: false },
             ticks: {
               color: isDark ? '#474B65' : '#9EA3BB',
-              font: { size: 10, family: 'Plus Jakarta Sans' }
+              font: { size: 10, family: 'Plus Jakarta Sans' },
+              maxRotation: 0,
+              maxTicksLimit: 8,
             }
           },
           y: {
@@ -757,68 +1263,13 @@ function setQuality(qb, totalUsed) {
             ticks: {
               color: isDark ? '#474B65' : '#9EA3BB',
               font: { size: 10, family: 'Plus Jakarta Sans' },
-              precision: 0
+              precision: 0,
             },
             beginAtZero: true
           },
         },
       },
     })
-
-    // ── Recent agents ──
-    const wrap = document.getElementById('recent-agents-wrap')
-    const BASE = 'boutiquesaas.aasaitech.in'
-    if (!d.recent_agents?.length) {
-      wrap.innerHTML = `
-        <div class="empty-state" style="padding:36px 20px">
-          <div class="empty-icon">🤖</div>
-          <div class="empty-title">No agents yet</div>
-          <div class="empty-desc">Create your first AI try-on agent to get started.</div>
-          <a href="agents.html?create=1" class="btn btn-primary" style="margin-top:8px">Create Agent</a>
-        </div>`
-    } else {
-      wrap.innerHTML = d.recent_agents.map(a => {
-        const url  = a.published && a.slug
-          ? (a.custom_domain ? 'https://' + a.custom_domain : 'https://' + a.slug + '.' + BASE)
-          : null
-        const disp = a.published && a.slug
-          ? (a.custom_domain ? a.custom_domain : a.slug + '.' + BASE)
-          : 'Not published yet'
-        const name = a.agent_name || a.name || 'Agent'
-        return `
-          <div class="agent-row" onclick="location.href='agents.html'">
-            <div class="agent-logo" style="background:${a.brand_color || '#7C6FFF'}">
-              ${name[0].toUpperCase()}
-            </div>
-            <div style="flex:1;min-width:0">
-              <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-                ${name}
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px">
-                <span class="badge badge-accent" style="font-size:9.5px;padding:1px 7px">
-                  ${a.category || 'Boutique'}
-                </span>
-                ${url
-                  ? `<a class="agent-url-chip" href="${url}" target="_blank" onclick="event.stopPropagation()">🔗 ${disp}</a>`
-                  : `<span class="agent-url-chip draft">⏸ ${disp}</span>`
-                }
-                <span style="font-size:10px;color:var(--text-3)">${fmtNum(a.tryon_count || 0)} try-ons</span>
-              </div>
-            </div>
-            <span class="badge ${a.published ? 'badge-green' : 'badge-gray'}">
-              ${a.published ? 'Live' : 'Draft'}
-            </span>
-            ${url ? `
-              <button class="agent-share-btn"
-                onclick="event.stopPropagation();shareUrl('${url}','${name.replace(/'/g,"\\'")}')">
-                🔗 Share
-              </button>` : ''}
-            <svg width="12" height="12" fill="none" stroke="var(--text-3)" stroke-width="2.5" viewBox="0 0 24 24">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </div>`
-      }).join('')
-    }
 
   } catch (e) { toast(e.message, 'error') }
 
