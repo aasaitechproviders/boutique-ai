@@ -3,299 +3,299 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
-<title>Billing & Plans — BoutiqueAI</title>
+<title>Credits & Usage — BoutiqueAI</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- Razorpay Checkout SDK -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<link rel="stylesheet" href="shared.css">
 <style>
-/* ── Billing toggle ───────────────────────────────────────────────── */
-.billing-toggle {
-  display:flex; align-items:center; gap:12px; margin-bottom:28px;
-  justify-content:center;
+/* ══════════════════════════════════════════════════
+   TOPBAR (identical to home.html / agents.html)
+══════════════════════════════════════════════════ */
+.topbar { height:64px; padding:0 28px; justify-content:space-between; }
+.topbar-search-wrap {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:10px; padding:0 14px; height:38px; width:300px;
+  color:var(--text-3); font-size:13px; transition:var(--t); cursor:text;
 }
-.billing-toggle-label {
-  font-size:13.5px; font-weight:600; color:var(--text-2); cursor:pointer;
+.topbar-search-wrap:hover { border-color:var(--border-md); }
+.topbar-search-wrap svg { flex-shrink:0; opacity:.5; }
+.topbar-search-input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--text); font-family:var(--font);
+}
+.topbar-search-input::placeholder { color:var(--text-3); }
+.topbar-kbd {
+  display:inline-flex; align-items:center;
+  background:var(--surface-3); border:1px solid var(--border-md);
+  border-radius:5px; padding:1px 6px;
+  font-size:10px; font-weight:600; color:var(--text-3); white-space:nowrap;
+}
+.topbar-right-new { display:flex; align-items:center; gap:10px; }
+.notif-btn {
+  position:relative; width:36px; height:36px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface-2);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  color:var(--text-2); transition:var(--t);
+}
+.notif-btn:hover { background:var(--surface-3); }
+.topbar-user-chip {
+  display:flex; align-items:center; gap:8px; padding:5px 10px 5px 5px;
+  border-radius:10px; border:1px solid var(--border);
+  background:var(--surface-2); cursor:pointer; transition:var(--t);
+  font-size:13px; font-weight:600; color:var(--text);
+}
+.topbar-user-chip:hover { background:var(--surface-3); }
+.topbar-user-avatar {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-3));
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:#fff; flex-shrink:0; overflow:hidden;
+}
+.topbar-user-avatar img { width:28px; height:28px; object-fit:cover; display:block; }
+
+/* ══════════════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════════════ */
+.credits-page-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:16px; margin-bottom:24px;
+}
+.credits-page-header h1 {
+  font-size:22px; font-weight:800; letter-spacing:-.04em;
+  line-height:1.2; margin-bottom:4px;
+}
+.credits-page-header p { font-size:13px; color:var(--text-2); }
+.btn-topup {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 18px; border-radius:10px;
+  background:var(--accent); color:#fff;
+  font-size:13.5px; font-weight:700; border:none;
+  cursor:pointer; transition:var(--t); white-space:nowrap; flex-shrink:0;
+  text-decoration:none; font-family:var(--font);
+  box-shadow:0 4px 14px rgba(124,111,255,.3);
+}
+.btn-topup:hover { background:var(--accent-2); transform:translateY(-1px); }
+
+/* ══════════════════════════════════════════════════
+   OVERVIEW STAT CARDS
+══════════════════════════════════════════════════ */
+.overview-stats {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px;
+}
+.ov-stat {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:16px; padding:18px 20px; box-shadow:var(--sh-sm);
   transition:var(--t);
 }
-.billing-toggle-label.active { color:var(--text); }
-.toggle-switch {
-  position:relative; width:44px; height:24px; cursor:pointer;
-}
-.toggle-switch input { opacity:0; width:0; height:0; position:absolute; }
-.toggle-track {
-  position:absolute; inset:0; background:var(--border);
-  border-radius:12px; transition:var(--t);
-}
-.toggle-switch input:checked + .toggle-track { background:var(--accent); }
-.toggle-thumb {
-  position:absolute; top:3px; left:3px; width:18px; height:18px;
-  background:#fff; border-radius:50%; transition:var(--t);
-  box-shadow:0 1px 4px rgba(0,0,0,.25);
-}
-.toggle-switch input:checked ~ .toggle-thumb { left:23px; }
-.yearly-badge {
-  display:inline-flex; align-items:center; gap:4px;
-  background:var(--green-dim,rgba(34,197,94,.1)); color:var(--green,#22c55e);
-  border:1px solid var(--green-border,rgba(34,197,94,.2));
-  font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
-  padding:2px 8px; border-radius:20px; margin-left:2px;
-}
-
-/* ── Plan grid ───────────────────────────────────────────────────── */
-.plans-grid {
-  display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px;
-  align-items: stretch;
-}
-.plan-card {
-  background:var(--surface); border:2px solid var(--border);
-  border-radius:var(--r-xl); padding:28px 24px; position:relative;
-  transition:var(--t); display:flex; flex-direction:column;
-  height: 100%;
-}
-.plan-card:hover { box-shadow:var(--sh); transform:translateY(-2px) }
-.plan-card.current {
-  border-color:var(--accent);
-  box-shadow:0 0 0 4px var(--accent-dim), var(--sh);
-}
-.plan-card.popular { border-color:var(--accent); }
-.plan-popular-badge {
-  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
-  background:var(--accent); color:#fff; font-size:10px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
-  padding:4px 14px; border-radius:20px; white-space:nowrap;
-}
-.plan-current-badge {
-  position:absolute; top:-13px; left:50%; transform:translateX(-50%);
-  background:var(--green); color:#fff; font-size:10px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
-  padding:4px 14px; border-radius:20px; white-space:nowrap;
-}
-.plan-name {
-  font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:.1em;
-  color:var(--text-3); margin-bottom:10px;
-}
-.plan-price {
-  font-size:38px; font-weight:800; letter-spacing:-.05em;
-  font-family:var(--mono); color:var(--text); margin-bottom:2px; line-height:1;
-}
-.plan-price span { font-size:16px; font-weight:500; color:var(--text-3); letter-spacing:0 }
-.plan-savings {
-  font-size:11.5px; color:var(--green); font-weight:600; margin-bottom:6px;
-  min-height:18px;
-}
-.plan-desc { font-size:13px; color:var(--text-2); margin-bottom:20px; line-height:1.5 }
-.plan-divider { height:1px; background:var(--border); margin-bottom:18px }
-.plan-features { display:flex; flex-direction:column; gap:9px; flex:1 }
-.plan-feat {
-  display:flex; align-items:flex-start; gap:9px; font-size:13px; color:var(--text-2);
-}
-.plan-feat-icon { font-size:14px; flex-shrink:0; margin-top:1px }
-.plan-feat-icon.no { opacity:.35 }
-.plan-feat.disabled { color:var(--text-3) }
-.plan-action { margin-top:22px }
-
-/* ── Usage card ──────────────────────────────────────────────────── */
-.usage-card { margin-bottom:22px }
-.usage-detail {
-  display:flex; align-items:center; justify-content:space-between;
-  font-size:12.5px; color:var(--text-3); margin-top:6px;
-}
-
-/* ── Payment history ─────────────────────────────────────────────── */
-.payment-row {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:13px 0; border-bottom:1px solid var(--border);
-}
-.payment-row:last-child { border-bottom:none; }
-.payment-plan-badge {
-  display:inline-flex; align-items:center; gap:6px;
-  font-size:12px; font-weight:700; padding:3px 10px;
-  border-radius:20px; background:var(--accent-dim); color:var(--accent);
-  text-transform:capitalize;
-}
-.payment-amount {
-  font-family:var(--mono); font-weight:700; font-size:14px; color:var(--text);
-}
-.payment-meta {
-  font-size:11.5px; color:var(--text-3); margin-top:2px;
-}
-.payment-status {
-  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
-  padding:2px 8px; border-radius:20px;
-}
-.payment-status.paid, .payment-status.captured {
-  background:rgba(34,197,94,.1); color:var(--green);
-}
-
-/* ── Processing overlay ──────────────────────────────────────────── */
-#payment-overlay {
-  display:none; position:fixed; inset:0; z-index:9999;
-  background:rgba(0,0,0,.55); align-items:center; justify-content:center;
-}
-#payment-overlay.active { display:flex; }
-.payment-overlay-card {
-  background:var(--surface); border-radius:var(--r-xl);
-  padding:36px 48px; text-align:center; max-width:340px;
-}
-.payment-overlay-spinner {
-  width:48px; height:48px; border:4px solid var(--border);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin .8s linear infinite; margin:0 auto 18px;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-
-@media(max-width:900px) { .plans-grid { grid-template-columns:1fr } }
-@media(max-width:600px) { .plan-price { font-size:30px } }
-
-/* ── Invoice button on payment row ───────────────────────────────── */
-.btn-invoice {
-  display:inline-flex; align-items:center; gap:5px;
-  font-size:11.5px; font-weight:600; padding:4px 12px;
-  border-radius:20px; cursor:pointer; transition:var(--t);
-  background:var(--surface-2); color:var(--text-2);
-  border:1px solid var(--border-md);
-}
-.btn-invoice:hover { background:var(--accent-dim); color:var(--accent); border-color:var(--accent); }
-
-/* ── Invoice modal ────────────────────────────────────────────────── */
-#invoice-modal {
-  display:none; position:fixed; inset:0; z-index:9998;
-  background:rgba(0,0,0,.6); align-items:flex-start;
-  justify-content:center; overflow-y:auto; padding:24px 16px;
-}
-#invoice-modal.active { display:flex; }
-.invoice-modal-wrap {
-  background:var(--surface); border-radius:var(--r-xl);
-  width:100%; max-width:660px; box-shadow:var(--sh-lg);
-  position:relative; margin:auto;
-}
-.invoice-modal-toolbar {
-  display:flex; align-items:center; justify-content:space-between;
-  padding:16px 24px; border-bottom:1px solid var(--border);
-  gap:10px;
-}
-.invoice-modal-toolbar-actions { display:flex; gap:8px; align-items:center; }
-#invoice-content { padding:32px 36px; }
-
-/* ── Invoice document styles (inside modal + print) ──────────────── */
-.inv-header {
-  display:flex; justify-content:space-between; align-items:flex-start;
-  margin-bottom:28px;
-}
-.inv-brand { font-size:22px; font-weight:800; color:var(--accent); letter-spacing:-.03em; }
-.inv-brand span { color:var(--text-3); font-weight:400; }
-.inv-meta { text-align:right; }
-.inv-meta-title {
-  font-size:13px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.12em; color:var(--text-3); margin-bottom:6px;
-}
-.inv-meta-num {
-  font-family:var(--mono); font-size:15px; font-weight:700;
-  color:var(--text); margin-bottom:2px;
-}
-.inv-meta-date { font-size:12px; color:var(--text-3); }
-
-.inv-divider { height:1px; background:var(--border); margin:20px 0; }
-
-.inv-parties {
-  display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px;
-}
-.inv-party-label {
-  font-size:10.5px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.1em; color:var(--text-3); margin-bottom:8px;
-}
-.inv-party-name {
-  font-size:14px; font-weight:700; color:var(--text); margin-bottom:4px;
-}
-.inv-party-detail {
-  font-size:12.5px; color:var(--text-2); line-height:1.65;
-}
-.inv-gstin {
-  display:inline-block; margin-top:5px;
-  font-family:var(--mono); font-size:11.5px;
-  background:var(--surface-3); border:1px solid var(--border-md);
-  border-radius:6px; padding:2px 8px; color:var(--text-2);
-}
-
-.inv-table {
-  width:100%; border-collapse:collapse; margin-bottom:20px;
-}
-.inv-table th {
-  font-size:10.5px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.1em; color:var(--text-3);
-  padding:8px 12px; border-bottom:2px solid var(--border-md);
-  text-align:left;
-}
-.inv-table th:last-child { text-align:right; }
-.inv-table td {
-  padding:12px 12px; font-size:13px; color:var(--text);
-  border-bottom:1px solid var(--border);
-  vertical-align:top;
-}
-.inv-table td:last-child { text-align:right; font-family:var(--mono); font-weight:600; }
-.inv-table tr:last-child td { border-bottom:none; }
-.inv-table-desc { font-size:11.5px; color:var(--text-3); margin-top:2px; }
-
-.inv-totals { margin-left:auto; width:220px; }
-.inv-total-row {
-  display:flex; justify-content:space-between; align-items:baseline;
-  font-size:12.5px; color:var(--text-2); padding:4px 0;
-}
-.inv-total-row.grand {
-  font-size:16px; font-weight:800; color:var(--text);
-  padding-top:10px; margin-top:6px;
-  border-top:2px solid var(--border-md);
-}
-.inv-total-row.grand .inv-total-amt { font-family:var(--mono); color:var(--accent); }
-.inv-total-amt { font-family:var(--mono); font-weight:600; }
-
-.inv-status-badge {
-  display:inline-flex; align-items:center; gap:6px;
+.ov-stat:hover { box-shadow:var(--sh); transform:translateY(-1px); }
+.ov-label {
   font-size:11px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.08em; padding:4px 12px; border-radius:20px;
-  background:var(--green-dim); color:var(--green);
-  border:1px solid var(--green-border);
+  letter-spacing:.07em; color:var(--text-3); margin-bottom:8px;
+  display:flex; align-items:center; gap:5px;
+}
+.ov-value {
+  font-family:var(--mono); font-size:28px; font-weight:800;
+  letter-spacing:-.04em; line-height:1;
+}
+.ov-sub { font-size:11.5px; color:var(--text-3); margin-top:4px; }
+
+/* ══════════════════════════════════════════════════
+   CREDITS TIER GRID
+══════════════════════════════════════════════════ */
+.credit-tiers-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:0;
+}
+.credit-tier-card {
+  border-radius:14px; padding:18px 16px;
+  display:flex; flex-direction:column; gap:8px;
+  border:1.5px solid var(--border);
+}
+.credit-tier-card.tier-standard { background:rgba(74,222,128,.06);  border-color:rgba(74,222,128,.2); }
+.credit-tier-card.tier-balanced { background:rgba(250,204,21,.06);  border-color:rgba(250,204,21,.2); }
+.credit-tier-card.tier-premium  { background:rgba(248,113,113,.06); border-color:rgba(248,113,113,.2); }
+.tier-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.tier-header { display:flex; align-items:center; gap:8px; }
+.tier-name { font-size:13.5px; font-weight:800; }
+.tier-credit-badge {
+  margin-left:auto; font-family:var(--mono); font-size:12px; font-weight:700;
+  padding:2px 8px; border-radius:20px; white-space:nowrap;
+}
+.tier-desc { font-size:12px; color:var(--text-2); line-height:1.55; }
+.tier-time { font-size:11.5px; font-weight:600; margin-top:2px; }
+
+/* Processing times */
+.proc-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.proc-card {
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:12px; padding:16px 14px; text-align:center;
+}
+.proc-plan { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--text-3); margin-bottom:6px; }
+.proc-time { font-family:var(--mono); font-size:22px; font-weight:800; color:var(--accent); margin-bottom:2px; line-height:1; }
+.proc-unit { font-size:11px; color:var(--text-3); }
+.proc-badge { font-size:10.5px; font-weight:600; margin-top:6px; padding:2px 8px; border-radius:20px; display:inline-block; }
+
+/* AI disclaimer */
+.ai-disclaimer {
+  display:flex; align-items:flex-start; gap:12px;
+  background:rgba(245,165,35,.07); border:1px solid rgba(245,165,35,.22);
+  border-radius:12px; padding:14px 16px; font-size:12.5px;
+  color:var(--text-2); line-height:1.65;
+}
+.ai-disclaimer .disc-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+.ai-disclaimer strong { color:var(--text); }
+
+/* ══════════════════════════════════════════════════
+   TAB BAR
+══════════════════════════════════════════════════ */
+.tab-bar {
+  display:flex; gap:6px; margin-bottom:20px;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:12px; padding:5px; width:fit-content;
+}
+.tab-btn {
+  padding:8px 18px; border-radius:9px; border:none;
+  background:none; font-size:13px; font-weight:600; cursor:pointer;
+  font-family:var(--font); color:var(--text-2); transition:var(--t);
+}
+.tab-btn.active {
+  background:var(--surface); color:var(--accent);
+  box-shadow:var(--sh-sm); border:1px solid var(--border-md);
+}
+.tab-btn:hover:not(.active) { color:var(--text); }
+
+/* ══════════════════════════════════════════════════
+   TOOLBAR (filter row)
+══════════════════════════════════════════════════ */
+.filter-toolbar {
+  display:flex; align-items:center; gap:10px;
+  margin-bottom:16px; flex-wrap:wrap;
+}
+.filter-search {
+  display:flex; align-items:center; gap:8px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:10px; padding:0 12px; height:38px;
+  min-width:220px; flex:1; transition:var(--t);
+}
+.filter-search:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px rgba(124,111,255,.1); }
+.filter-search svg { flex-shrink:0; color:var(--text-3); }
+.filter-search input {
+  flex:1; background:none; border:none; outline:none;
+  font-size:13px; color:var(--text); font-family:var(--font);
+}
+.filter-search input::placeholder { color:var(--text-3); }
+.filter-select {
+  height:38px; padding:0 28px 0 12px; border-radius:10px;
+  border:1px solid var(--border); background:var(--surface);
+  font-size:12.5px; font-weight:600; color:var(--text-2);
+  cursor:pointer; transition:var(--t); outline:none;
+  font-family:var(--font); min-width:150px;
+  appearance:none; -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' fill='none' stroke='%239EA3BB' stroke-width='2' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center;
+}
+.filter-select:focus { border-color:var(--accent); }
+.filter-count { font-size:12.5px; color:var(--text-3); white-space:nowrap; }
+
+/* ══════════════════════════════════════════════════
+   CUSTOMER TABLE
+══════════════════════════════════════════════════ */
+.usage-table { width:100%; border-collapse:collapse; }
+.usage-table th {
+  font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.08em;
+  color:var(--text-3); padding:11px 16px; border-bottom:1.5px solid var(--border-md);
+  text-align:left; background:var(--surface-2); white-space:nowrap;
+}
+.usage-table th:first-child { border-radius:12px 0 0 0; }
+.usage-table th:last-child  { border-radius:0 12px 0 0; }
+.usage-table td {
+  padding:13px 16px; font-size:13px; color:var(--text);
+  border-bottom:1px solid var(--border); vertical-align:middle;
+}
+.usage-table tr:last-child td { border-bottom:none; }
+.usage-table tr:hover td { background:var(--surface-2); }
+.mobile-cell { font-family:var(--mono); font-size:12.5px; font-weight:600; }
+.mobile-anon { font-size:12px; color:var(--text-3); font-style:italic; }
+.agent-chip-sm {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600;
+  white-space:nowrap; max-width:160px; overflow:hidden; text-overflow:ellipsis;
+  border:1px solid var(--border); background:var(--surface-2);
+}
+.q-pill {
+  display:inline-flex; align-items:center; gap:3px;
+  font-size:10.5px; font-weight:700; padding:2px 7px;
+  border-radius:20px; white-space:nowrap;
+}
+.q-pill.standard { background:rgba(74,222,128,.1);  color:#16a34a; border:1px solid rgba(74,222,128,.25); }
+.q-pill.balanced  { background:rgba(250,204,21,.1);  color:#ca8a04; border:1px solid rgba(250,204,21,.25); }
+.q-pill.premium   { background:rgba(248,113,113,.1); color:#dc2626; border:1px solid rgba(248,113,113,.25); }
+.credit-val { font-family:var(--mono); font-weight:800; font-size:14px; color:var(--accent); }
+.date-cell  { font-size:11.5px; color:var(--text-3); }
+
+/* ══════════════════════════════════════════════════
+   BURN HISTORY
+══════════════════════════════════════════════════ */
+.burn-row {
+  display:flex; align-items:flex-start; gap:14px;
+  padding:14px 0; border-bottom:1px solid var(--border);
+}
+.burn-row:last-child { border-bottom:none; }
+.burn-dot {
+  width:34px; height:34px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-size:14px;
+  flex-shrink:0; margin-top:2px;
+}
+.burn-dot.standard { background:rgba(74,222,128,.15); }
+.burn-dot.balanced  { background:rgba(250,204,21,.15); }
+.burn-dot.premium   { background:rgba(248,113,113,.15); }
+.burn-main { flex:1; min-width:0; }
+.burn-title { font-size:13px; font-weight:700; margin-bottom:2px; }
+.burn-meta  { font-size:11.5px; color:var(--text-3); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.burn-credits { font-family:var(--mono); font-size:18px; font-weight:800; color:#ef4444; flex-shrink:0; }
+.burn-balance { font-size:11px; color:var(--text-3); }
+.combo-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  background:var(--accent-dim); color:var(--accent);
+  border:1px solid rgba(124,111,255,.25);
+  font-size:10px; font-weight:700; padding:1px 6px; border-radius:20px;
 }
 
-.inv-footer {
-  margin-top:28px; padding-top:16px; border-top:1px solid var(--border);
-  display:flex; justify-content:space-between; align-items:center;
-}
-.inv-footer-note { font-size:11.5px; color:var(--text-3); line-height:1.6; }
-.inv-payment-ref { font-size:11px; color:var(--text-3); text-align:right; }
-.inv-payment-ref span { font-family:var(--mono); font-size:10.5px; color:var(--text-2); }
+/* Pagination */
+.pagination { display:flex; align-items:center; justify-content:space-between; padding:14px 0 0; flex-wrap:wrap; gap:10px; }
+.page-info  { font-size:12.5px; color:var(--text-3); }
+.page-btns  { display:flex; gap:6px; }
 
-/* ── Loading/error state inside modal ────────────────────────────── */
-.inv-loading {
-  text-align:center; padding:48px 24px;
-  color:var(--text-3); font-size:14px;
-}
-.inv-spinner {
-  width:36px; height:36px; border:3px solid var(--border-md);
-  border-top-color:var(--accent); border-radius:50%;
-  animation:spin .8s linear infinite; margin:0 auto 14px;
-}
+/* Empty state */
+.empty-state { text-align:center; padding:52px 24px; color:var(--text-3); }
+.empty-icon  { font-size:42px; margin-bottom:12px; opacity:.5; }
+.empty-title { font-size:14.5px; font-weight:700; color:var(--text-2); margin-bottom:6px; }
+.empty-desc  { font-size:13px; line-height:1.6; }
 
-/* ── Print styles ────────────────────────────────────────────────── */
-@media print {
-  body > *:not(#invoice-print-area) { display:none !important; }
-  #invoice-print-area {
-    display:block !important;
-    font-family:'Plus Jakarta Sans',Arial,sans-serif;
-    color:#0F1117; background:#fff; padding:40px 48px;
-    --accent:#7C6FFF; --text:#0F1117; --text-2:#5A5E78;
-    --text-3:#9EA3BB; --border:#E5E5EA; --border-md:#D1D1D6;
-    --surface-3:#F7F8FD; --green:#19a37a;
-    --green-dim:rgba(25,163,122,.09); --green-border:rgba(25,163,122,.22);
-    --mono:'JetBrains Mono',monospace;
-  }
-  #invoice-print-area .inv-brand { color:#7C6FFF; }
-  #invoice-print-area .inv-total-row.grand .inv-total-amt { color:#7C6FFF; }
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media(max-width:900px) {
+  .credit-tiers-grid { grid-template-columns:1fr; }
+  .proc-grid { grid-template-columns:1fr; }
+  .overview-stats { grid-template-columns:repeat(2,1fr); }
+  .usage-table th:nth-child(5),
+  .usage-table td:nth-child(5) { display:none; }
+}
+@media(max-width:760px) {
+  .topbar-search-wrap { width:200px; }
+  .overview-stats { grid-template-columns:repeat(2,1fr); }
+}
+@media(max-width:600px) {
+  .topbar-search-wrap { display:none; }
+  .overview-stats { grid-template-columns:1fr 1fr; }
+  .filter-toolbar { flex-direction:column; align-items:stretch; }
+  .filter-search { min-width:0; }
+  .credits-page-header { flex-direction:column; gap:12px; }
+  .btn-topup { align-self:flex-start; }
 }
 </style>
-<link rel="stylesheet" href="shared.css">
 <script>
 ;(function(){
   var d=localStorage.getItem('ba_theme')==='dark';
@@ -308,36 +308,6 @@
 </head>
 <body>
 <div id="toast-container"></div>
-
-<!-- Payment processing overlay -->
-<div id="payment-overlay">
-  <div class="payment-overlay-card">
-    <div class="payment-overlay-spinner"></div>
-    <div style="font-size:16px;font-weight:700;margin-bottom:6px" id="overlay-title">Processing Payment</div>
-    <div style="font-size:13px;color:var(--text-2)" id="overlay-msg">Please wait while we confirm your payment…</div>
-  </div>
-</div>
-
-<!-- ── Invoice modal ─────────────────────────────────────────────── -->
-<div id="invoice-modal" onclick="handleInvoiceBackdropClick(event)">
-  <div class="invoice-modal-wrap">
-    <div class="invoice-modal-toolbar">
-      <div style="font-size:13.5px;font-weight:700">🧾 Invoice</div>
-      <div class="invoice-modal-toolbar-actions">
-        <button class="btn btn-primary btn-sm" onclick="printInvoice()" id="inv-print-btn" style="display:none">
-          🖨️ Print / Save PDF
-        </button>
-        <button class="btn btn-secondary btn-sm" onclick="closeInvoiceModal()">✕ Close</button>
-      </div>
-    </div>
-    <div id="invoice-content">
-      <div class="inv-loading"><div class="inv-spinner"></div>Loading invoice…</div>
-    </div>
-  </div>
-</div>
-
-<!-- Hidden area used only during browser print ──────────────────── -->
-<div id="invoice-print-area" style="display:none"></div>
 
 <div class="mobile-topbar">
   <div class="mob-left">
@@ -352,927 +322,537 @@
 <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeMobileSidebar()"></div>
 <div class="sidebar" id="sidebar"></div>
 
+<!-- Skeleton -->
 <div id="page-skeleton">
   <div class="skel-topbar">
-    <div class="skel" style="height:13px;width:160px;border-radius:4px"></div>
+    <div class="skel" style="height:13px;width:200px;border-radius:4px"></div>
   </div>
   <div class="skel-body">
-    <div class="skel" style="height:90px;border-radius:var(--r-lg);margin-bottom:16px"></div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
-      <div class="skel" style="height:380px;border-radius:var(--r-xl)"></div>
-      <div class="skel" style="height:380px;border-radius:var(--r-xl);opacity:.8"></div>
-      <div class="skel" style="height:380px;border-radius:var(--r-xl);opacity:.6"></div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px">
+      <div class="skel" style="height:88px;border-radius:16px"></div>
+      <div class="skel" style="height:88px;border-radius:16px;opacity:.8"></div>
+      <div class="skel" style="height:88px;border-radius:16px;opacity:.6"></div>
+      <div class="skel" style="height:88px;border-radius:16px;opacity:.4"></div>
     </div>
+    <div class="skel" style="height:320px;border-radius:16px;margin-bottom:16px"></div>
+    <div class="skel" style="height:360px;border-radius:16px"></div>
   </div>
 </div>
 
 <div class="main-wrap">
+
+  <!-- ── TOPBAR (new style matching home/agents) ── -->
   <div class="topbar">
-    <div class="topbar-left"><span class="topbar-title">Billing & Plans</span></div>
-    <div class="topbar-right">
-      <button class="theme-toggle" style="font-size:15px;"></button>
+    <div class="topbar-search-wrap">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input class="topbar-search-input" placeholder="Search anything..." readonly onclick="toast('Search coming soon','info')">
+      <span class="topbar-kbd">⌘K</span>
+    </div>
+    <div class="topbar-right-new">
+      <button class="theme-toggle"
+        style="font-size:14px;background:var(--surface-2);border:1px solid var(--border);cursor:pointer;
+               width:36px;height:36px;border-radius:10px;display:flex;align-items:center;
+               justify-content:center;transition:var(--t);">
+      </button>
+      <button class="notif-btn" onclick="toast('Notifications coming soon','info')">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </button>
+      <div class="topbar-user-chip" id="topbar-user-chip" onclick="location.href='account.html'">
+        <div class="topbar-user-avatar" id="topbar-avatar"><span>U</span></div>
+        <span id="topbar-user-name">Loading…</span>
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
     </div>
   </div>
 
   <div class="content" id="page-content" style="display:none">
 
-    <!-- Current usage card -->
-    <div class="card usage-card">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon">📊</span>Current Usage</div>
-        <span class="badge badge-accent" id="current-plan-badge">—</span>
+    <!-- Page header -->
+    <div class="credits-page-header">
+      <div>
+        <h1>Credits &amp; Usage</h1>
+        <p>Monitor your credit balance, usage history, and per-customer try-on stats.</p>
       </div>
-      <div class="card-body">
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <a href="payments.html#credits-section" class="btn-topup">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Top Up Credits
+      </a>
+    </div>
 
-          <div>
-            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">⚡ Credit Balance</div>
-            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px;color:var(--accent)">
-              <span id="u-credits">—</span>
-            </div>
-            <div style="font-size:12px;color:var(--text-3);margin-bottom:6px">
-              credits available
-            </div>
-            <div id="u-credits-expiry" style="font-size:11.5px;color:var(--text-3);margin-bottom:6px;display:none">
-              ⏰ Expires <strong id="u-credits-expiry-date"></strong>
-            </div>
-            <div class="usage-detail" style="display:flex;flex-direction:column;gap:3px">
-              <span style="font-size:11.5px">🟢 Low = 1 &nbsp;🟡 Med = 2 &nbsp;🔴 High = 3</span>
-              <a href="#credits-section" style="font-size:11.5px;color:var(--accent);text-decoration:none;font-weight:600">Top up ↓</a>
-            </div>
-          </div>
-
-          <div>
-            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Agents</div>
-            <div style="font-size:24px;font-weight:800;font-family:var(--mono);letter-spacing:-.04em;margin-bottom:6px">
-              <span id="u-agents">—</span><span style="font-size:14px;color:var(--text-3);font-weight:500"> / <span id="u-agents-cap">—</span></span>
-            </div>
-            <div class="progress-bar" style="height:6px;margin-bottom:6px">
-              <div class="progress-fill" id="u-agents-bar" style="width:0%"></div>
-            </div>
-            <div class="usage-detail"><span id="u-agents-pct">0% used</span></div>
-          </div>
-
-          <div>
-            <div style="font-size:11.5px;color:var(--text-3);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.07em">Plan Expires</div>
-            <div style="font-size:14px;font-weight:600;margin-bottom:4px" id="u-expires-date">—</div>
-            <div style="font-size:12.5px;color:var(--text-3)" id="u-expires-label">Resets at the start of each billing cycle.</div>
-            <div style="margin-top:10px">
-              <a href="account.html" class="btn btn-secondary btn-sm">⚙️ Account Settings</a>
-            </div>
-          </div>
-
+    <!-- Overview stats -->
+    <div class="overview-stats">
+      <div class="ov-stat">
+        <div class="ov-label">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Total Burned
         </div>
+        <div class="ov-value" id="ov-total-burned" style="color:#ef4444">—</div>
+        <div class="ov-sub">credits used all time</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Total Try-Ons
+        </div>
+        <div class="ov-value" id="ov-total-tryons">—</div>
+        <div class="ov-sub">including deleted ones</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">
+          <svg width="12" height="12" fill="none" stroke="var(--accent)" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Current Balance
+        </div>
+        <div class="ov-value" id="ov-balance" style="color:var(--accent)">—</div>
+        <div class="ov-sub" id="ov-balance-expiry">credits · expires end of month</div>
+      </div>
+      <div class="ov-stat">
+        <div class="ov-label">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          Unique Customers
+        </div>
+        <div class="ov-value" id="ov-customers">—</div>
+        <div class="ov-sub">who used try-on</div>
       </div>
     </div>
 
-    <!-- Billing cycle toggle -->
-    <div class="billing-toggle">
-      <span class="billing-toggle-label active" id="label-monthly">Monthly</span>
-      <label class="toggle-switch">
-        <input type="checkbox" id="billing-toggle" onchange="toggleBilling()">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-      <span class="billing-toggle-label" id="label-yearly">
-        Yearly <span class="yearly-badge">Save 10%</span>
-      </span>
-    </div>
-
-    <!-- Plans -->
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px">Choose Your Plan</div>
-
-    <div class="plans-grid" id="plans-grid">
-      <!-- Rendered by JS -->
-    </div>
-
-    <!-- Payment history -->
-    <div class="card" id="payment-history-card" style="display:none">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon">🧾</span>Payment History</div>
-      </div>
-      <div class="card-body" id="payment-history-body">
-        <div style="color:var(--text-3);font-size:13px">Loading…</div>
-      </div>
-    </div>
-
-    <!-- FAQ -->
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon">❓</span>Frequently Asked Questions</div>
-      </div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:18px">
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What happens when I run out of credits?</div>
-          <div style="font-size:13px;color:var(--text-2)">Your agent stays live but new try-on requests are paused until you top up or renew your plan. Plan credits refresh when you renew. Top-up credit packs never expire and carry over indefinitely.</div>
-        </div>
-
-        <div class="divider" style="margin:0"></div>
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">When do plan credits expire?</div>
-          <div style="font-size:13px;color:var(--text-2)">Credits included in your plan (monthly or yearly) expire when your billing period ends — end of the month for monthly plans, end of the year for yearly plans. Credits bought separately as top-up packs never expire.</div>
-        </div>
-
-        <div class="divider" style="margin:0"></div>
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Is my payment secure?</div>
-          <div style="font-size:13px;color:var(--text-2)">Yes — payments are processed by Razorpay, a PCI-DSS compliant payment gateway. We never store your card details. You can pay via UPI, cards, net banking, or wallets.</div>
-        </div>
-
-        <div class="divider" style="margin:0"></div>
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I use my own domain?</div>
-          <div style="font-size:13px;color:var(--text-2)">Yes — all plans including Standard, Pro Store, and Studio Premium support custom domains. Once upgraded, go to Account Settings to add your domain and point a CNAME record.</div>
-        </div>
-
-        <div class="divider" style="margin:0"></div>
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">What payment methods do you accept?</div>
-          <div style="font-size:13px;color:var(--text-2)">UPI, credit/debit cards, net banking, Paytm, and all major wallets — anything supported by Razorpay.</div>
-        </div>
-
-        <div class="divider" style="margin:0"></div>
-
-        <div>
-          <div style="font-size:13.5px;font-weight:700;margin-bottom:5px">Can I upgrade or downgrade anytime?</div>
-          <div style="font-size:13px;color:var(--text-2)">Upgrades take effect immediately after payment. For downgrades or cancellations, contact us and we'll sort it out right away.</div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- CREDITS SECTION -->
-    <div style="height:32px"></div>
-    <div id="credits-section" style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px">Try-On Credits</div>
-    <div style="font-size:13px;color:var(--text-2);margin-bottom:20px;line-height:1.6">
-      Credits are consumed when your customers generate virtual try-ons.
-      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟢 Standard = <strong id="qcost-low">1</strong> credit</span>
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🟡 Balanced = <strong id="qcost-medium">2</strong> credits</span>
-        <span style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 12px;font-size:12px;font-weight:600">🔴 Premium Studio = <strong id="qcost-high">3</strong> credits</span>
-      </div>
-    </div>
-
-    <!-- Credit balance -->
+    <!-- How Credits Work -->
     <div class="card" style="margin-bottom:20px">
       <div class="card-header">
-        <div class="card-title"><span class="card-icon">⚡</span>Credit Balance</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-family:var(--mono);font-size:28px;font-weight:800;color:var(--accent)" id="credit-balance">—</span>
-          <span style="font-size:13px;color:var(--text-3)">credits</span>
+        <div class="card-title">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          How Credits Work
         </div>
       </div>
-      <div class="card-body" style="padding-top:0" id="credit-history-body">
-        <div style="font-size:13px;color:var(--text-3)">Loading…</div>
-      </div>
-    </div>
-
-    <!-- Credit packages -->
-    <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:14px">Top Up Credits</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px" id="credit-packages-grid"></div>
-
-    <!-- Credit purchase history -->
-    <div class="card" id="credit-purchase-history" style="display:none;margin-bottom:32px">
-      <div class="card-header">
-        <div class="card-title"><span class="card-icon">🧾</span>Credit Purchase History</div>
-      </div>
-      <div class="card-body" id="credit-purchase-body"></div>
-    </div>
-
-  </div>
-</div>
-
-<script>
-// ── All pricing/plan/credit data is loaded from the API (DB-driven) ──────────
-// Edit values anytime via:  PUT /admin/settings/pricing  (X-Admin-Secret header)
-// or directly in MongoDB Atlas → settings collection → _id:"pricing"
-const WHATSAPP_NUM = '917890123456'   // Update to your actual WhatsApp number
-
-// Runtime state — populated from APIs in init(), not hardcoded
-let PLAN_LIMITS         = {}   // loaded from /payment/plans
-let PLAN_LABELS         = {
-  free:     '🆓 Free',
-  standard: '⚡ Standard',
-  pro:      '🚀 Pro Store',
-  studio:   '🎬 Studio Premium',
-  // backward compat — old plan names
-  small:      '🌱 Small',
-  medium:     '🌿 Medium',
-  enterprise: '🏢 Enterprise',
-  starter:    '🆓 Free',
-  grower:     '🌱 Small',
-}
-let CREDIT_PACKAGES_DATA = []  // loaded from /credits/packages
-let qualityCosts         = { low: 1, medium: 2, high: 3 }  // loaded from /credits/packages
-
-let currentPlan   = 'free'
-let billingCycle  = 'monthly'
-let currentUser   = null
-let plansData     = []
-
-// ── Billing toggle ──────────────────────────────────────────────────────────
-function toggleBilling() {
-  billingCycle = document.getElementById('billing-toggle').checked ? 'yearly' : 'monthly'
-  document.getElementById('label-monthly').classList.toggle('active', billingCycle === 'monthly')
-  document.getElementById('label-yearly').classList.toggle('active',  billingCycle === 'yearly')
-  renderPlans()
-}
-
-// ── Render plan cards ───────────────────────────────────────────────────────
-function renderPlans() {
-  const grid = document.getElementById('plans-grid')
-  if (!grid || !plansData.length) return
-  grid.innerHTML = ''
-
-  plansData.forEach(plan => {
-    const isCurrent  = plan.id === currentPlan
-    const planIdx    = plansData.findIndex(p => p.id === plan.id)
-    const currentIdx = plansData.findIndex(p => p.id === currentPlan)
-    const isUpgrade  = planIdx > currentIdx
-    const price      = plan.price_inr[billingCycle]
-    const savings    = billingCycle === 'yearly' ? (plan.savings_inr?.yearly || 0) : 0
-    const creditsMonthly = plan.limits?.credits_included         || 0
-    const creditsYearly  = plan.limits?.credits_included_yearly  || 0
-    const credits    = billingCycle === 'yearly' ? creditsYearly : creditsMonthly
-    const isFree     = price === 0 && !plan.contact
-
-    const card = document.createElement('div')
-    card.className = `plan-card${plan.popular ? ' popular' : ''}${isCurrent ? ' current' : ''}`
-    card.id        = 'plan-' + plan.id
-
-    let badge = ''
-    if (isCurrent) badge = '<div class="plan-current-badge">Current Plan</div>'
-    else if (plan.popular && !isCurrent) badge = '<div class="plan-popular-badge">Most Popular</div>'
-
-    const priceHtml = price === 0
-      ? `<div class="plan-price">Free</div>
-         <div style="font-size:12px;color:var(--text-3);margin-bottom:2px">50 credits, first month only</div>`
-      : plan.contact
-        ? `<div class="plan-price" style="font-size:28px">Custom</div>`
-        : `<div class="plan-price">₹${price.toLocaleString('en-IN')}<span>/${billingCycle === 'yearly' ? 'yr' : 'mo'}</span></div>`
-
-    const savingsHtml = savings > 0
-      ? `<div class="plan-savings">🎉 Save ₹${savings.toLocaleString('en-IN')} vs monthly</div>`
-      : `<div class="plan-savings"></div>`
-
-    const chipLabel = isFree
-      ? `${credits} credits on signup`
-      : billingCycle === 'yearly'
-        ? `${credits.toLocaleString('en-IN')} credits upfront (12 mo)`
-        : `${credits.toLocaleString('en-IN')} credits / month`
-
-    const creditsChip = credits > 0
-      ? `<div style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;
-           background:${isFree ? 'rgba(34,197,94,.1)' : 'var(--accent-dim)'};
-           border:1px solid ${isFree ? 'rgba(34,197,94,.25)' : 'rgba(var(--accent-rgb,124,111,255),.25)'};
-           color:${isFree ? 'var(--green,#22c55e)' : 'var(--accent)'};
-           font-size:11.5px;font-weight:700;margin-bottom:14px;">
-           ⚡ ${chipLabel}</div>`
-      : ''
-
-    const tagline = plan.tagline || ''
-
-    const featuresHtml = plan.features.map(f =>
-      `<div class="plan-feat">
-        <span class="plan-feat-icon">✅</span>
-        <span>${f.text}</span>
-      </div>`
-    ).join('')
-
-    const planIcons = {
-      free: '🆓', standard: '⚡', pro: '🚀', studio: '🎬',
-      // backward compat
-      small: '🌱', medium: '🌿', enterprise: '🏢', starter: '🆓', grower: '🌱',
-    }
-
-    let btnHtml = ''
-    if (isCurrent) {
-      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>✓ Current Plan</button>`
-    } else if (plan.contact) {
-      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">💬 Contact Sales</button>`
-    } else if (plan.id === 'free' || plan.id === 'starter') {
-      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" disabled>Free Plan</button>`
-    } else if (isUpgrade) {
-      btnHtml = `<button class="btn btn-primary" style="width:100%;justify-content:center" onclick="startPayment('${plan.id}')">⬆️ ${plan.cta}</button>`
-    } else {
-      btnHtml = `<button class="btn btn-secondary" style="width:100%;justify-content:center" onclick="contactSales('${plan.id}')">Contact Us</button>`
-    }
-
-    card.innerHTML = `
-      ${badge}
-      <div class="plan-name">${planIcons[plan.id] || ''} ${plan.name}</div>
-      ${tagline ? `<div style="font-size:12px;color:var(--text-3);margin-bottom:12px;line-height:1.5">${tagline}</div>` : ''}
-      ${priceHtml}
-      ${savingsHtml}
-      ${creditsChip}
-      <div class="plan-divider"></div>
-      <div class="plan-features" style="flex:1">${featuresHtml}</div>
-      <div class="plan-action" style="margin-top:auto;padding-top:20px">${btnHtml}</div>
-    `
-    grid.appendChild(card)
-  })
-}
-
-// ── Contact Sales (WhatsApp) ────────────────────────────────────────────────
-function contactSales(plan) {
-  const name  = plan.charAt(0).toUpperCase() + plan.slice(1)
-  const msg   = `Hi! I'd like to know more about the BoutiqueAI ${name} plan.`
-  window.open(`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(msg)}`, '_blank')
-}
-
-// ── Overlay helpers ─────────────────────────────────────────────────────────
-function showOverlay(title, msg) {
-  document.getElementById('overlay-title').textContent = title
-  document.getElementById('overlay-msg').textContent   = msg
-  document.getElementById('payment-overlay').classList.add('active')
-}
-function hideOverlay() {
-  document.getElementById('payment-overlay').classList.remove('active')
-}
-
-// ── Start Razorpay checkout ─────────────────────────────────────────────────
-async function startPayment(planId) {
-  if (!currentUser) return toast('Please log in first.', 'error')
-
-  showOverlay('Creating Order…', 'Setting up your payment. Just a moment.')
-
-  try {
-    const data = await apiFetch('/payment/create-order', {
-      method: 'POST',
-      body:   JSON.stringify({ plan: planId, billing: billingCycle }),
-    })
-
-    if (data.error || !data.order_id) {
-      hideOverlay()
-      return toast(data.error || 'Could not create order. Please try again.', 'error')
-    }
-
-    hideOverlay()
-
-    const options = {
-      key:         data.key_id,
-      amount:      data.amount,
-      currency:    data.currency,
-      name:        'BoutiqueAI',
-      description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} Plan — ${billingCycle}`,
-      image:       '/favicon.ico',
-      order_id:    data.order_id,
-      prefill: {
-        name:  data.user_name  || '',
-        email: data.user_email || '',
-      },
-      theme: { color: '#7C6FFF' },
-      modal: {
-        ondismiss: () => {
-          hideOverlay()
-          toast('Payment cancelled.', 'info')
-        },
-      },
-      handler: async (response) => {
-        // Payment succeeded — verify on backend
-        showOverlay('Verifying Payment…', 'Confirming your payment with our server…')
-        try {
-          const verifyData = await apiFetch('/payment/verify', {
-            method: 'POST',
-            body:   JSON.stringify({
-              razorpay_order_id:   response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature:  response.razorpay_signature,
-              plan:                planId,
-              billing:             billingCycle,
-            }),
-          })
-
-          if (verifyData.error) {
-            hideOverlay()
-            toast('Payment received but verification failed. Contact support.', 'error')
-            return
-          }
-
-          hideOverlay()
-          toast(`🎉 ${verifyData.message || 'Plan upgraded successfully!'}`, 'success', 5000)
-
-          // Refresh page after short delay to show new plan
-          setTimeout(() => location.reload(), 2000)
-        } catch (err) {
-          hideOverlay()
-          toast('Verification error. If money was deducted, please contact support.', 'error', 6000)
-        }
-      },
-    }
-
-    const rzp = new Razorpay(options)
-    rzp.on('payment.failed', (response) => {
-      hideOverlay()
-      toast(`Payment failed: ${response.error.description || 'Please try again.'}`, 'error', 5000)
-    })
-    rzp.open()
-  } catch (err) {
-    hideOverlay()
-    toast(err.message || 'Something went wrong. Please try again.', 'error')
-  }
-}
-
-// ── Render payment history ───────────────────────────────────────────────────
-function renderPaymentHistory(payments) {
-  const card = document.getElementById('payment-history-card')
-  const body = document.getElementById('payment-history-body')
-  if (!payments || !payments.length) return
-
-  card.style.display = 'block'
-  body.innerHTML = payments.map(p => `
-    <div class="payment-row">
-      <div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
-          <span class="payment-plan-badge">${({free:'🆓',standard:'⚡',pro:'🚀',studio:'🎬',small:'🌱',medium:'🌿',enterprise:'🏢',starter:'🆓',grower:'🌱'})[p.plan] || ''} ${p.plan}</span>
-          <span style="font-size:11.5px;color:var(--text-3);text-transform:capitalize">${p.billing}</span>
-        </div>
-        <div class="payment-meta">
-          ${fmtDate(p.paid_at)}
-          ${p.expires_at ? ` · Expires ${fmtDate(p.expires_at)}` : ''}
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="text-align:right">
-          <div class="payment-amount">₹${(p.amount_inr || 0).toLocaleString('en-IN')}</div>
-          <div style="margin-top:4px">
-            <span class="payment-status ${p.status}">${p.status}</span>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:18px">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px">Quality Tiers — Credits Per Try-On</div>
+          <div class="credit-tiers-grid">
+            <div class="credit-tier-card tier-standard">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#4ade80"></span>
+                <span class="tier-name" style="color:#16a34a">Standard Quality</span>
+                <span class="tier-credit-badge" style="background:rgba(74,222,128,.15);color:#16a34a">1 credit</span>
+              </div>
+              <div class="tier-desc">Fast, lightweight try-on. Great for quick previews and high-volume customers.</div>
+              <div class="tier-time" style="color:#16a34a">⏱ ~1 minute</div>
+            </div>
+            <div class="credit-tier-card tier-balanced">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#facc15"></span>
+                <span class="tier-name" style="color:#ca8a04">Balanced Quality</span>
+                <span class="tier-credit-badge" style="background:rgba(250,204,21,.15);color:#ca8a04">2 credits</span>
+              </div>
+              <div class="tier-desc">Best of both worlds. Sharper fabric detail and skin tone accuracy. Ideal for most boutiques.</div>
+              <div class="tier-time" style="color:#ca8a04">⏱ ~45 seconds</div>
+            </div>
+            <div class="credit-tier-card tier-premium">
+              <div class="tier-header">
+                <span class="tier-dot" style="background:#f87171"></span>
+                <span class="tier-name" style="color:#dc2626">Premium Studio</span>
+                <span class="tier-credit-badge" style="background:rgba(248,113,113,.15);color:#dc2626">3 credits</span>
+              </div>
+              <div class="tier-desc">Studio-grade output. Maximum face fidelity, fabric micro-detail, and colour accuracy.</div>
+              <div class="tier-time" style="color:#dc2626">⏱ ~35 seconds</div>
+            </div>
           </div>
         </div>
-        <button class="btn-invoice" onclick="showInvoice('${p._id}')">
-          🧾 Invoice
-        </button>
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:10px">Processing Speed by Plan</div>
+          <div class="proc-grid">
+            <div class="proc-card"><div class="proc-plan">⚡ Standard Plan</div><div class="proc-time">~1</div><div class="proc-unit">minute</div><div class="proc-badge" style="background:rgba(74,222,128,.1);color:#16a34a">Queue-based</div></div>
+            <div class="proc-card"><div class="proc-plan">🚀 Pro Store Plan</div><div class="proc-time">~45</div><div class="proc-unit">seconds</div><div class="proc-badge" style="background:var(--accent-dim);color:var(--accent)">Faster priority</div></div>
+            <div class="proc-card"><div class="proc-plan">🎬 Studio Premium</div><div class="proc-time">~35</div><div class="proc-unit">seconds</div><div class="proc-badge" style="background:rgba(250,204,21,.1);color:#ca8a04">Dedicated infra</div></div>
+          </div>
+        </div>
+        <div class="ai-disclaimer">
+          <span class="disc-icon">⚠️</span>
+          <div><strong>AI-generated try-ons are approximate previews.</strong> Results may not perfectly reproduce every fabric texture, colour shade, or outfit detail. Skin tone, face shape, and clothing drape are rendered to a high standard, but <strong>minor variations are possible.</strong></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;font-size:12.5px;color:var(--text-2)">
+          <span style="font-size:16px">💳</span>
+          <span>Top-up packs from <strong style="color:var(--text)">₹1,999 for 500 credits</strong>. Credits <strong style="color:#ef4444">expire at end of billing month</strong>. <a href="payments.html#credits-section" style="color:var(--accent);font-weight:600">Buy credits →</a></span>
+        </div>
       </div>
     </div>
-  `).join('')
+
+    <!-- Credits by Quality Tier -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Credits by Quality Tier
+        </div>
+        <span class="badge badge-accent" id="breakdown-total-badge">All time</span>
+      </div>
+      <div class="card-body" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🟢 Standard</div>
+          <div style="font-family:var(--mono);font-size:30px;font-weight:800;color:#16a34a;line-height:1" id="bd-low-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3);margin-top:4px" id="bd-low-count">— try-ons · 1 cr each</div>
+        </div>
+        <div style="text-align:center;border-left:1px solid var(--border);border-right:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:#ca8a04;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🟡 Balanced</div>
+          <div style="font-family:var(--mono);font-size:30px;font-weight:800;color:#ca8a04;line-height:1" id="bd-med-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3);margin-top:4px" id="bd-med-count">— try-ons · 2 cr each</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🔴 Premium Studio</div>
+          <div style="font-family:var(--mono);font-size:30px;font-weight:800;color:#dc2626;line-height:1" id="bd-hi-credits">—</div>
+          <div style="font-size:11.5px;color:var(--text-3);margin-top:4px" id="bd-hi-count">— try-ons · 3 cr each</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-customer" onclick="switchTab('customer')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:5px"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        By Customer
+      </button>
+      <button class="tab-btn" id="tab-history" onclick="switchTab('history')">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline;vertical-align:middle;margin-right:5px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Full Burn History
+      </button>
+    </div>
+
+    <!-- BY CUSTOMER VIEW -->
+    <div id="view-customer">
+      <div class="filter-toolbar">
+        <div class="filter-search">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" placeholder="Filter by mobile number…" id="cust-search" oninput="filterCustomers()">
+        </div>
+        <select class="filter-select" id="cust-agent-filter" onchange="loadUsage()">
+          <option value="">All Agents</option>
+        </select>
+        <span class="filter-count" id="cust-count-label"></span>
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <div id="customer-table-wrap">
+            <div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL HISTORY VIEW -->
+    <div id="view-history" style="display:none">
+      <div class="filter-toolbar">
+        <select class="filter-select" id="hist-agent-filter" onchange="loadHistory()">
+          <option value="">All Agents</option>
+        </select>
+        <select class="filter-select" id="hist-quality-filter" onchange="loadHistory()">
+          <option value="">All Qualities</option>
+          <option value="low">🟢 Standard</option>
+          <option value="medium">🟡 Balanced</option>
+          <option value="high">🔴 Premium Studio</option>
+        </select>
+        <div class="filter-search" style="max-width:220px">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" placeholder="Filter by mobile…" id="hist-mobile-filter" oninput="debounceHistory()">
+        </div>
+        <span class="filter-count" id="hist-count-label"></span>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Credit Burn Log
+          </div>
+          <span class="badge badge-accent" style="font-size:10.5px">Permanent record — survives image deletion</span>
+        </div>
+        <div class="card-body" id="history-body">
+          <div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>
+        </div>
+        <div id="hist-pagination" style="padding:0 20px 16px;display:none">
+          <div class="pagination">
+            <span class="page-info" id="hist-page-info"></span>
+            <div class="page-btns">
+              <button class="btn btn-secondary btn-sm" id="hist-prev" onclick="histPage(-1)">← Prev</button>
+              <button class="btn btn-secondary btn-sm" id="hist-next" onclick="histPage(1)">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-wrap -->
+
+<script>
+function el(id)    { return document.getElementById(id) }
+function setText(id, val) { const e=el(id); if(e) e.textContent=val }
+function setStyle(id,p,v) { const e=el(id); if(e) e.style[p]=v }
+
+// ── Helpers ─────────────────────────────────────────────────────────────
+function normMobile(m) {
+  // Safely handles null, undefined, number type, or string 'null'/'undefined'
+  if (m == null) return null
+  const s = String(m).trim()
+  if (s === '' || s === 'null' || s === 'undefined') return null
+  return s
+}
+function fmtMobile(m) {
+  const s = normMobile(m)
+  if (!s) return null
+  if (/^\d{10}$/.test(s)) return `+91 ${s.slice(0,5)} ${s.slice(5)}`
+  return s
+}
+function fmtDate(d) {
+  if(!d)return'—'
+  return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+}
+function fmtRelLocal(d){
+  if(!d)return'—'
+  const diff=Date.now()-new Date(d).getTime()
+  if(diff<60000)return'just now'
+  if(diff<3600000)return Math.floor(diff/60000)+'m ago'
+  if(diff<86400000)return Math.floor(diff/3600000)+'h ago'
+  return Math.floor(diff/86400000)+'d ago'
 }
 
-// ── Invoice modal ─────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────
+let usageData   = []
+let agentsList  = []
+let histSkip    = 0
+let histTotal   = 0
+const HIST_LIMIT = 50
+let histDebounce = null
 
-function openInvoiceModal() {
-  document.getElementById('invoice-modal').classList.add('active')
-  document.body.style.overflow = 'hidden'
+const Q_LABEL = { low:'🟢 Standard', medium:'🟡 Balanced', high:'🔴 Premium Studio' }
+const Q_CLASS = { low:'standard', medium:'balanced', high:'premium' }
+const Q_ICON  = { low:'🟢', medium:'🟡', high:'🔴' }
+
+// ── Tab switcher ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  setStyle('view-customer','display', tab==='customer'?'':'none')
+  setStyle('view-history', 'display', tab==='history' ?'':'none')
+  el('tab-customer')?.classList.toggle('active', tab==='customer')
+  el('tab-history') ?.classList.toggle('active', tab==='history')
+  if(tab==='history' && histTotal===0) loadHistory()
 }
 
-function closeInvoiceModal() {
-  document.getElementById('invoice-modal').classList.remove('active')
-  document.body.style.overflow = ''
-  document.getElementById('inv-print-btn').style.display = 'none'
-  document.getElementById('invoice-content').innerHTML =
-    '<div class="inv-loading"><div class="inv-spinner"></div>Loading invoice…</div>'
+// ── Agent filter dropdowns ────────────────────────────────────────────────
+function populateAgentFilters(agents) {
+  agentsList = agents
+  const opts = agents.map(a=>`<option value="${a._id}">${a.agent_name}</option>`).join('')
+  const caf = el('cust-agent-filter')
+  const haf = el('hist-agent-filter')
+  if(caf) caf.innerHTML = '<option value="">All Agents</option>' + opts
+  if(haf) haf.innerHTML = '<option value="">All Agents</option>' + opts
 }
 
-function handleInvoiceBackdropClick(e) {
-  if (e.target === document.getElementById('invoice-modal')) closeInvoiceModal()
-}
-
-async function showInvoice(paymentId) {
-  openInvoiceModal()
+// ── Load per-customer usage ───────────────────────────────────────────────
+async function loadUsage() {
+  const agentId = el('cust-agent-filter')?.value || ''
+  const wrap = el('customer-table-wrap')
+  if(wrap) wrap.innerHTML = '<div style="padding:32px;text-align:center;color:var(--text-3)">Loading…</div>'
   try {
-    const data = await apiFetch('/payment/invoice/' + paymentId)
-    if (data.error || !data.invoice_number) {
-      document.getElementById('invoice-content').innerHTML =
-        `<div class="inv-loading">⚠️ ${data.error || 'Could not load invoice.'}</div>`
+    const url  = '/credits/usage' + (agentId ? `?agent_id=${agentId}` : '')
+    const data = await apiFetch(url)
+    if(data.error) throw new Error(data.error)
+    usageData = data.by_customer || []
+    renderCustomerTable(usageData)
+    setText('ov-customers', usageData.length.toLocaleString('en-IN'))
+  } catch(e) {
+    if(wrap) wrap.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
+  }
+}
+
+// ── Render customer table ─────────────────────────────────────────────────
+function renderCustomerTable(rows) {
+  const wrap = el('customer-table-wrap')
+  const countLabel = el('cust-count-label')
+  if(countLabel) countLabel.textContent = `${rows.length} customer${rows.length!==1?'s':''}`
+  if(!wrap) return
+  if(!rows.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-title">No usage data yet</div><div class="empty-desc">Credit burns will appear here once customers start generating try-ons.</div></div>`
+    return
+  }
+  wrap.innerHTML = `
+    <div style="overflow-x:auto">
+    <table class="usage-table">
+      <thead><tr>
+        <th>Customer (Mobile)</th>
+        <th>Agent</th>
+        <th>Total Credits</th>
+        <th>Try-Ons</th>
+        <th>Quality Breakdown</th>
+        <th>Last Active</th>
+      </tr></thead>
+      <tbody>${rows.map(r => {
+        const mobile = fmtMobile(r.mobile)
+        const agentColor = r.agent?.brand_color || '#7C6FFF'
+        const agentName  = r.agent?.agent_name  || r.agent?.name || '—'
+        const qb = r.quality_breakdown || {}
+        return `<tr>
+          <td>${mobile
+            ? `<span class="mobile-cell">📱 ${mobile}</span>`
+            : `<span class="mobile-anon" title="Mobile not stored in this record">— Not captured</span>`}</td>
+          <td>${r.agent
+            ? `<span class="agent-chip-sm"><span style="width:8px;height:8px;border-radius:50%;background:${agentColor};flex-shrink:0;display:inline-block"></span> ${agentName}</span>`
+            : '<span style="color:var(--text-3)">—</span>'}</td>
+          <td><span class="credit-val">−${(r.total_credits||0).toLocaleString('en-IN')}</span></td>
+          <td style="font-family:var(--mono);font-weight:700">${(r.tryon_count||0).toLocaleString('en-IN')}</td>
+          <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+            ${qb.low    ? `<span class="q-pill standard">🟢 ${qb.low} · ${qb.low} cr</span>` : ''}
+            ${qb.medium ? `<span class="q-pill balanced">🟡 ${qb.medium} · ${qb.medium*2} cr</span>` : ''}
+            ${qb.high   ? `<span class="q-pill premium">🔴 ${qb.high} · ${qb.high*3} cr</span>` : ''}
+            ${!qb.low&&!qb.medium&&!qb.high ? '<span style="color:var(--text-3);font-size:12px">—</span>' : ''}
+          </div></td>
+          <td class="date-cell">${fmtRelLocal(r.last_at)}</td>
+        </tr>`
+      }).join('')}</tbody>
+    </table></div>`
+}
+
+// ── Filter customers ──────────────────────────────────────────────────────
+function filterCustomers() {
+  const q = el('cust-search')?.value.trim() || ''
+  const filtered = q ? usageData.filter(r => (r.mobile||'').includes(q)) : usageData
+  renderCustomerTable(filtered)
+}
+
+// ── Load / fetch burn history ─────────────────────────────────────────────
+async function loadHistory() { histSkip=0; await fetchHistory() }
+function debounceHistory() { clearTimeout(histDebounce); histDebounce=setTimeout(loadHistory,400) }
+function histPage(dir) { histSkip=Math.max(0,histSkip+dir*HIST_LIMIT); fetchHistory() }
+
+async function fetchHistory() {
+  const agentId = el('hist-agent-filter')?.value  || ''
+  const quality = el('hist-quality-filter')?.value || ''
+  const mobile  = el('hist-mobile-filter')?.value.trim() || ''
+  const body    = el('history-body')
+  if(body) body.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:24px">Loading…</div>'
+  try {
+    const params = new URLSearchParams({ limit:HIST_LIMIT, skip:histSkip })
+    if(agentId) params.set('agent_id', agentId)
+    if(quality)  params.set('quality', quality)
+    if(mobile)   params.set('mobile', mobile)
+    const data = await apiFetch('/credits/burns-history?' + params)
+    if(data.error) throw new Error(data.error)
+    histTotal = data.total || 0
+    const burns = data.burns || []
+    const countLabel = el('hist-count-label')
+    if(countLabel) countLabel.textContent = `${histTotal.toLocaleString('en-IN')} record${histTotal!==1?'s':''}`
+    const pag = el('hist-pagination')
+    if(!burns.length) {
+      if(body) body.innerHTML = `<div class="empty-state"><div class="empty-icon">🕒</div><div class="empty-title">No burn records yet</div><div class="empty-desc">Every credit deduction is logged here permanently — even if the try-on image is later deleted.</div></div>`
+      if(pag) pag.style.display='none'
       return
     }
-    document.getElementById('invoice-content').innerHTML = renderInvoiceHtml(data)
-    document.getElementById('inv-print-btn').style.display = 'inline-flex'
-    // Cache rendered invoice for print
-    document.getElementById('invoice-print-area').innerHTML = renderInvoiceHtml(data)
-  } catch (err) {
-    document.getElementById('invoice-content').innerHTML =
-      `<div class="inv-loading">⚠️ Failed to load invoice. Please try again.</div>`
+    if(body) body.innerHTML = burns.map(b => {
+      const qc     = Q_CLASS[b.quality] || 'balanced'
+      const qlabel = Q_LABEL[b.quality] || b.quality || '—'
+      const qicon  = Q_ICON[b.quality]  || '🟡'
+      const combo  = b.is_combo ? `<span class="combo-badge">🎨 Combo ×${b.product_count}</span>` : ''
+      // fmtMobile handles null / undefined / number type / 'null' string safely
+      const mob    = fmtMobile(b.mobile)
+      const mobHtml = mob
+        ? `<span style="font-family:var(--mono);font-weight:700;color:var(--text)">📱 ${mob}</span>`
+        : `<span style="color:var(--text-3);font-size:12px;font-style:italic" title="Mobile not stored in this burn record">Mobile not captured</span>`
+      return `<div class="burn-row">
+        <div class="burn-dot ${qc}">${qicon}</div>
+        <div class="burn-main">
+          <div class="burn-title">
+            ${mobHtml}
+            ${combo}
+          </div>
+          <div class="burn-meta">
+            <span>${qlabel}</span>
+            <span>·</span>
+            <span style="font-weight:600;color:var(--text)">${b.agent_name||'—'}</span>
+            <span>·</span>
+            <span>${fmtDate(b.created_at)}</span>
+            ${b.balance_after!=null ? `<span>· Balance after: <strong style="font-family:var(--mono)">${b.balance_after}</strong></span>` : ''}
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="burn-credits">−${b.credits_burned} cr</div>
+          <div class="burn-balance">${b.tryon_id ? `<a href="conversations.html" style="color:var(--text-3);font-size:10.5px;text-decoration:none">view try-on →</a>` : '<span style="font-size:10.5px;color:var(--text-3)">deleted</span>'}</div>
+        </div>
+      </div>`
+    }).join('')
+    // Pagination
+    const hasPrev = histSkip > 0
+    const hasNext = histSkip + HIST_LIMIT < histTotal
+    if(pag) pag.style.display = (hasPrev||hasNext) ? 'block' : 'none'
+    const pi = el('hist-page-info')
+    if(pi) pi.textContent = `Showing ${histSkip+1}–${Math.min(histSkip+burns.length,histTotal)} of ${histTotal.toLocaleString('en-IN')}`
+    const prevBtn=el('hist-prev'), nextBtn=el('hist-next')
+    if(prevBtn) prevBtn.disabled=!hasPrev
+    if(nextBtn) nextBtn.disabled=!hasNext
+  } catch(e) {
+    if(body) body.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-3)">⚠️ ${e.message}</div>`
   }
 }
 
-function renderInvoiceHtml(d) {
-  const planLabel = d.plan_label || (d.plan ? d.plan.charAt(0).toUpperCase() + d.plan.slice(1) + ' Plan' : '—')
-  const billing   = d.billing   ? (d.billing.charAt(0).toUpperCase() + d.billing.slice(1) + ' subscription') : ''
-  const hasGst    = d.gst_rate > 0 && d.gst_amount > 0
-  const fmtInr    = n => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0 })
-  const fmtDt     = iso => iso ? new Date(iso).toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }) : '—'
-
-  const gstRow = hasGst ? `
-    <div class="inv-total-row">
-      <span>Base amount</span>
-      <span class="inv-total-amt">${fmtInr(d.base_amount)}</span>
-    </div>
-    <div class="inv-total-row">
-      <span>GST (${d.gst_rate}%)</span>
-      <span class="inv-total-amt">${fmtInr(d.gst_amount)}</span>
-    </div>` : ''
-
-  const gstinBuyerRow = d.customer?.gstin
-    ? `<div class="inv-gstin">GSTIN: ${d.customer.gstin}</div>` : ''
-
-  const gstinSellerRow = d.seller?.gstin
-    ? `<div class="inv-gstin">GSTIN: ${d.seller.gstin}</div>` : ''
-
-  return `
-  <div class="inv-header">
-    <div>
-      <div class="inv-brand">Boutique<span>AI</span></div>
-      <div style="font-size:12px;color:var(--text-3);margin-top:4px">${d.seller?.address || ''}</div>
-      <div style="font-size:12px;color:var(--text-3)">${d.seller?.email || ''}</div>
-      ${gstinSellerRow}
-    </div>
-    <div class="inv-meta">
-      <div class="inv-meta-title">Tax Invoice</div>
-      <div class="inv-meta-num">${d.invoice_number}</div>
-      <div class="inv-meta-date">${fmtDt(d.invoice_date)}</div>
-      <div style="margin-top:8px">
-        <span class="inv-status-badge">✓ Paid</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="inv-divider"></div>
-
-  <div class="inv-parties">
-    <div>
-      <div class="inv-party-label">Billed to</div>
-      <div class="inv-party-name">${d.customer?.name || '—'}</div>
-      <div class="inv-party-detail">
-        ${d.customer?.email || ''}
-        ${d.customer?.business_name ? '<br>' + d.customer.business_name : ''}
-        ${d.customer?.address ? '<br>' + d.customer.address : ''}
-        ${d.customer?.state ? ', ' + d.customer.state : ''}
-      </div>
-      ${gstinBuyerRow}
-    </div>
-    <div>
-      <div class="inv-party-label">Payment reference</div>
-      <div class="inv-payment-ref">
-        <div style="font-size:12px;color:var(--text-3);margin-bottom:4px">Payment ID</div>
-        <div><span>${d.payment_id || '—'}</span></div>
-        ${d.expires_at ? `
-        <div style="margin-top:10px;font-size:12px;color:var(--text-3)">Valid until</div>
-        <div style="font-size:13px;font-weight:600;color:var(--text)">${fmtDt(d.expires_at)}</div>` : ''}
-      </div>
-    </div>
-  </div>
-
-  <div class="inv-divider"></div>
-
-  <table class="inv-table">
-    <thead>
-      <tr>
-        <th style="width:55%">Description</th>
-        <th>Billing</th>
-        <th>Amount</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>
-          <div style="font-weight:600">${planLabel}</div>
-          <div class="inv-table-desc">BoutiqueAI subscription plan</div>
-        </td>
-        <td style="text-align:left;font-size:13px;color:var(--text-2);text-transform:capitalize">${d.billing || '—'}</td>
-        <td>${fmtInr(hasGst ? d.base_amount : d.amount_inr)}</td>
-      </tr>
-      ${hasGst ? `<tr>
-        <td style="color:var(--text-3);font-size:12px">GST @ ${d.gst_rate}%</td>
-        <td></td>
-        <td style="color:var(--text-3)">${fmtInr(d.gst_amount)}</td>
-      </tr>` : ''}
-    </tbody>
-  </table>
-
-  <div style="display:flex;justify-content:flex-end">
-    <div class="inv-totals">
-      <div class="inv-total-row grand">
-        <span>Total paid</span>
-        <span class="inv-total-amt">${fmtInr(d.amount_inr)}</span>
-      </div>
-      <div class="inv-total-row" style="font-size:11px;color:var(--text-3);padding-top:4px">
-        <span>Currency</span><span>INR (Indian Rupee)</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="inv-footer">
-    <div class="inv-footer-note">
-      Thank you for your business!<br>
-      For support: ${d.seller?.email || 'support@boutiquesaas.aasaitech.in'}
-    </div>
-    <div style="font-size:11px;color:var(--text-3);text-align:right">
-      Generated ${new Date().toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}<br>
-      <span style="font-family:var(--mono)">${d.invoice_number}</span>
-    </div>
-  </div>`
-}
-
-function printInvoice() {
-  const printEl = document.getElementById('invoice-print-area')
-  if (!printEl || !printEl.innerHTML.trim()) {
-    toast('Invoice not ready yet.', 'error')
-    return
-  }
-  printEl.style.display = 'block'
-  window.print()
-  // Re-hide after print dialog closes (works in most browsers)
-  setTimeout(() => { printEl.style.display = 'none' }, 1000)
-}
-
-// ── Show plans load error ────────────────────────────────────────────────────
-function showPlansError(msg) {
-  const grid = document.getElementById('plans-grid')
-  if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--text-3);font-size:14px">⚠️ ${msg}</div>`
-}
-
-// ── Render credit packages (data comes from /credits/packages API — DB-driven) ─
-function renderCreditPackages(packages, qcosts) {
-  CREDIT_PACKAGES_DATA = packages || CREDIT_PACKAGES_DATA
-  if (qcosts) {
-    qualityCosts = qcosts
-    // Update the quality cost badges from DB values
-    const el = id => document.getElementById(id)
-    if (el('qcost-low'))    el('qcost-low').textContent    = qcosts.low    ?? 1
-    if (el('qcost-medium')) el('qcost-medium').textContent = qcosts.medium ?? 2
-    if (el('qcost-high'))   el('qcost-high').textContent   = qcosts.high   ?? 3
-  }
-  const grid = document.getElementById('credit-packages-grid')
-  if (!grid) return
-  if (!CREDIT_PACKAGES_DATA.length) {
-    grid.innerHTML = '<div style="color:var(--text-3);font-size:13px">No packages available.</div>'
-    return
-  }
-  grid.innerHTML = CREDIT_PACKAGES_DATA.map((p, i) => {
-    const ppc    = p.price_per_credit ? `₹${p.price_per_credit}/credit` : ''
-    const saving = p.saving || ''
-    const pop    = p.tag === 'Best Value'
-    return `
-    <div class="plan-card${pop ? ' popular' : ''}" style="cursor:default">
-      ${pop ? `<div class="plan-popular-badge">${p.tag}</div>` : ''}
-      <div class="plan-name">${p.tag}</div>
-      <div class="plan-price">₹${(p.price_inr||0).toLocaleString('en-IN')}</div>
-      <div class="plan-savings">${saving}</div>
-      <div class="plan-divider"></div>
-      <div class="plan-features">
-        <div class="plan-feat"><span class="plan-feat-icon">⚡</span><span><strong>${(p.credits||0).toLocaleString('en-IN')} credits</strong></span></div>
-        <div class="plan-feat"><span class="plan-feat-icon">💰</span><span>${ppc}</span></div>
-        <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>Never expires</span></div>
-        <div class="plan-feat"><span class="plan-feat-icon">✅</span><span>All quality tiers</span></div>
-      </div>
-      <div class="plan-action">
-        <button class="btn btn-primary" style="width:100%;justify-content:center"
-          onclick="buyCredits('${p.id}', ${p.credits}, ${p.price_inr}, '${p.label}')">
-          Buy ${p.label}
-        </button>
-      </div>
-    </div>`
-  }).join('')
-}
-
-// ── Render credit balance history ─────────────────────────────────────────────
-function renderCreditHistory(transactions, balance) {
-  const bal = balance || 0
-  document.getElementById('credit-balance').textContent = bal.toLocaleString('en-IN')
-  // Keep usage card in sync
-  const credEl = document.getElementById('u-credits')
-  if (credEl) {
-    credEl.textContent = bal.toLocaleString('en-IN')
-    credEl.style.color = bal === 0 ? 'var(--danger, #e53e3e)' : bal < 5 ? '#d97706' : 'var(--accent)'
-  }
-  const body = document.getElementById('credit-history-body')
-  if (!transactions || !transactions.length) {
-    body.innerHTML = '<div style="font-size:13px;color:var(--text-3)">No credit purchases yet. Top up below to get started.</div>'
-    return
-  }
-  const histCard = document.getElementById('credit-purchase-history')
-  const histBody = document.getElementById('credit-purchase-body')
-  if (histCard) histCard.style.display = 'block'
-  if (histBody) histBody.innerHTML = transactions.map(t => `
-    <div class="payment-row">
-      <div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:2px">${t.label || t.pack_id}</div>
-        <div class="payment-meta">${fmtDate(t.completed_at)}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-family:var(--mono);font-weight:800;font-size:16px;color:var(--accent)">+${t.credits}</div>
-        <div style="font-size:12px;color:var(--text-3)">₹${(t.price_inr || 0).toLocaleString('en-IN')}</div>
-      </div>
-    </div>
-  `).join('')
-  body.innerHTML = '<div style="font-size:13px;color:var(--text-2)">See full history below ↓</div>'
-}
-
-// ── Buy credits via Razorpay ──────────────────────────────────────────────────
-async function buyCredits(packId, credits, priceInr, label) {
-  if (!currentUser) return toast('Please log in first.', 'error')
-
-  showOverlay('Creating Order…', `Setting up payment for ${label}…`)
-  try {
-    const data = await apiFetch('/credits/purchase', {
-      method: 'POST',
-      body:   JSON.stringify({ pack_id: packId }),
-    })
-
-    if (data.error || !data.order_id) {
-      hideOverlay()
-      return toast(data.error || 'Could not create order. Please try again.', 'error')
-    }
-
-    hideOverlay()
-
-    const options = {
-      key:         data.key_id,
-      amount:      data.amount,    // verified server-side amount in paise
-      currency:    data.currency,
-      name:        'BoutiqueAI',
-      description: `${label} — Try-On Credits`,
-      order_id:    data.order_id,
-      prefill:     { name: data.user_name || '', email: data.user_email || '' },
-      theme:       { color: '#7C6FFF' },
-      modal: {
-        ondismiss: () => {
-          hideOverlay()
-          toast('Payment cancelled.', 'info')
-        },
-      },
-      handler: async (response) => {
-        showOverlay('Adding Credits…', 'Verifying your payment and topping up credits…')
-        try {
-          const verifyData = await apiFetch('/credits/verify', {
-            method: 'POST',
-            body:   JSON.stringify({
-              razorpay_order_id:   response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature:  response.razorpay_signature,
-              pack_id:             packId,
-            }),
-          })
-
-          if (verifyData.error) {
-            hideOverlay()
-            toast('Payment received but credit top-up failed. Contact support.', 'error', 6000)
-            return
-          }
-
-          hideOverlay()
-          // Immediately update balance on screen
-          const balEl = document.getElementById('credit-balance')
-          if (balEl) balEl.textContent = (verifyData.new_balance || 0).toLocaleString('en-IN')
-          const credEl2 = document.getElementById('u-credits')
-          if (credEl2) {
-            credEl2.textContent = (verifyData.new_balance || 0).toLocaleString('en-IN')
-            credEl2.style.color = (verifyData.new_balance || 0) === 0 ? 'var(--danger, #e53e3e)' : 'var(--accent)'
-          }
-          toast(`⚡ ${verifyData.message || `${credits} credits added!`}`, 'success', 5000)
-          setTimeout(() => location.reload(), 2500)
-        } catch (err) {
-          hideOverlay()
-          toast('Verification error. Credits will be added automatically. Contact support if not.', 'error', 7000)
-        }
-      },
-    }
-
-    const rzp = new Razorpay(options)
-    rzp.on('payment.failed', (r) => {
-      hideOverlay()
-      toast(`Payment failed: ${r.error.description || 'Please try again.'}`, 'error', 5000)
-    })
-    rzp.open()
-  } catch (err) {
-    hideOverlay()
-    toast(err.message || 'Something went wrong. Please try again.', 'error')
-  }
-}
-
-// FALLBACK_PLANS removed — all plan data is now DB-driven via /payment/plans API.
-// If the API fails, showPlansError() renders an error state instead of stale data.
-
-// ── Init ─────────────────────────────────────────────────────────────────────
-// FIX: /account and /payment/plans are fetched IN PARALLEL so PLAN_LIMITS is
-//      fully populated before it is used to render the agents cap.
-//      Previously /payment/plans was fetched AFTER the agents bar was rendered,
-//      causing PLAN_LIMITS[plan] to always be undefined → fallback to {agents:1}
-//      → showing "4 / 1  100% used" even on the Grower (5-agent) plan.
+// ── Init ─────────────────────────────────────────────────────────────────
 ;(async () => {
-  const nav = await renderNav('billing')
-  if (!nav) return
+  let nav
+  try { nav = await renderNav('credits') } catch(e) { console.error(e) }
+  el('page-skeleton').style.display = 'none'
+  el('page-content').style.display  = 'block'
+  if(!nav) return
+
+  // Topbar user chip
+  const user = nav.user
+  if(user) {
+    const av = el('topbar-avatar')
+    av.innerHTML = user.picture
+      ? `<img src="${user.picture}" alt="" style="width:28px;height:28px;object-fit:cover;border-radius:8px">`
+      : `<span>${(user.name?.[0]||'U').toUpperCase()}</span>`
+    el('topbar-user-name').textContent = user.name?.split(' ')[0] || user.email || 'User'
+  }
 
   try {
-    // ── BATCH 1: account + plans in parallel ─────────────────────────────────
-    // Plans MUST resolve before we touch PLAN_LIMITS, so both go in batch 1.
-    const [accountData, plansRes] = await Promise.all([
-      apiFetch('/account'),
-      apiFetch('/payment/plans').catch(e => { console.error('[payments] /payment/plans failed:', e); return null }),
+    const [usageRes, balRes, agentsRes] = await Promise.all([
+      apiFetch('/credits/usage').catch(()=>null),
+      apiFetch('/credits/balance').catch(()=>null),
+      apiFetch('/agents').catch(()=>null),
     ])
 
-    // Populate PLAN_LIMITS + PLAN_LABELS from plans API BEFORE using them
-    if (plansRes && plansRes.plans) {
-      plansData = plansRes.plans
-      plansData.forEach(p => { if (p.limits) PLAN_LIMITS[p.id] = p.limits })
-      plansData.forEach(p => { PLAN_LABELS[p.id] = p.name })
-    } else {
-      showPlansError('Could not load plans — please refresh.')
+    if(agentsRes?.agents?.length) populateAgentFilters(agentsRes.agents)
+
+    if(usageRes && !usageRes.error) {
+      const t = usageRes.totals || {}
+      setText('ov-total-burned', (t.total_burned||0).toLocaleString('en-IN'))
+      setText('ov-total-tryons', (t.total_tryons ||0).toLocaleString('en-IN'))
+      setText('ov-customers',    (usageRes.by_customer?.length||0).toLocaleString('en-IN'))
+
+      setText('bd-low-credits', (t.low_total   ||0).toLocaleString('en-IN'))
+      setText('bd-med-credits', (t.medium_total||0).toLocaleString('en-IN'))
+      setText('bd-hi-credits',  (t.high_total  ||0).toLocaleString('en-IN'))
+      const lc = t.low_total    || 0
+      const mc = Math.round((t.medium_total||0)/2)
+      const hc = Math.round((t.high_total  ||0)/3)
+      setText('bd-low-count', `${lc} try-on${lc!==1?'s':''} · 1 cr each`)
+      setText('bd-med-count', `${mc} try-on${mc!==1?'s':''} · 2 cr each`)
+      setText('bd-hi-count',  `${hc} try-on${hc!==1?'s':''} · 3 cr each`)
+      setText('breakdown-total-badge', `${(t.total_burned||0).toLocaleString('en-IN')} cr total`)
+
+      usageData = usageRes.by_customer || []
+      renderCustomerTable(usageData)
     }
 
-    // ── Account / usage ───────────────────────────────────────────────────────
-    currentUser = accountData.user || accountData
-    const user  = currentUser
-    // Normalize legacy plan names so display always uses the new labels
-    const rawPlan   = user.plan || 'free'
-    const PLAN_NORM = { starter: 'free', grower: 'small' }
-    const plan      = PLAN_NORM[rawPlan] || rawPlan
-    currentPlan     = rawPlan   // keep raw for API calls (upgrade rank check uses plansData index)
-
-    // Credits expiry banner in usage card
-    if (user.credits_expire_at) {
-      const expEl     = document.getElementById('u-credits-expiry')
-      const expDateEl = document.getElementById('u-credits-expiry-date')
-      if (expEl && expDateEl) {
-        expEl.style.display    = 'block'
-        expDateEl.textContent  = fmtDate(user.credits_expire_at)
-        const daysLeft = Math.ceil((new Date(user.credits_expire_at) - Date.now()) / 86400000)
-        if (daysLeft <= 7) expEl.style.color = 'var(--danger, #e53e3e)'
-        else if (daysLeft <= 14) expEl.style.color = '#d97706'
+    if(balRes && !balRes.error) {
+      const bal = Math.max(0, Number(balRes.credits)||0)
+      const balEl = el('ov-balance')
+      if(balEl) {
+        balEl.textContent = bal.toLocaleString('en-IN')
+        balEl.style.color = bal===0 ? '#ef4444' : bal<10 ? '#d97706' : 'var(--accent)'
       }
     }
-
-    document.getElementById('current-plan-badge').textContent = PLAN_LABELS[plan] || plan.charAt(0).toUpperCase() + plan.slice(1)
-
-    // Usage stats — PLAN_LIMITS is now correctly populated from the API above
-    // Guard: if user.plan is a legacy name (starter/grower) that isn't in plansData,
-    // fall back to the nearest match or unlimited so we never show NaN.
-    const usage          = user.usage || {}
-    const planKeyFallback = PLAN_LIMITS[plan] ? plan
-      : PLAN_LIMITS['free'] ? 'free' : Object.keys(PLAN_LIMITS)[0]
-    const limits  = PLAN_LIMITS[planKeyFallback] || { agents: 99999, tryons: 99999 }
-    const credits = user.credits || 0
-    const usedAg  = user.agents_count || 0
-    const capAg   = (limits.agents == null || limits.agents >= 99999) ? '∞' : limits.agents
-    const pctAg   = (limits.agents == null || limits.agents >= 99999)
-      ? 0
-      : Math.min(100, Math.round((usedAg / limits.agents) * 100))
-
-    // Credit balance in usage card (top section)
-    const credEl = document.getElementById('u-credits')
-    if (credEl) {
-      credEl.textContent = credits.toLocaleString('en-IN')
-      credEl.style.color = credits === 0 ? 'var(--danger, #e53e3e)' : credits < 5 ? '#d97706' : 'var(--accent)'
-    }
-
-    const expiresDate = user.plan_expires_at
-      ? fmtDate(user.plan_expires_at)
-      : (usage.reset_at ? fmtDate(usage.reset_at) : 'Monthly')
-    document.getElementById('u-expires-date').textContent = expiresDate
-    document.getElementById('u-expires-label').textContent = user.plan_billing === 'yearly'
-      ? 'Annual plan — expires on the date above.'
-      : 'Monthly plan — renews or resets on the date above.'
-
-    document.getElementById('u-agents').textContent     = usedAg
-    document.getElementById('u-agents-cap').textContent = capAg
-    const agBar = document.getElementById('u-agents-bar')
-    agBar.style.width = pctAg + '%'
-    agBar.className   = 'progress-fill' + (pctAg >= 90 ? ' danger' : pctAg >= 70 ? ' warn' : '')
-    document.getElementById('u-agents-pct').textContent = (limits.agents == null || limits.agents >= 99999) ? 'Unlimited' : pctAg + '% used'
-
-    // Render plan cards (data already in plansData from batch 1)
-    renderPlans()
-
-    // ── BATCH 2: credits + payment history in parallel ────────────────────────
-    const [pkgRes, creditData, historyData] = await Promise.all([
-      apiFetch('/credits/packages').catch(e => { console.warn('[payments] /credits/packages failed:', e); return null }),
-      apiFetch('/credits/balance').catch(() => null),
-      apiFetch('/payment/history').catch(() => null),
-    ])
-
-    // Credit packages
-    if (pkgRes) renderCreditPackages(pkgRes.packages || [], pkgRes.quality_costs)
-    else        renderCreditPackages([], {})
-
-    // Credit balance + history
-    if (creditData) {
-      renderCreditHistory(creditData.transactions, creditData.credits)
-    } else {
-      const balEl  = document.getElementById('credit-balance')
-      const bodyEl = document.getElementById('credit-history-body')
-      if (balEl)  balEl.textContent = '0'
-      if (bodyEl) bodyEl.innerHTML  = '<div style="font-size:13px;color:var(--text-3)">Top up below to get started.</div>'
-    }
-
-    // Payment history
-    if (historyData && historyData.payments) renderPaymentHistory(historyData.payments)
-
-  } catch (err) {
-    console.error('[payments] Init error:', err)
-    showPlansError('Could not load page data — please refresh.')
-    renderPlans()
-    renderCreditPackages()
-  } finally {
-    const skel = document.getElementById('page-skeleton')
-    const page = document.getElementById('page-content')
-    if (skel) skel.style.display = 'none'
-    if (page) page.style.display = 'block'
-  }
+  } catch(e) { console.error('[credits] init error:', e) }
 })()
 </script>
 </body>
